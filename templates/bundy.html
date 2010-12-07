@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script type="text/javascript" src="/media/jquery-1.4.4.min.js"></script>
+<script type="text/javascript">
+    function submitForm() {
+        var selected_value = $("#picker_menu").val();
+        $("#bundy_picker_form").attr("action", "/bundy/confirm/"+selected_value+"/");
+        $("#bundy_picker_form").submit();
+    }
+    {% if show_confirmation %}
+        function signOn() {
+            $("#bundy_confirmation").attr("action", "/bundy/signon/"+{{picker.id}}+"/");
+            $("#bundy_confirmation").submit();
+        }
+        function signOff() {
+            $("#bundy_confirmation").attr("action", "/bundy/signoff/"+{{picker.id}}+"/");
+            $("#bundy_confirmation").submit();
+        }
+    {% endif %}
+</script>
+Picker
+<form name="bundy_picker_form" action="" method="post" id="bundy_picker_form">
+    <select name="picker" id="picker_menu">
+        {% for picker in picker_list %}
+        <option value={{ picker.id }}>{{ picker.id }} - {{ picker.firstName }} {{ picker.lastName }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" onClick="submitForm()" value="Submit"/>
+</form>
+{% if show_confirmation %}
+    {{picker.firstName}} {{picker.lastName}}
+    <form name="bundy_confirmation" action="" method="post" id="bundy_confirmation">
+        {% if signon_flag %}
+            <input type="submit" onClick="signOn()" value="Sign on"/>
+        {% else %}
+            <input type="submit" onClick="signOff()" value="Sign off"/>
+        {% endif %}
+        <input type="submit" onClick="cancel()" value="Cancel"/>
+    </form>
+{% endif %}
+{% if debug %}
+    debug:
+    {{ debug }}
+{% endif %}
+{% endblock %}

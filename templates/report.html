@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if report_type_picker %}
+        <h1>Picker Report :: {{ picker.firstName }} {{ picker.lastName }}</h1> 
+        <table><tr><td>	<img src="{{ graph_filename }}"/></td>
+            <td>
+                <div>	
+                    <table>
+                        <tr><td><h4>Date</h4></td><td><h4>Mushrooms Picked (kg)</h4></td><td><h4>Daily Average</h4></td></tr>
+                    {% for date,weight,dailyAverage in data %}
+                        <tr><td>{{date}}</td><td>{{weight}}</td><td>{{dailyAverage}}</td></tr>
+                    {% endfor %}
+                    </table>
+                </div>
+            </td>
+        </table>
+    {% endif %}
+
+    {% if report_type_room %}
+        <h1>Room Report :: {{ room.number }}</h1>  
+        <table><tr><td>	<img src="{{ graph_filename }}"/></td>
+            <td>
+                <div>	
+                    <table>
+                        <tr><td><h4>Date</h4></td><td><h4>Mushrooms Picked (kg)</h4></td></tr>
+                    {% for date,weight in data %}
+                        <tr><td>{{date}}</td><td>{{weight}}</td></tr>
+                    {% endfor %}
+                    </table>
+                </div>
+            </td>
+        </table>
+    {% endif %}
+
+    {% if report_type_flush %}
+        <h1>Flush Report :: {{ flush }}</h1> 
+        <table><tr><td>	<img src="{{ graph_filename }}"/></td>
+            <td>
+                <div>	
+                    <table>
+                        <tr><td><h4>Date</h4></td><td><h4>Mushrooms Picked (kg)</h4></td></tr>
+                    {% for date,weight in data %}
+                        <tr><td>{{date}}</td><td>{{weight}}</td></tr>
+                    {% endfor %}
+                    </table>
+                </div>
+            </td>
+        </table>
+        <div id="total_paragraph">
+            Total: {{total}}
+        </div>
+    {% endif %}
+
+    {% if report_type_crop %}
+        <h1>Crop Report :: {{ crop }}</h1> 
+        <table><tr><td>	<img src="{{ graph_filename }}"/></td>
+            <td>
+                <div>	
+                    <table>
+                        <tr><td><h4>Date</h4></td><td><h4>Mushrooms Picked (kg)</h4></td></tr>
+                    {% for date,weight in data %}
+                        <tr><td>{{date}}</td><td>{{weight}}</td></tr>
+                    {% endfor %}
+                    </table>
+                </div>
+            </td>
+        </table>
+        <div id="total_paragraph">
+            Total: {{total}}
+        </div>
+    {% endif %}
+
+{% if default_page %}
+<script type="text/javascript" src="/media/jquery-1.4.4.min.js"></script>
+<script type="text/javascript">
+    function submitForm(report_type) {
+        var form = $("#"+report_type+"report_form");
+        var form_url = form.attr("action");
+        var selected_value = $("#"+report_type+"menu").val();
+        form_url += selected_value + "/";
+        form.attr("action", form_url);
+        form.submit();
+    }
+</script>
+Picker
+<form name="picker_form" action="picker/" method="post" id="picker_report_form">
+    <select name="picker" id="picker_menu">
+        {% for picker in picker_list %}
+        <option value={{ picker.id }}>{{ picker.id }} - {{ picker.firstName }} {{ picker.lastName }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" onClick="submitForm('picker_')" value="Submit"/>
+</form>
+Flush ID
+<form name="flush_form" action="flush/" method="post" id="flush_report_form">
+    <input type="text" name="flush" id="flush_menu">
+    <input type="submit" onClick="submitForm('flush_')" value="Submit"/>
+</form>
+Crop ID
+<form name="crop_form" action="crop/" method="post" id="crop_report_form">
+    <input type="text" name="crop" id="crop_menu">
+    <input type="submit" onClick="submitForm('crop_')" value="Submit"/>
+</form>
+Room
+<form name="room_form" action="room/" method="post" id="room_report_form">
+    <select name="room" id="room_menu">
+        {% for room in room_list %}
+        <option value={{ room.number }}>{{ room.number }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" onClick="submitForm('room_')" value="Submit"/>
+</form>
+{% endif %}
+{{ debug }}
+{% endblock %}
