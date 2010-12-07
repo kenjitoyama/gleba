@@ -22,6 +22,7 @@ urlpatterns = patterns('',
     (r'^report/room/(\d+)/$', 'gleba.glebaAdmin.views.generateReportRoom'),
     (r'^bundy/$', 'gleba.glebaAdmin.views.bundy'),
     (r'^bundy/(signon|signoff|confirm)/(\d+)/$', 'gleba.glebaAdmin.views.bundyOnOff'),
+    (r'^csv/$', 'gleba.glebaAdmin.views.generateCSV'),
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
 
     # Uncomment the next line to enable the admin:

@@ -1,18 +1,19 @@
 from django.shortcuts import render_to_response
 from gleba.glebaAdmin.models import Box
 from gleba.glebaAdmin.models import Batch
-from gleba.glebaAdmin.models import Crop 
-from gleba.glebaAdmin.models import Picker
-from gleba.glebaAdmin.models import Mushroom
-from gleba.glebaAdmin.models import Flush
-from gleba.glebaAdmin.models import Room
 from gleba.glebaAdmin.models import Bundy 
+from gleba.glebaAdmin.models import Crop 
+from gleba.glebaAdmin.models import Flush
+from gleba.glebaAdmin.models import Mushroom
+from gleba.glebaAdmin.models import Picker
+from gleba.glebaAdmin.models import Room
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from time import sleep
+import csv
 import datetime
 import Gnuplot
-from time import sleep
 
 def addBox(request):
     if ('picker' in request.GET and
@@ -74,12 +75,12 @@ def getVarietyList(request):
 # functions for generating reports
 def setupGnuPlot(graphFile):
     g = Gnuplot.Gnuplot()
-    g('set terminal png')
+    g('set terminal png size 800,600')
     g("set output '/var/www%s'" % graphFile)
     g('set style fill solid 1.00 border -1')
     g('set style histogram cluster gap 1')
     g("set xtics ("+"".join(['"'+d.strftime("%Y-%m-%d")+'"'+str(i)+',' for i,d in enumerate(sorted(lastMonth())) if (i%5==0)])[:-1]+")")
-    g("set xtics rotate by -45")
+    g("set xtics rotate by -60")
     g("unset key")
     return g
 
@@ -225,6 +226,7 @@ def generateReport(request):
             'room_list': room_list,
     })
 
+##### Bundy Clock handling #####
 def bundy(request):
     picker_list = Picker.objects.filter(active=True, discharged=False).order_by('id')
     return render_to_response(
@@ -272,3 +274,38 @@ def bundyOnOff(request, bundy_action, picker_id):
                     'signon_flag':False,
                     'show_confirmation': True,
             });
+
+##### CSV export handling #####
+def writeListToFile(filename, exportList):
+    exportFile = open(filename, "wb")
+    exportWriter = csv.writer(exportFile)
+    exportWriter.writerows(exportList)
+    exportFile.close()
+
+def buildExportList(days=31):
+    header = ("Name", "Hours worked")
+    exportList = [header]
+    employedPickers = Picker.objects.filter(discharged=False)
+    for p in employedPickers:
+        daysWorked = Bundy.objects.filter(
+            timeIn__gte = datetime.date.today()-datetime.timedelta(),
+            picker = p,
+            timeOut__isnull=False
+        )
+        totalHoursWorked=0
+        for b in daysWorked:
+            totalHoursWorked+=(b.timeOut-b.timeIn).seconds/3600.0
+        exportList.append(((p.firstName + " " + p.lastName), totalHoursWorked))
+    return exportList
+
+@login_required
+def generateCSV(request):
+    fpath = "/var/www/media/csv/"
+    fname = "timesheet_" + datetime.date.today().isoformat() + ".csv"
+    writeListToFile(fpath+fname, buildExportList() )
+    return render_to_response(
+        'csv.html', {
+            'csvfile' : "/media/csv/" + fname,
+            'csvfilename' : fname,
+        }
+    )
