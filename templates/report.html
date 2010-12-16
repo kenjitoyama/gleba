@@ -78,14 +78,15 @@
         var form = $("#"+report_type+"report_form");
         var form_url = form.attr("action");
         var selected_value = $("#"+report_type+"menu").val();
-        form_url += selected_value + "/";
+        //form_url += selected_value + "/";
+        form_url = report_type.substring(0, report_type.length-1)+"/" + selected_value + "/";
         form.attr("action", form_url);
         form.submit();
     }
 </script>
 Picker
 <form name="picker_form" action="picker/" method="post" id="picker_report_form">
-    <select name="picker" id="picker_menu">
+    <select name="picker" id="picker_menu" style="font-size:20px;">
         {% for picker in picker_list %}
         <option value={{ picker.id }}>{{ picker.id }} - {{ picker.firstName }} {{ picker.lastName }}</option>
         {% endfor %}

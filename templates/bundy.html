@@ -22,22 +22,23 @@
 </script>
 Picker
 <form name="bundy_picker_form" action="" method="post" id="bundy_picker_form">
-    <select name="picker" id="picker_menu">
+    <select name="picker" id="picker_menu" style="font-size:18px;">
         {% for picker in picker_list %}
         <option value={{ picker.id }}>{{ picker.id }} - {{ picker.firstName }} {{ picker.lastName }}</option>
         {% endfor %}
     </select>
-    <input type="submit" onClick="submitForm()" value="Submit"/>
+    <input type="submit" onClick="submitForm()" value="Submit" style="width:100px; font-size:24px;"/>
 </form>
 {% if show_confirmation %}
+    <div style="font-size:24px">
     {{picker.firstName}} {{picker.lastName}}
+    </div>
     <form name="bundy_confirmation" action="" method="post" id="bundy_confirmation">
         {% if signon_flag %}
-            <input type="submit" onClick="signOn()" value="Sign on"/>
+            <input type="submit" onClick="signOn()" value="Sign on" style="width:100px; font-size:24px;"/>
         {% else %}
-            <input type="submit" onClick="signOff()" value="Sign off"/>
+            <input type="submit" onClick="signOff()" value="Sign off" style="width:100px; font-size:24px;"/>
         {% endif %}
-        <input type="submit" onClick="cancel()" value="Cancel"/>
     </form>
 {% endif %}
 {% if debug %}

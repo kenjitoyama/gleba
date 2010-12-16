@@ -38,7 +38,7 @@ USE_I18N = True
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Main URL for the project
-BASE_URL = 'http://10.0.2.104'
+BASE_URL = 'http://hellscream.hayday.biz/gleba'
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"

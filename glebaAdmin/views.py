@@ -72,10 +72,12 @@ def getVarietyList(request):
         }
     )
 
+##### Report Handling #####
+
 # functions for generating reports
 def setupGnuPlot(graphFile):
     g = Gnuplot.Gnuplot()
-    g('set terminal png size 800,600')
+    g('set terminal png size 640,480')
     g("set output '/var/www%s'" % graphFile)
     g('set style fill solid 1.00 border -1')
     g('set style histogram cluster gap 1')
@@ -101,7 +103,7 @@ def generateReportPicker(request, picker_id):
         for d in lastMonth():    
              boxes  = Box.objects.filter(picker=pickerObj, batch__date=d)
              dailyTotals[d.strftime("%Y-%m-%d")]=sum([b.initialWeight for b in boxes])
-             bundies = Bundy.objects.filter(timeIn__startswith=d, timeOut__isnull=False)
+             bundies = Bundy.objects.filter(picker=pickerObj, timeIn__startswith=d, timeOut__isnull=False)
              hoursDailyTotals[d.strftime("%Y-%m-%d")]=sum([(b.timeOut-b.timeIn).seconds/3600.0 for b in bundies])
         dataFile="/media/graphs/picker.data"
         file=open("/var/www"+dataFile,"w")
@@ -282,13 +284,13 @@ def writeListToFile(filename, exportList):
     exportWriter.writerows(exportList)
     exportFile.close()
 
-def buildExportList(days=31):
+def buildExportList(period=31): #period in days
     header = ("Name", "Hours worked")
     exportList = [header]
     employedPickers = Picker.objects.filter(discharged=False)
     for p in employedPickers:
         daysWorked = Bundy.objects.filter(
-            timeIn__gte = datetime.date.today()-datetime.timedelta(),
+            timeIn__gte = datetime.date.today()-datetime.timedelta(days=period),
             picker = p,
             timeOut__isnull=False
         )
