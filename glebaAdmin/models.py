@@ -19,6 +19,9 @@ class Bundy(models.Model):
         verbose_name_plural="Bundies"
     def __unicode__(self):
         return "Bundy " + str(self.picker) + ' ' + str(self.timeIn)
+    def timeWorked(self):
+        "Returns the amount of hours worked in this bundy"
+        return (self.timeOut-self.timeIn).seconds/3600.0
 
 class Room(models.Model):
     number = models.IntegerField()

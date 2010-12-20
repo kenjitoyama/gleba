@@ -14,6 +14,7 @@ from time import sleep
 import csv
 import datetime
 import Gnuplot
+from django.db.models import Avg, Sum, Min, Max
 
 def addBox(request):
     if ('picker' in request.GET and
@@ -103,9 +104,20 @@ def generateReportPicker(request, picker_id):
         for d in lastMonth():    
              boxes  = Box.objects.filter(picker=pickerObj, batch__date=d)
              dailyTotals[d.strftime("%Y-%m-%d")]=sum([b.initialWeight for b in boxes])
+             #boxes  = Box.objects.filter(picker=pickerObj, batch__date=d).aggregate(Sum('initialWeight'))
+             #sumBox=0.0
+             #if boxes['initialWeight__sum'] is not None:
+             #    sumBox=boxes['initialWeight__sum']
+             #dailyTotals[d.strftime("%Y-%m-%d")]=sumBox
              bundies = Bundy.objects.filter(picker=pickerObj, timeIn__startswith=d, timeOut__isnull=False)
              hoursDailyTotals[d.strftime("%Y-%m-%d")]=sum([(b.timeOut-b.timeIn).seconds/3600.0 for b in bundies])
+             #bundies = Bundy.objects.filter(picker=pickerObj, timeIn__startswith=d, timeOut__isnull=False).aggregate(Sum('timeWorked'))
+             #sumBundy = 0.0
+             #if bundies['timeWorked__sum'] is not None:
+                #sumBundy = bundies['timeWorked__sum']
+             #hoursDailyTotals[d.strftime("%Y-%m-%d")]=sumBundy
         dataFile="/media/graphs/picker.data"
+# Kenji: rename file to something less conflicting (like aFile etc). file is a 'reserved' word in Python (well, not really. but it's better to be different).
         file=open("/var/www"+dataFile,"w")
         for i,k in enumerate(sorted(dailyTotals.keys())):
             file.write(str(dailyTotals[k])+' "'+str(k)+'"\n')
@@ -123,6 +135,7 @@ def generateReportPicker(request, picker_id):
                 'picker' : pickerObj,
                 'graph_filename' : graphFile,
                 'report_type_picker' : 'True',
+                'debug' : debug,
             }
         )
     except Exception as e:
