@@ -11,6 +11,7 @@ class Picker(models.Model):
     def __unicode__(self):
         return "Picker "  + str(self.id)  + ' ' +  self.fullName()
     def fullName(self):
+        "Returns the full name of this picker"
         return self.firstName + ' ' + self.lastName
 
 class Bundy(models.Model):
@@ -45,10 +46,12 @@ class Crop(models.Model):
                self.endDateString() + ") " +\
                str(self.room)
     def startDateString(self):
+        "Returns startDate as a string day/month/year"
         return  str(self.startDate.day) + "/" + \
                 str(self.startDate.month) + "/" + \
                 str(self.startDate.year)
     def endDateString(self):
+        "Returns endDate as a string day/month/year"
         if self.endDate is None:
             return ''
         else:
@@ -69,10 +72,12 @@ class Flush(models.Model):
             self.endDateString() + ") " +\
             str(self.crop.room) + " ID " + str(self.id)
     def startDateString(self):
+        "Returns startDate as a string day/month/year"
         return  str(self.startDate.day) + "/" + \
                 str(self.startDate.month) + "/" + \
                 str(self.startDate.year)
     def endDateString(self):
+        "Returns endDate as a string day/month/year"
         if self.endDate is None:
             return ''
         else:
@@ -90,6 +95,7 @@ class Batch(models.Model):
                 self.dateString() + ") " +\
                 str(self.flush.crop.room)
     def dateString(self):
+        "Returns date as a string day/month/year"
         return  str(self.date.day) + "/" + \
                 str(self.date.month) + "/" + \
                 str(self.date.year)

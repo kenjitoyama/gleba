@@ -313,6 +313,23 @@ def buildExportList(period=31): #period in days
         exportList.append(((p.firstName + " " + p.lastName), totalHoursWorked))
     return exportList
 
+def buildExportListRange(startDate, endDate=datetime.date.today()):
+    header = ("Name", "Hours worked")
+    exportList = [header]
+    employedPickers = Picker.objects.filter(discharged=False)
+    for p in employedPickers:
+        daysWorked = Bundy.objects.filter(
+            timeIn__gte = startDate,
+            timeIn__lte = endDate,
+            picker = p,
+            timeOut__isnull=False
+        )
+        totalHoursWorked=0
+        for b in daysWorked:
+            totalHoursWorked+=(b.timeOut-b.timeIn).seconds/3600.0
+        exportList.append(((p.firstName + " " + p.lastName), totalHoursWorked))
+    return exportList
+
 @login_required
 def generateCSV(request):
     fpath = "/var/www/media/csv/"
@@ -324,3 +341,28 @@ def generateCSV(request):
             'csvfilename' : fname,
         }
     )
+
+@login_required
+def generateCSVRange(request):
+    endDate = None
+    if 'endDate' in request.POST:
+        endDate = datetime.datetime.strptime(request.POST['endDate'], "%d-%m-%Y")
+    if 'startDate' in request.POST:
+        startDate = datetime.datetime.strptime(request.POST['startDate'], "%d-%m-%Y")
+        fpath = "/var/www/media/csv/"
+        fname = "timesheet_" + datetime.date.today().isoformat() + ".csv"
+        if endDate is None:
+            writeListToFile(fpath+fname, buildExportListRange(startDate) )
+        else:
+            writeListToFile(fpath+fname, buildExportListRange(startDate, endDate) )
+        return render_to_response(
+            'csv.html', {
+                'csvfile' : "/media/csv/" + fname,
+                'csvfilename' : fname,
+            }
+        )
+    else:
+        return render_to_response(
+            'csv.html', {
+            }
+        )
