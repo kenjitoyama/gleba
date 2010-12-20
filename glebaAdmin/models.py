@@ -9,7 +9,9 @@ class Picker(models.Model):
     class Meta:
         verbose_name_plural="Pickers"
     def __unicode__(self):
-        return "Picker " + str(self.id) + " " + self.firstName + " " + self.lastName
+        return "Picker "  + str(self.id)  + ' ' +  self.fullName()
+    def fullName(self):
+        return self.firstName + ' ' + self.lastName
 
 class Bundy(models.Model):
     picker=models.ForeignKey(Picker)
@@ -38,21 +40,21 @@ class Crop(models.Model):
     class Meta:
         verbose_name_plural="Crops"
     def __unicode__(self):
-        if(self.endDate == None):
-            return "Crop " + str(self.id) + " (" + \
-                str(self.startDate.day) + "/" + \
+        return "Crop "  + str(self.id) + " (" +\
+               self.startDateString() +  " - " +\
+               self.endDateString() + ") " +\
+               str(self.room)
+    def startDateString(self):
+        return  str(self.startDate.day) + "/" + \
                 str(self.startDate.month) + "/" + \
-                str(self.startDate.year) + " - ) " + \
-                str(self.room)
+                str(self.startDate.year)
+    def endDateString(self):
+        if self.endDate is None:
+            return ''
         else:
-            return "Crop " + str(self.id) + " (" + \
-                str(self.startDate.day) + "/" + \
-                str(self.startDate.month) + "/" + \
-                str(self.startDate.year) + " - " + \
-                str(self.endDate.day) + "/" + \
-                str(self.endDate.month) + "/" + \
-                str(self.endDate.year) + ") " + \
-                str(self.room)
+            return  str(self.endDate.day) + "/" + \
+                    str(self.endDate.month) + "/" + \
+                    str(self.endDate.year)
 
 class Flush(models.Model):
     startDate = models.DateField('date started')
@@ -62,21 +64,21 @@ class Flush(models.Model):
     class Meta:
         verbose_name_plural="Flushes"
     def __unicode__(self):
-        if(self.endDate == None):
-            return "Flush " + str(self.flushNo) + " (" + \
-                str(self.startDate.day) + "/" + \
+        return "Flush " + str(self.flushNo) + " (" + \
+            self.startDateString() + " - " +\
+            self.endDateString() + ") " +\
+            str(self.crop.room) + " ID " + str(self.id)
+    def startDateString(self):
+        return  str(self.startDate.day) + "/" + \
                 str(self.startDate.month) + "/" + \
-                str(self.startDate.year) + " - ) " + \
-                str(self.crop.room) + " ID " + str(self.id)
+                str(self.startDate.year)
+    def endDateString(self):
+        if self.endDate is None:
+            return ''
         else:
-            return "Flush " + str(self.flushNo) + " (" + \
-                str(self.startDate.day) + "/" + \
-                str(self.startDate.month) + "/" + \
-                str(self.startDate.year) + " - " + \
-                str(self.endDate.day) + "/" + \
-                str(self.endDate.month) + "/" + \
-                str(self.endDate.year) + ") " + \
-                str(self.crop.room) + " ID " + str(self.id)
+            return  str(self.endDate.day) + "/" + \
+                    str(self.endDate.month) + "/" + \
+                    str(self.endDate.year)
 
 class Batch(models.Model):
     date = models.DateField('date started')
@@ -85,10 +87,12 @@ class Batch(models.Model):
         verbose_name_plural="Batches"
     def __unicode__(self):
         return "Batch " + str(self.id) + " (" + \
-                str(self.date.day) + "/" + \
-                str(self.date.month) + "/" + \
-                str(self.date.year) + ") " + \
+                self.dateString() + ") " +\
                 str(self.flush.crop.room)
+    def dateString(self):
+        return  str(self.date.day) + "/" + \
+                str(self.date.month) + "/" + \
+                str(self.date.year)
 
 class Mushroom(models.Model):
     variety = models.CharField(max_length=50)
