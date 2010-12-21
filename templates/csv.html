@@ -20,9 +20,12 @@
         $("#endDate").datepicker({dateFormat: 'dd-mm-yy'});
     });
 </script>
+<p>Please select the range for which a timesheet report should be generated.</p>
 <form name="csv_form" action="" method="post" id="csv_form">
-    Start Date<input id="startDate" type="text">
-    End Date<input id="endDate" type="text">
+    <label for="startDate">Start Date</label>
+    <input name="startDate" id="startDate" type="text">
+    <label for="endDate">End Date</label>
+    <input name="endDate" id="endDate" type="text">
     <input type="submit" value="Submit"/>
 </form>
 {% endif %}

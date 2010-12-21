@@ -102,13 +102,13 @@ def generateReportPicker(request, picker_id):
         dailyTotals = {}
         hoursDailyTotals = {}
         for d in lastMonth():    
-             boxes  = Box.objects.filter(picker=pickerObj, batch__date=d)
-             dailyTotals[d.strftime("%Y-%m-%d")]=sum([b.initialWeight for b in boxes])
-             #boxes  = Box.objects.filter(picker=pickerObj, batch__date=d).aggregate(Sum('initialWeight'))
-             #sumBox=0.0
-             #if boxes['initialWeight__sum'] is not None:
-             #    sumBox=boxes['initialWeight__sum']
-             #dailyTotals[d.strftime("%Y-%m-%d")]=sumBox
+             #boxes  = Box.objects.filter(picker=pickerObj, batch__date=d)
+             #dailyTotals[d.strftime("%Y-%m-%d")]=sum([b.initialWeight for b in boxes])
+             boxes  = Box.objects.filter(picker=pickerObj, batch__date=d).aggregate(Sum('initialWeight'))
+             sumBox=0.0
+             if boxes['initialWeight__sum'] is not None:
+                 sumBox=boxes['initialWeight__sum']
+             dailyTotals[d.strftime("%Y-%m-%d")]=sumBox
              bundies = Bundy.objects.filter(picker=pickerObj, timeIn__startswith=d, timeOut__isnull=False)
              hoursDailyTotals[d.strftime("%Y-%m-%d")]=sum([(b.timeOut-b.timeIn).seconds/3600.0 for b in bundies])
              #bundies = Bundy.objects.filter(picker=pickerObj, timeIn__startswith=d, timeOut__isnull=False).aggregate(Sum('timeWorked'))

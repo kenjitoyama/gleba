@@ -33,6 +33,7 @@
                     <!--<a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /-->
                 {% endif %}
                 <a href="/report/">Report</a> /
+                <a href="/csv/">CSV</a> /
                 {% url admin:password_change as password_change_url %}
                 {% if password_change_url %}
                     <a href="{{ password_change_url }}">
