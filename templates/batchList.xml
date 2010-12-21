@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<batchList>
+    {% for batch in batch_list%}<batch>
+        <id>{{batch.id}}</id>
+        <date>
+            <day>{{batch.date.day}}</day>
+            <month>{{batch.date.month}}</month>
+            <year>{{batch.date.year}}</year>
+        </date>
+        <room>
+            <number>{{batch.flush.crop.room.number}}</number>
+        </room>
+    </batch>
+    {% endfor %}
+</batchList>

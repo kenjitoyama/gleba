@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<varietyList>
+    {% for variety in variety_list%}<variety>
+        <id>{{variety.id}}</id>
+        <name>{{variety.variety}}</name>
+        <idealWeight>{{variety.idealWeight}}</idealWeight>
+        <tolerance>{{variety.tolerance}}</tolerance>
+    </variety>
+    {% endfor %}
+</varietyList>
+

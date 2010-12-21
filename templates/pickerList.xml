@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<pickerList>
+    {% for picker in picker_list%}<picker>
+        <id>{{picker.id}}</id>
+        <firstName>{{picker.firstName}}</firstName>
+        <lastName>{{picker.lastName}}</lastName>
+    </picker>
+    {% endfor %}
+</pickerList>

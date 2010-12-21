@@ -57,6 +57,14 @@ def getPickerList(request):
         }
     )
 
+def getPickerListXML(request):
+    picker_list = Picker.objects.filter(active=True, discharged=False).order_by('id')
+    return render_to_response(
+        'pickerList.xml', {
+            'picker_list' : picker_list,
+        }
+    )
+
 def getBatchList(request):
     batch_list = Batch.objects.filter(flush__endDate__isnull=True).order_by('id')
     return render_to_response(
@@ -65,10 +73,26 @@ def getBatchList(request):
         }
     )
 
+def getBatchListXML(request):
+    batch_list = Batch.objects.filter(flush__endDate__isnull=True).order_by('id')
+    return render_to_response(
+        'batchList.xml', {
+            'batch_list' : batch_list,
+        }
+    )
+
 def getVarietyList(request):
     variety_list = Mushroom.objects.filter(active=True).order_by('variety')
     return render_to_response(
         'varietyList.html', {
+            'variety_list' : variety_list,
+        }
+    )
+
+def getVarietyListXML(request):
+    variety_list = Mushroom.objects.filter(active=True).order_by('variety')
+    return render_to_response(
+        'varietyList.xml', {
             'variety_list' : variety_list,
         }
     )
