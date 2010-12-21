@@ -73,17 +73,35 @@
 
 {% if default_page %}
 <script type="text/javascript" src="/media/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="/media/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/media/jquery-ui.css" type="text/css" media="screen" title="Base"/>
 <script type="text/javascript">
     function submitForm(report_type) {
         var form = $("#"+report_type+"report_form");
         var form_url = form.attr("action");
         var selected_value = $("#"+report_type+"menu").val();
-        //form_url += selected_value + "/";
         form_url = report_type.substring(0, report_type.length-1)+"/" + selected_value + "/";
         form.attr("action", form_url);
+        form.append($("#startDate"));
+        form.append($("#endDate"));
         form.submit();
     }
+
+    Date.format = 'dd/mm/yyyy';
+    $(function() {
+        $("#startDate").datepicker({dateFormat: 'dd-mm-yy'});
+    });
+    $(function() {
+        $("#endDate").datepicker({dateFormat: 'dd-mm-yy'});
+    });
 </script>
+<p>Please select the range for which a report should be generated.</p>
+<form name="date_form" action="" method="post" id="date_form">
+    <label for="startDate">Start Date</label>
+    <input name="startDate" id="startDate" type="text">
+    <label for="endDate">End Date</label>
+    <input name="endDate" id="endDate" type="text">
+</form>
 Picker
 <form name="picker_form" action="picker/" method="post" id="picker_report_form">
     <select name="picker" id="picker_menu" style="font-size:20px;">
