@@ -101,7 +101,7 @@ def getVarietyListXML(request):
 
 # Functions for generating reports
 def setupGnuPlot(graphFile):
-    """ Given a filename will create a new gnuploter and return it """
+    """ Given a filename, it returns a new gnuploter """
     g = Gnuplot.Gnuplot()
     g('set terminal png size 640,480')
     g("set output '/var/www%s'" % graphFile)
@@ -113,7 +113,7 @@ def setupGnuPlot(graphFile):
     return g
 
 def setupGnuPlotRange(graphFile, startDate, endDate):
-    """ Given a filename and two dates will create a new gnuploter and return it """
+    """ Given a filename and two dates, it returns a new gnuploter """
     g = setupGnuPlot(graphFile)
     g("set xtics ("+"".join(['"'+d.strftime("%Y-%m-%d")+'"'+str(i)+',' for i,d in enumerate(dateRange(startDate,endDate)) if (i%5==0)])[:-1]+")")
     return g
@@ -123,7 +123,7 @@ def lastMonth():
     return [datetime.date.today() - datetime.timedelta(days=i) for i in range(31)]
 
 def dateRange(startDate, endDate):
-    """ Returns a list of the days between and including including today """
+    """ Returns a list of the days between startDate and endDate inclusive. """
     l=[]
     if startDate>endDate:
         startDate,endDate=endDate,startDate
@@ -134,7 +134,7 @@ def dateRange(startDate, endDate):
     
 
 def adjustDate(request):
-    """ Retreives and returns a tuple of dates from a http request """
+    """ Retrieves and returns a tuple of dates from a http request """
     if 'startDate' in request.POST and len(request.POST['startDate'])>1:
         startDate = datetime.datetime.strptime(request.POST['startDate'], "%d-%m-%Y").date()
     else:
@@ -145,7 +145,6 @@ def adjustDate(request):
         endDate = datetime.date.today()
     if endDate<startDate:
         debug+="The end date is before the start date."
-    #endDate+=datetime.timedelta(days=1)
     return (startDate, endDate)
     
 @login_required
@@ -162,11 +161,9 @@ def generateReportAllPickerRange(request):
         for p in Picker.objects.all():
             # timeWorked for picker p in hours
             timeWorked=(p.getTimeWorkedBetween(startDate, endDate).seconds)/3600.0
-            if timeWorked>0:
-                """ They have worked """
+            if timeWorked>0: # p has worked
                 totalPicked=p.getTotalPickedBetween(startDate, endDate)
                 data[p]=(totalPicked, totalPicked/timeWorked)
-        
         return render_to_response(
             'report.html', {
                 'data' :  data,
