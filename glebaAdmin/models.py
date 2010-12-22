@@ -88,8 +88,9 @@ class Room(models.Model):
         return "Room " + str(self.number)
 
     def getTotalPickedOn(self, date): 
-        """ Return total picked for a picker forever, on a given date """
-        total = Box.objects.filter(batch__flush__crop__room=self, batch__date=date).aggregate(Sum('initialWeight'))['initialWeight__sum']
+        """ Return total picked for this room on a given date """
+        total = Box.objects.filter(batch__flush__crop__room=self,
+                                   batch__date=date).aggregate(Sum('initialWeight'))['initialWeight__sum']
         if total is not None:
             return total
         return 0.0
@@ -97,8 +98,8 @@ class Room(models.Model):
     def getTotalPickedBetween(self, startDate, endDate): 
         """ Return total picked for a picker, between two given dates given date """
         total = Box.objects.filter(batch__flush__crop__room=self,
-            batch__date__gte=startDate, 
-            batch__date__lte=endDate).aggregate(Sum('initialWeight'))['initialWeight__sum']
+                                   batch__date__gte=startDate, 
+                                   batch__date__lte=endDate).aggregate(Sum('initialWeight'))['initialWeight__sum']
         if total is not None:
             return total
         return 0.0
@@ -159,6 +160,21 @@ class Flush(models.Model):
             return  str(self.endDate.day) + "/" + \
                     str(self.endDate.month) + "/" + \
                     str(self.endDate.year)
+    def getTotalPickedOn(self, date): 
+        """ Return total picked for this flush on a given date """
+        total = Box.objects.filter(batch__flush=self,
+                                   batch__date=date).aggregate(Sum('initialWeight'))['initialWeight__sum']
+        if total is not None:
+            return total
+        return 0.0
+    def getTotalPickedBetween(self, startDate, endDate): 
+        """ Return total picked for this flush between two given dates """
+        total = Box.objects.filter(batch__flush=self,
+                                   batch__date__gte=startDate, 
+                                   batch__date__lte=endDate).aggregate(Sum('initialWeight'))['initialWeight__sum']
+        if total is not None:
+            return total
+        return 0.0
 
 class Batch(models.Model):
     date = models.DateField('date started')

@@ -311,7 +311,7 @@ def generateReportFlushRange(request, flush_id):
                                batch__date__gte=startDate,
                                batch__date__lt=endDate)
     sumTotal=0.0
-    while startDate!=endDate:
+    while startDate<=endDate:
         sumToday=0.0
         sumTmp=boxes.filter(batch__date=startDate).aggregate(Sum('initialWeight'))
         if sumTmp['initialWeight__sum'] is not None:
@@ -379,7 +379,7 @@ def generateReportCropRange(request, crop_id):
                                batch__date__lt=endDate,
                                batch__flush__crop=cropObj)
     sumTotal=0.0
-    while startDate!=endDate:
+    while startDate<=endDate:
         sumToday=0.0
         sumTmp=boxes.filter(batch__date=startDate).aggregate(Sum('initialWeight'))
         if sumTmp['initialWeight__sum'] is not None:
