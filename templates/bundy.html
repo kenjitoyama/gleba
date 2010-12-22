@@ -1,48 +1,132 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block extrahead %}
+        <style type="text/css">
+            #keypad tr td div {
+                font-size: 2em;
+                padding: 1em;
+                border: 1px solid black;
+            }
+        </style>
+    <script type="text/javascript" src="/media/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript">
+        function submitForm() {
+            var selected_value = document.getElementById("picker_id").value;
+            // var selected_value = $("#picker_id").val();
+            $("#bundy_picker_form").attr("action", "/bundy/confirm/"+selected_value+"/");
+            $("#bundy_picker_form").submit();
+        }
 
-<script type="text/javascript" src="/media/jquery-1.4.4.min.js"></script>
-<script type="text/javascript">
-    function submitForm() {
-        var selected_value = $("#picker_menu").val();
-        $("#bundy_picker_form").attr("action", "/bundy/confirm/"+selected_value+"/");
-        $("#bundy_picker_form").submit();
-    }
-    {% if show_confirmation %}
+        function appendNumber(x) {
+            var pickerIDInput = document.getElementById("picker_id");
+            pickerIDInput.value+=x;
+        }
+
+        function backspace() {
+            var pickerIDInput = document.getElementById("picker_id");
+            pickerIDInput.value=pickerIDInput.value.substring(0, pickerIDInput.value.length-1);
+        }
+         
+        {% if show_confirmation %}
         function signOn() {
             $("#bundy_confirmation").attr("action", "/bundy/signon/"+{{picker.id}}+"/");
             $("#bundy_confirmation").submit();
         }
-        function signOff() {
-            $("#bundy_confirmation").attr("action", "/bundy/signoff/"+{{picker.id}}+"/");
+
+        function signOff(lunch) {
+            if (lunch) {
+                $("#bundy_confirmation").attr("action", "/bundy/signoff/"+{{picker.id}}+"?lunch=True");
+            } else {
+                $("#bundy_confirmation").attr("action", "/bundy/signoff/"+{{picker.id}}+"?lunch=False");
+            }
             $("#bundy_confirmation").submit();
         }
-    {% endif %}
-</script>
-Picker
-<form name="bundy_picker_form" action="" method="post" id="bundy_picker_form">
-    <select name="picker" id="picker_menu" style="font-size:18px;">
-        {% for picker in picker_list %}
-        <option value={{ picker.id }}>{{ picker.id }} - {{ picker.firstName }} {{ picker.lastName }}</option>
-        {% endfor %}
-    </select>
-    <input type="submit" onClick="submitForm()" value="Submit" style="width:100px; font-size:24px;"/>
-</form>
+        {% endif %}
+    </script>
+{% endblock %}
+
+{% block content %}
+{% if not show_confirmation %}
+
+    <h3>Picker ID:</h3><br/>                                                                                                                    }
+      <table id="keypad">
+            <tr>
+                <td>
+                        <div onClick="appendNumber(1)">1</div>
+                </td>
+                <td>
+                        <div onClick="appendNumber(2)">2</div>
+                </td>
+                <td>
+
+                        <div onClick="appendNumber(3)">3</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                        <div onClick="appendNumber(4)">4</div>
+                </td>
+                <td>
+
+                        <div onClick="appendNumber(5)">5</div>
+                </td>
+                <td>
+                        <div onClick="appendNumber(6)">6</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+
+                        <div onClick="appendNumber(7)">7</div>
+                </td>
+                <td>
+                        <div onClick="appendNumber(8)">8</div>
+                </td>
+                <td>
+                        <div onClick="appendNumber(9)">9</div>
+
+                </td>
+            </tr>
+            <tr>
+                <td>
+                        <div onClick="appendNumber(0)">0</div>
+                </td>
+                <td>
+                        <div onClick="backspace()"><-</div>
+
+                </td>
+                <td>
+                </td>
+            </tr>
+        </table>
+    <form name="bundy_picker_form" action="" method="post" id="bundy_picker_form">
+        <input id="picker_id" type="text" readonly="readonly"/> 
+        <input type="submit" onClick="submitForm()" value="Submit"/>
+    </form>
+{% endif %}
+
 {% if show_confirmation %}
-    <div style="font-size:24px">
-    {{picker.firstName}} {{picker.lastName}}
-    </div>
+    <h3>Welcome, {{picker.firstName}}!<h3/><br/>
+
     <form name="bundy_confirmation" action="" method="post" id="bundy_confirmation">
         {% if signon_flag %}
-            <input type="submit" onClick="signOn()" value="Sign on" style="width:100px; font-size:24px;"/>
+            <input type="submit" onClick="signOn()" value="Sign on" />
         {% else %}
-            <input type="submit" onClick="signOff()" value="Sign off" style="width:100px; font-size:24px;"/>
+            <input type="submit" onClick="signOff('true')" value="Sign off With Lunch Break" />
+            <input type="submit" onClick="signOff('false')" value="Sign off Without Lunch Break" />
         {% endif %}
     </form>
 {% endif %}
+
+{% if error_message %}
+<div>
+    {{ error_message }}
+</div>
+{% endif %}
+
 {% if debug %}
     debug:
     {{ debug }}
 {% endif %}
+
 {% endblock %}

@@ -418,16 +418,20 @@ def generateReport(request):
 
 ##### Bundy Clock handling #####
 def bundy(request):
-    picker_list = Picker.objects.filter(active=True, discharged=False).order_by('id')
-    return render_to_response(
-        'bundy.html', {
-            'picker_list':picker_list,
-    });
+    return render_to_response('bundy.html')
+    #picker_list = Picker.objects.filter(active=True, discharged=False).order_by('id')
+    #return render_to_response(
+    #    'bundy.html', {
+    #        'picker_list':picker_list,
+    #});
 
 def bundyOnOff(request, bundy_action, picker_id):
     picker_list = Picker.objects.filter(active=True, discharged=False).order_by('id')
     picker_entry = Bundy.objects.filter(picker=picker_id, timeOut__isnull=True)
-    picker_ = Picker.objects.get(id=picker_id)
+    try:
+        picker_ = Picker.objects.get(id=picker_id)
+    except Exception as e:
+        return render_to_response('bundy.html', {'error_message' : e})
     if bundy_action=="signon":
         session = Bundy(picker=picker_, timeIn=datetime.datetime.now())
         session.save()
@@ -439,7 +443,15 @@ def bundyOnOff(request, bundy_action, picker_id):
         });
     elif bundy_action=="signoff":
         session = Bundy.objects.get(picker=picker_id, timeOut__isnull=True)
+        try: 
+            if 'lunch' in request.GET and len(request.GET['lunch'])>1:
+                hadLunch_= (str(request.GET['lunch'])=="True")
+            else:
+                raise NameError("Lunch parameter in http request not found")
+        except Exception as e:
+            return render_to_response('bundy.html', {'error_message' : e})
         session.timeOut=datetime.datetime.now()
+        session.hadLunch=hadLunch_
         session.save()
         return render_to_response(
             'bundy.html', {
