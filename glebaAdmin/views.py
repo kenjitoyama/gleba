@@ -134,7 +134,10 @@ def dateRange(startDate, endDate):
     
 
 def getDateFromRequest(request):
-    """ Retrieves and returns a tuple of dates from a http request """
+    """ Retrieves and returns a tuple of dates from a http request.
+
+        If request does not contain a valid startDate, 31 days in the past from today is used.
+        If request does not contain a valid endDate, today is used."""
     if 'startDate' in request.POST and len(request.POST['startDate'])>1:
         startDate = datetime.datetime.strptime(request.POST['startDate'], "%d-%m-%Y").date()
     else:
