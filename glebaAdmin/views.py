@@ -99,8 +99,9 @@ def getVarietyListXML(request):
 
 ##### Report Handling #####
 
-# functions for generating reports
+# Functions for generating reports
 def setupGnuPlot(graphFile):
+    """ Given a filename will create a new gnuploter and return it """
     g = Gnuplot.Gnuplot()
     g('set terminal png size 640,480')
     g("set output '/var/www%s'" % graphFile)
@@ -112,24 +113,28 @@ def setupGnuPlot(graphFile):
     return g
 
 def setupGnuPlotRange(graphFile, startDate, endDate):
-    g = Gnuplot.Gnuplot()
-    g('set terminal png size 640,480')
-    g("set output '/var/www%s'" % graphFile)
-    g('set style fill solid 1.00 border -1')
-    g('set style histogram cluster gap 1')
-    dateRange=[]
-    while startDate!=endDate:
-        dateRange.append(startDate)
-        startDate+=datetime.timedelta(days=1)
-    g("set xtics ("+"".join(['"'+d.strftime("%Y-%m-%d")+'"'+str(i)+',' for i,d in enumerate(dateRange) if (i%5==0)])[:-1]+")")
-    g("set xtics rotate by -60")
-    g("unset key")
+    """ Given a filename and two dates will create a new gnuploter and return it """
+    g = setupGnuPlot(graphFile)
+    g("set xtics ("+"".join(['"'+d.strftime("%Y-%m-%d")+'"'+str(i)+',' for i,d in enumerate(dateRange(startDate,endDate)) if (i%5==0)])[:-1]+")")
     return g
 
 def lastMonth():
-  return [datetime.date.today() - datetime.timedelta(days=i) for i in range(31)]
+    """ Returns a list of the last 31 days including today """
+    return [datetime.date.today() - datetime.timedelta(days=i) for i in range(31)]
+
+def dateRange(startDate, endDate):
+    """ Returns a list of the days between and including including today """
+    l=[]
+    if startDate>endDate:
+        startDate,endDate=endDate,startDate
+    while startDate<=endDate:
+        l.append(startDate)
+        startDate+=datetime.timedelta(days=1)
+    return l
+    
 
 def adjustDate(request):
+    """ Retreives and returns a tuple of dates from a http request """
     if 'startDate' in request.POST and len(request.POST['startDate'])>1:
         startDate = datetime.datetime.strptime(request.POST['startDate'], "%d-%m-%Y").date()
     else:
@@ -140,39 +145,77 @@ def adjustDate(request):
         endDate = datetime.date.today()
     if endDate<startDate:
         debug+="The end date is before the start date."
-    endDate+=datetime.timedelta(days=1)
+    #endDate+=datetime.timedelta(days=1)
     return (startDate, endDate)
+    
+@login_required
+def generateReportAllPickerRange(request): 
+    """ Renders a report
+    
+        Builds a dictionary picker objects will be the key and (total picked, kpi) will be value.
+        It uses two dates from the http POST, if they don't make sense the last 31 days are used.
+    """
+    try:
+        debug=""
+        startDate, endDate = adjustDate(request)
+        data={} # Dictionary: picker objects will be the key and (total picked, kpi) will be value
+        for p in Picker.objects.all():
+            # timeWorked for picker p in hours
+            timeWorked=(p.getTimeWorkedBetween(startDate, endDate).seconds)/3600.0
+            if timeWorked>0:
+                """ They have worked """
+                totalPicked=p.getTotalPickedBetween(startDate, endDate)
+                data[p]=(totalPicked, totalPicked/timeWorked)
+        
+        return render_to_response(
+            'report.html', {
+                'data' :  data,
+                'startDate' : startDate,
+                'endDate' : endDate,
+                'report_type_all_pickers' : 'True',
+                'debug' : debug,
+            }
+        )
+    except Exception as e:
+        return render_to_response('error.html', {'error_list' : e, 'debug' : debug})
 
 @login_required
 def generateReportPicker(request, picker_id):
+    """ Renders a report
+    
+        Builds a dictionary, dates are the keys and total picked will be value.
+        Plots this with gnuplot and prints it in table form
+    """
     try:
         debug = ""
         pickerObj=Picker.objects.get(id=picker_id)
         graphFile = "/media/graphs/pickerGraph.png"
-        gp = setupGnuPlot(graphFile)
+        startDate, endDate = adjustDate(request)
+        gp = setupGnuPlotRange(graphFile, startDate, endDate)
+
         # Rolling monthly total picking
         dailyTotals = {}
         hoursDailyTotals = {}
-        for d in lastMonth():    
-             boxes  = Box.objects.filter(picker=pickerObj, batch__date=d).aggregate(Sum('initialWeight'))
-             sumBox=0.0
-             if boxes['initialWeight__sum'] is not None:
-                 sumBox=boxes['initialWeight__sum']
-             dailyTotals[d.strftime("%Y-%m-%d")]=sumBox
-             bundies = Bundy.objects.filter(picker=pickerObj, timeIn__startswith=d, timeOut__isnull=False)
-             hoursDailyTotals[d.strftime("%Y-%m-%d")]=sum([(b.timeOut-b.timeIn).seconds/3600.0 for b in bundies])
-        dataFile="/media/graphs/picker.data"
+        for d in dateRange(startDate, endDate):     
+             dailyTotals[d.strftime("%Y-%m-%d")] = pickerObj.getTotalPickedOn(d)
+             hoursDailyTotals[d.strftime("%Y-%m-%d")] = pickerObj.getTimeWorkedOn(d).seconds / 3600.0
+
+        # Write data file
+        dataFile = "/media/graphs/picker.data"
         aFile=open("/var/www"+dataFile,"w")
         for i,k in enumerate(sorted(dailyTotals.keys())):
             aFile.write(str(dailyTotals[k])+' "'+str(k)+'"\n')
         aFile.close()
         gp("plot '/var/www"+dataFile+"' with histogram")
+
+        # Build Output Table
         outputTable = []
         for k in sorted(dailyTotals.keys()):
             if(hoursDailyTotals[k]==0):
                 outputTable.append((k, dailyTotals[k], 0.0))
             else:
                 outputTable.append((k, dailyTotals[k], dailyTotals[k]/hoursDailyTotals[k]))
+        # Render Page
         return render_to_response(
             'report.html', {
                 'data' : outputTable,
@@ -186,74 +229,31 @@ def generateReportPicker(request, picker_id):
         return render_to_response('error.html', {'error_list' : e, 'debug' : debug})
 
 @login_required
-def generateReportPickerRange(request, picker_id):
-    debug = ""
-    startDate, endDate = adjustDate(request)
-    pickerObj=Picker.objects.get(id=picker_id)
-    graphFile = "/media/graphs/pickerGraph.png"
-    gp = setupGnuPlotRange(graphFile, startDate, endDate)
-    # Rolling monthly total picking
-    dailyTotals = {}
-    hoursDailyTotals = {}
-    boxes = Box.objects.filter(picker=pickerObj,
-                               batch__date__gte=startDate,
-                               batch__date__lt=endDate)
-    bundies=Bundy.objects.filter(picker=pickerObj,
-                                 timeIn__gte=startDate,
-                                 timeIn__lt=endDate,
-                                 timeOut__isnull=False,
-                                 timeOut__gte=startDate,
-                                 timeOut__lt=endDate)
-    while startDate!=endDate:
-        sumToday=0.0
-        sumTmp=boxes.filter(batch__date=startDate).aggregate(Sum('initialWeight'))
-        if sumTmp['initialWeight__sum'] is not None:
-            sumToday=sumTmp['initialWeight__sum']
-        startDateStr=startDate.strftime("%Y-%m-%d")
-        dailyTotals[startDateStr]=sumToday
-        bundyTmp=bundies.filter(timeIn=startDate, timeOut=startDate)
-        hoursDailyTotals[startDateStr]=sum([(b.timeOut-b.timeIn).seconds/3600.0 for b in bundyTmp])
-        startDate+=datetime.timedelta(days=1)
-    dataFile="/media/graphs/picker.data"
-    aFile=open("/var/www"+dataFile,"w")
-    for i,k in enumerate(sorted(dailyTotals.keys())):
-        aFile.write(str(dailyTotals[k])+' "'+str(k)+'"\n')
-    aFile.close()
-    gp("plot '/var/www"+dataFile+"' with histogram")
-    outputTable = []
-    for k in sorted(dailyTotals.keys()):
-        if(hoursDailyTotals[k]==0):
-            outputTable.append((k, dailyTotals[k], 0.0))
-        else:
-            outputTable.append((k, dailyTotals[k], dailyTotals[k]/hoursDailyTotals[k]))
-    return render_to_response(
-        'report.html', {
-            'data' : outputTable,
-            'picker' : pickerObj,
-            'graph_filename' : graphFile,
-            'report_type_picker' : 'True',
-            'debug' : debug,
-        }
-    )
-
-@login_required
 def generateReportRoom(request, room_id):
+    """ Renders a report
+    
+        Builds a dictionary, dates are the keys and total picked in a room will be value.
+        Plots this with gnuplot and prints it in table form
+    """
     try:
         debug = ""
+        startDate, endDate = adjustDate(request)
         roomObj=Room.objects.get(id=room_id)
         graphFile = "/media/graphs/roomGraph.png"
         gp = setupGnuPlot(graphFile)
-        #rolling monthly
+        startDate, endDate = adjustDate(request)
+
         dailyTotals = {}
-        for d in lastMonth():    
-             boxes  = Box.objects.filter(batch__flush__crop__room=roomObj, batch__date=d)
-             dailyTotals[d.strftime("%Y-%m-%d")]=sum([b.initialWeight for b in boxes])
+        for d in dateRange(startDate, endDate): 
+             dailyTotals[d.strftime("%Y-%m-%d")]=roomObj.getTotalPickedOn(d)
+
         dataFile="/media/graphs/room.data"
         aFile=open("/var/www"+dataFile,"w")
         for i,k in enumerate(sorted(dailyTotals.keys())):
             aFile.write(str(dailyTotals[k])+' "'+str(i)+'"\n')
         aFile.close()
         gp("plot '/var/www"+dataFile+"' with histogram")
+
         return render_to_response(
             'report.html', {
                 'data' : [(k,dailyTotals[k]) for k in sorted(dailyTotals.keys())],
@@ -266,41 +266,8 @@ def generateReportRoom(request, room_id):
     except Exception as e:
         return render_to_response('error.html', {'error_list' : e, 'debug' : debug})
 
-@login_required
-def generateReportRoomRange(request, room_id):
-    debug = ""
-    startDate, endDate = adjustDate(request)
-    roomObj=Room.objects.get(id=room_id)
-    graphFile = "/media/graphs/roomGraph.png"
-    gp = setupGnuPlot(graphFile)
-    #rolling monthly
-    dailyTotals = {}
-    boxes = Box.objects.filter(batch__date__gte=startDate,
-                               batch__date__lt=endDate,
-                               batch__flush__crop__room=roomObj)
-    while startDate!=endDate:
-        sumToday=0.0
-        sumTmp=boxes.filter(batch__date=startDate).aggregate(Sum('initialWeight'))
-        if sumTmp['initialWeight__sum'] is not None:
-            sumToday=sumTmp['initialWeight__sum']
-        startDateStr=startDate.strftime("%Y-%m-%d")
-        dailyTotals[startDateStr]=sumToday
-        startDate+=datetime.timedelta(days=1)
-    dataFile="/media/graphs/room.data"
-    aFile=open("/var/www"+dataFile,"w")
-    for i,k in enumerate(sorted(dailyTotals.keys())):
-        aFile.write(str(dailyTotals[k])+' "'+str(i)+'"\n')
-    aFile.close()
-    gp("plot '/var/www"+dataFile+"' with histogram")
-    return render_to_response(
-        'report.html', {
-            'data' : [(k,dailyTotals[k]) for k in sorted(dailyTotals.keys())],
-            'room' : roomObj,
-            'graph_filename' : graphFile,
-            'report_type_room' : 'True',
-            'debug':debug,
-        }
-    )
+
+# NOTE: Working from here downward refactoring
 
 @login_required
 def generateReportFlush(request, flush_id):

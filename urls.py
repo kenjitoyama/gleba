@@ -18,14 +18,21 @@ urlpatterns = patterns('',
     (r'^batchList.xml$', 'gleba.glebaAdmin.views.getBatchListXML'),
     (r'^varietyList/$', 'gleba.glebaAdmin.views.getVarietyList'),
     (r'^varietyList.xml$', 'gleba.glebaAdmin.views.getVarietyListXML'),
+    
+    # Reports
     (r'^report/$', 'gleba.glebaAdmin.views.generateReport'),
-    (r'^report/picker/(\d+)/$', 'gleba.glebaAdmin.views.generateReportPickerRange'),
+    (r'^report/picker/(\d+)/$', 'gleba.glebaAdmin.views.generateReportPicker'),
+    (r'^report/picker/$', 'gleba.glebaAdmin.views.generateReportAllPickerRange'),
     (r'^report/flush/(\d+)/$', 'gleba.glebaAdmin.views.generateReportFlushRange'),
     (r'^report/crop/(\d+)/$', 'gleba.glebaAdmin.views.generateReportCropRange'),
-    (r'^report/room/(\d+)/$', 'gleba.glebaAdmin.views.generateReportRoomRange'),
+    (r'^report/room/(\d+)/$', 'gleba.glebaAdmin.views.generateReportRoom'),
+
+    # Bundies
     (r'^bundy/$', 'gleba.glebaAdmin.views.bundy'),
     (r'^bundy/(signon|signoff|confirm)/(\d+)/$', 'gleba.glebaAdmin.views.bundyOnOff'),
     (r'^csv/$', 'gleba.glebaAdmin.views.generateCSVRange'),
+
+    # Logins
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
 
     # Uncomment the next line to enable the admin:

@@ -1,55 +1,130 @@
 from django.db import models
+from django.db.models import Avg, Sum, Min, Max
+import datetime
 
-# Create your models here.
 class Picker(models.Model):
+
     firstName = models.CharField(max_length=50)
     lastName = models.CharField(max_length=50)
     active = models.BooleanField()
     discharged = models.BooleanField()
+
     class Meta:
         verbose_name_plural="Pickers"
+
     def __unicode__(self):
         return "Picker "  + str(self.id)  + ' ' +  self.fullName()
+
     def fullName(self):
         "Returns the full name of this picker"
         return self.firstName + ' ' + self.lastName
 
+    def getTotalPicked(self):
+        """ Return total picked for a picker forever """
+        total = Box.objects.filter(picker=self).aggregate(Sum('initialWeight'))['initialWeight__sum']
+        if total is not None:
+            return total
+        return 0.0
+
+    def getTotalPickedOn(self, date): 
+        """ Return total picked for a picker forever, on a given date """
+        total = Box.objects.filter(picker=self, batch__date=date).aggregate(Sum('initialWeight'))['initialWeight__sum']
+        if total is not None:
+            return total
+        return 0.0
+
+    def getTotalPickedBetween(self, startDate, endDate): 
+        """ Return total picked for a picker, between two given dates given date """
+        total = Box.objects.filter(picker=self, batch__date__gte=startDate, batch__date__lte=endDate).aggregate(Sum('initialWeight'))['initialWeight__sum']
+        if total is not None:
+            return total
+        return 0.0
+
+    def getTimeWorkedOn(self,date):
+        """ Return total time worked for picker on a given day """
+        bundies=Bundy.objects.filter(picker=self,
+            timeIn__startswith=date,
+            timeOut__isnull=False)
+        if bundies is not None:
+            return sum([b.timeWorked() for b in bundies], datetime.timedelta())
+        return 0.0
+            
+    def getTimeWorkedBetween(self,startDate,endDate):
+        """ Return total timed worked for picker between two given dates """
+        bundies=Bundy.objects.filter(picker=self,
+            timeIn__gte=startDate,
+            timeIn__lte=endDate+datetime.timedelta(days=1),
+            timeOut__isnull=False)
+        if bundies is not None:
+            return sum([b.timeWorked() for b in bundies], datetime.timedelta())
+        return 0.0
+        
 class Bundy(models.Model):
     picker=models.ForeignKey(Picker)
     timeIn=models.DateTimeField('Time In')
     timeOut=models.DateTimeField('Time Out', blank=True, null=True)
+    hadLunch=models.BooleanField()
+
+    lunchBreak=datetime.timedelta(minutes=30)
+
     class Meta:
         verbose_name_plural="Bundies"
+
     def __unicode__(self):
         return "Bundy " + str(self.picker) + ' ' + str(self.timeIn)
+
     def timeWorked(self):
-        "Returns the amount of hours worked in this bundy"
-        return (self.timeOut-self.timeIn).seconds/3600.0
+        "Returns the amount of time worked as a timedelta" 
+        return self.timeOut-self.timeIn-self.lunchBreak if self.hadLunch else self.timeOut-self.timeIn
 
 class Room(models.Model):
     number = models.IntegerField()
     status = models.CharField(max_length=50)
+
     class Meta:
         verbose_name_plural="Rooms"
+
     def __unicode__(self):
         return "Room " + str(self.number)
+
+    def getTotalPickedOn(self, date): 
+        """ Return total picked for a picker forever, on a given date """
+        total = Box.objects.filter(batch__flush__crop__room=self, batch__date=date).aggregate(Sum('initialWeight'))['initialWeight__sum']
+        if total is not None:
+            return total
+        return 0.0
+
+    def getTotalPickedBetween(self, startDate, endDate): 
+        """ Return total picked for a picker, between two given dates given date """
+        total = Box.objects.filter(batch__flush__crop__room=self,
+            batch__date__gte=startDate, 
+            batch__date__lte=endDate).aggregate(Sum('initialWeight'))['initialWeight__sum']
+        if total is not None:
+            return total
+        return 0.0
+
+
 
 class Crop(models.Model):
     startDate = models.DateField('date started')
     endDate = models.DateField('date completed', blank=True, null=True)
     room = models.ForeignKey(Room)
+
     class Meta:
         verbose_name_plural="Crops"
+
     def __unicode__(self):
         return "Crop "  + str(self.id) + " (" +\
                self.startDateString() +  " - " +\
                self.endDateString() + ") " +\
                str(self.room)
+
     def startDateString(self):
         "Returns startDate as a string day/month/year"
         return  str(self.startDate.day) + "/" + \
                 str(self.startDate.month) + "/" + \
                 str(self.startDate.year)
+
     def endDateString(self):
         "Returns endDate as a string day/month/year"
         if self.endDate is None:
