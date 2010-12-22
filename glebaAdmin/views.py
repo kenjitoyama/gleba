@@ -100,22 +100,21 @@ def getVarietyListXML(request):
 ##### Report Handling #####
 
 # Functions for generating reports
-def setupGnuPlot(graphFile):
-    """ Given a filename, it returns a new gnuploter """
+def setupGnuPlot(graphFile,
+                 startDate=datetime.date.today()-datetime.timedelta(days=31),
+                 endDate=datetime.date.today()):
+    """ Given a filename, it returns a new gnuploter.
+    
+        If startDate is not given, 31 days in the past from today is used.
+        If endDate is not given, today is used."""
     g = Gnuplot.Gnuplot()
     g('set terminal png size 640,480')
     g("set output '/var/www%s'" % graphFile)
     g('set style fill solid 1.00 border -1')
     g('set style histogram cluster gap 1')
-    g("set xtics ("+"".join(['"'+d.strftime("%Y-%m-%d")+'"'+str(i)+',' for i,d in enumerate(sorted(lastMonth())) if (i%5==0)])[:-1]+")")
+    g("set xtics ("+"".join(['"'+d.strftime("%Y-%m-%d")+'"'+str(i)+',' for i,d in enumerate(dateRange(startDate,endDate)) if (i%5==0)])[:-1]+")")
     g("set xtics rotate by -60")
     g("unset key")
-    return g
-
-def setupGnuPlotRange(graphFile, startDate, endDate):
-    """ Given a filename and two dates, it returns a new gnuploter """
-    g = setupGnuPlot(graphFile)
-    g("set xtics ("+"".join(['"'+d.strftime("%Y-%m-%d")+'"'+str(i)+',' for i,d in enumerate(dateRange(startDate,endDate)) if (i%5==0)])[:-1]+")")
     return g
 
 def lastMonth():
@@ -191,7 +190,7 @@ def generateReportPicker(request, picker_id):
         pickerObj=Picker.objects.get(id=picker_id)
         graphFile = "/media/graphs/pickerGraph.png"
         startDate, endDate = getDateFromRequest(request)
-        gp = setupGnuPlotRange(graphFile, startDate, endDate)
+        gp = setupGnuPlot(graphFile, startDate, endDate)
 
         # Rolling monthly total picking
         dailyTotals = {}
