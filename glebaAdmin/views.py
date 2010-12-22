@@ -133,7 +133,7 @@ def dateRange(startDate, endDate):
     return l
     
 
-def adjustDate(request):
+def getDateFromRequest(request):
     """ Retrieves and returns a tuple of dates from a http request """
     if 'startDate' in request.POST and len(request.POST['startDate'])>1:
         startDate = datetime.datetime.strptime(request.POST['startDate'], "%d-%m-%Y").date()
@@ -156,7 +156,7 @@ def generateReportAllPickerRange(request):
     """
     try:
         debug=""
-        startDate, endDate = adjustDate(request)
+        startDate, endDate = getDateFromRequest(request)
         data={} # Dictionary: picker objects will be the key and (total picked, kpi) will be value
         for p in Picker.objects.all():
             # timeWorked for picker p in hours
@@ -187,7 +187,7 @@ def generateReportPicker(request, picker_id):
         debug = ""
         pickerObj=Picker.objects.get(id=picker_id)
         graphFile = "/media/graphs/pickerGraph.png"
-        startDate, endDate = adjustDate(request)
+        startDate, endDate = getDateFromRequest(request)
         gp = setupGnuPlotRange(graphFile, startDate, endDate)
 
         # Rolling monthly total picking
@@ -234,11 +234,11 @@ def generateReportRoom(request, room_id):
     """
     try:
         debug = ""
-        startDate, endDate = adjustDate(request)
+        startDate, endDate = getDateFromRequest(request)
         roomObj=Room.objects.get(id=room_id)
         graphFile = "/media/graphs/roomGraph.png"
         gp = setupGnuPlot(graphFile)
-        startDate, endDate = adjustDate(request)
+        startDate, endDate = getDateFromRequest(request)
 
         dailyTotals = {}
         for d in dateRange(startDate, endDate): 
@@ -299,7 +299,7 @@ def generateReportFlush(request, flush_id):
 @login_required
 def generateReportFlushRange(request, flush_id):
     debug = ""
-    startDate, endDate = adjustDate(request)
+    startDate, endDate = getDateFromRequest(request)
     flushObj=Flush.objects.get(id=flush_id)
     graphFile = "/media/graphs/flushGraph.png"
     gp = setupGnuPlot(graphFile)
@@ -367,7 +367,7 @@ def generateReportCrop(request, crop_id):
 @login_required
 def generateReportCropRange(request, crop_id):
     debug = ""
-    startDate, endDate = adjustDate(request)
+    startDate, endDate = getDateFromRequest(request)
     cropObj=Crop.objects.get(id=crop_id)
     graphFile = "/media/graphs/cropGraph.png"
     gp = setupGnuPlot(graphFile)
