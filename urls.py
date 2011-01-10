@@ -5,9 +5,6 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Example:
-    # (r'^gleba/', include('gleba.foo.urls')),
-
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
@@ -22,9 +19,9 @@ urlpatterns = patterns('',
     # Reports
     (r'^report/$', 'gleba.glebaAdmin.views.generateReport'),
     (r'^report/picker/(\d+)/$', 'gleba.glebaAdmin.views.generateReportPicker'),
-    (r'^report/picker/$', 'gleba.glebaAdmin.views.generateReportAllPickerRange'),
-    (r'^report/flush/(\d+)/$', 'gleba.glebaAdmin.views.generateReportFlushRange'),
-    (r'^report/crop/(\d+)/$', 'gleba.glebaAdmin.views.generateReportCropRange'),
+    (r'^report/picker/$', 'gleba.glebaAdmin.views.generateReportAllPicker'),
+    (r'^report/flush/(\d+)/$', 'gleba.glebaAdmin.views.generateReportFlush'),
+    (r'^report/crop/(\d+)/$', 'gleba.glebaAdmin.views.generateReportCrop'),
     (r'^report/room/(\d+)/$', 'gleba.glebaAdmin.views.generateReportRoom'),
 
     # Bundies

@@ -135,23 +135,44 @@ class Crop(models.Model):
                     str(self.endDate.month) + "/" + \
                     str(self.endDate.year)
 
+    def getTotalPickedOn(self, date): 
+        """ Return total picked for this cop on a given date """
+        total = Box.objects.filter(batch__flush__crop=self,
+                                   batch__date=date).aggregate(Sum('initialWeight'))['initialWeight__sum']
+        if total is not None:
+            return total
+        return 0.0
+
+    def getTotalPickedBetween(self, startDate, endDate): 
+        """ Return total picked for a picker, between two given dates given date """
+        total = Box.objects.filter(batch__flush__crop=self,
+                                   batch__date__gte=startDate, 
+                                   batch__date__lte=endDate).aggregate(Sum('initialWeight'))['initialWeight__sum']
+        if total is not None:
+            return total
+        return 0.0
+
 class Flush(models.Model):
     startDate = models.DateField('date started')
     endDate = models.DateField('date completed', blank=True, null=True)
     flushNo = models.IntegerField()
     crop = models.ForeignKey(Crop, limit_choices_to = {'endDate__isnull':True})
+
     class Meta:
         verbose_name_plural="Flushes"
+
     def __unicode__(self):
         return "Flush " + str(self.flushNo) + " (" + \
             self.startDateString() + " - " +\
             self.endDateString() + ") " +\
             str(self.crop.room) + " ID " + str(self.id)
+
     def startDateString(self):
         "Returns startDate as a string day/month/year"
         return  str(self.startDate.day) + "/" + \
                 str(self.startDate.month) + "/" + \
                 str(self.startDate.year)
+
     def endDateString(self):
         "Returns endDate as a string day/month/year"
         if self.endDate is None:
@@ -160,6 +181,7 @@ class Flush(models.Model):
             return  str(self.endDate.day) + "/" + \
                     str(self.endDate.month) + "/" + \
                     str(self.endDate.year)
+
     def getTotalPickedOn(self, date): 
         """ Return total picked for this flush on a given date """
         total = Box.objects.filter(batch__flush=self,
@@ -167,6 +189,7 @@ class Flush(models.Model):
         if total is not None:
             return total
         return 0.0
+
     def getTotalPickedBetween(self, startDate, endDate): 
         """ Return total picked for this flush between two given dates """
         total = Box.objects.filter(batch__flush=self,
@@ -179,12 +202,15 @@ class Flush(models.Model):
 class Batch(models.Model):
     date = models.DateField('date started')
     flush = models.ForeignKey(Flush, limit_choices_to = {'endDate__isnull':True})
+
     class Meta:
         verbose_name_plural="Batches"
+
     def __unicode__(self):
         return "Batch " + str(self.id) + " (" + \
                 self.dateString() + ") " +\
                 str(self.flush.crop.room)
+
     def dateString(self):
         "Returns date as a string day/month/year"
         return  str(self.date.day) + "/" + \
@@ -196,8 +222,10 @@ class Mushroom(models.Model):
     idealWeight = models.FloatField()
     tolerance = models.FloatField()
     active = models.BooleanField()
+
     class Meta:
         verbose_name_plural="Mushrooms"
+
     def __unicode__(self):
         return "Mushroom " + str(self.variety)
 
@@ -208,7 +236,9 @@ class Box(models.Model):
     contentVariety = models.ForeignKey(Mushroom)
     picker = models.ForeignKey(Picker)
     batch = models.ForeignKey(Batch)
+
     class Meta:
         verbose_name_plural="Boxes"
+
     def __unicode__(self):
         return "Box " + str(self.id) + ", contains " + str(self.contentVariety) + " picked by " + str(self.picker)
