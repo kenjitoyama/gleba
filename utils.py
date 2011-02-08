@@ -1,16 +1,16 @@
 #!/usr/bin/python
 
+"""
+This is a library of classes for use within the Gleba Software system
+
+Copyright (C) Simon Dawson, Kenji Toyama, Meryl Baquiran, Chris Ellis 2010-2011
+"""
+
 import serial
 import threading
 import urllib
 from datetime import datetime
-from os import system
-#import pyaudio
-import wave
-import sys
-from multiprocessing import Process
-
-chunk = 1024
+import re
 
 #==========================================
 #   Don't edit above this line.
@@ -28,26 +28,47 @@ django_http_path="http://hellscream.hayday.biz/gleba"
 #==========================================
 
 class ThreadSerial(threading.Thread):
+    """
+    Opens a serial connection on the port specified in the glocal variable section
+
+    Starts a thread which reads from it. It will return the value of the weight as
+    the getWeight method is called.
+
+    As of 9/2/11 this is untested using a serial scale.
+    """
     def __init__(self):
+        """
+        Open a start a new thread which will read from the serial port opened
+        in this function.
+        """
         threading.Thread.__init__(self)
         self.isOk=True
-        self.weight="ST,GS, 0.0KG,"
+        self.pattern_matcher=re.compile(r"^(ST|US),(GS|[A-Z]+), (\d+\.\d+)KG,$")
+        self.scale_string="ST,GS, 0.0KG,"
         self.ser=serial.Serial()
         self.ser.port=ser_port
         self.ser.open()
 
     def run(self):
+        """
+        Read serial until thread killed
+        """
         while self.isOk==True:
-            self.weight=self.ser.readline()
+            self.weight_string=self.ser.readline()
 
     def isStable(self):
-        return self.weight[0:2]=="ST"
+        "Return true iff the weight on the scale is stable"
+        return self.pattern_matcher.findall(self.scale_string)[0][0]=="ST"
 
     def getWeight(self):
-        return float(self.weight[6]+self.weight.split()[1][:-3])
+        "Returns the value of the weight on the scale as float"
+        return float(self.pattern_matcher.findall(self.scale_string)[0][2])
 
     def kill(self):
+        " Called when thread must be killed. Causes loop of thread to terminate and thread to die"
         self.isOk=False
+
+""" TODO: Re-write to use XML Parser """
 
 class DBAPI ():
     def __init__(self):
@@ -88,61 +109,4 @@ class DBAPI ():
             #l.append(p.split("|")[:-2])
             l.append(p.split("|"))
         return l        
-
-#class SoundPlayerOld(Process):
-#    def __init__(self):
-#        #threading.Thread.__init__(self)
-#        Process.__init__(self)
-#        self.isOk=True
-#        self.playSound=False
-#
-#    def run(self):
-#        while self.isOk==True:
-#            if self.playSound==True:
-#                print"wtf"
-#	        system("aplay Front_Center.wav")
-#                self.playSound=False
-#            print self.playSound
-#
-#    def play(self):
-#        print self.playSound
-#        self.playSound=True
-#        print self.playSound
-#
-#    def kill(self):
-#        self.isOk=False
-#
-#
-#class SoundPlayer(threading.Thread):
-#    def __init__(self, fname):
-#        threading.Thread.__init__(self)
-#        self.p = pyaudio.PyAudio()
-#        self.chunk = 1024
-#        self.wf = wave.open(fname, 'rb')
-#        self.isOk=True
-#
-#    def run(self):
-#        while self.isOk==True:
-#            pass
-#
-#    def play(self):
-## open stream
-#        self.stream = self.p.open(format =
-#                self.p.get_format_from_width(self.wf.getsampwidth()),
-#                channels = self.wf.getnchannels(),
-#                rate = self.wf.getframerate(),
-#                output = True)
-## read data
-#        self.data = self.wf.readframes(chunk)
-#        # play stream
-#        while self.data != '':
-#            self.stream.write(self.data)
-#            self.data = self.wf.readframes(self.chunk)
-#        self.stream.close()
-#        self.p.terminate()
-#
-#    def kill(self):
-#        self.isOk=False
-#
-
 
