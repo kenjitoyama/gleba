@@ -32,8 +32,8 @@
                 {% if docsroot %}
                     <!--<a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /-->
                 {% endif %}
-                <a href="/report/">Report</a> /
-                <a href="/csv/">CSV</a> /
+                <a href="{% url gleba.glebaAdmin.views.generateReport %}">Report</a> /
+                <a href="{% url gleba.glebaAdmin.views.generateCSVRange %}">CSV</a> /
                 {% url admin:password_change as password_change_url %}
                 {% if password_change_url %}
                     <a href="{{ password_change_url }}">
