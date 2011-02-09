@@ -11,6 +11,7 @@ import threading
 import urllib
 from datetime import datetime
 import re
+from xml.dom import minidom
 
 #==========================================
 #   Don't edit above this line.
@@ -68,13 +69,15 @@ class ThreadSerial(threading.Thread):
         " Called when thread must be killed. Causes loop of thread to terminate and thread to die"
         self.isOk=False
 
-""" TODO: Re-write to use XML Parser """
-
 class DBAPI ():
     def __init__(self):
         self.http_address=django_http_path
 
     def addBox (self,picker, batch, variety, initWeight, finalWeight, timestamp):    
+        """ Performs a url request with for the django add box using all the info in parameters
+            
+                Returns true iff the operation was successful
+        """
         params=urllib.urlencode({
             'initialWeight':initWeight,
             'finalWeight':finalWeight,
@@ -93,6 +96,12 @@ class DBAPI ():
         for p in f.read().split("*")[:-1]:
             l.append(p.split("|"))
         return l        
+
+    def getActivePickersXML(self):
+        xmldoc = minidom.parse(self.http_address+"pickerList.xml")
+        for picker in xmldoc.getElementsByTagName("picker"):
+            # Todo I am here
+            pass
 
     def getActiveBatches(self):    
         l=list()
