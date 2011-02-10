@@ -23,7 +23,7 @@ ser_port=1#"/dev/ttyS0"
 # - Django Configuration
 #    Full http path to the root of the django web app 
 #         Change before deployment
-django_http_path="http://hellscream.hayday.biz/gleba"
+django_http_path="http://hellscream.hayday.biz/gleba/"
 
 #    Don't edit below this line
 #==========================================
@@ -91,6 +91,9 @@ class DBAPI ():
         return r
         
     def getActivePickers(self):    
+        """ 
+            Parse a delimited string from a url of all the current pickers into a python list
+        """
         l=list()
         f=urllib.urlopen(self.http_address+"pickerList")
         for p in f.read().split("*")[:-1]:
@@ -98,19 +101,46 @@ class DBAPI ():
         return l        
 
     def getActivePickersXML(self):
-        xmldoc = minidom.parse(self.http_address+"pickerList.xml")
+        """ 
+            Parse an xml list of all the current pickers into a python list
+        """
+        l=list()
+        xmldoc = minidom.parse(urllib.urlopen(self.http_address+"pickerList.xml"))
         for picker in xmldoc.getElementsByTagName("picker"):
-            # Todo I am here
-            pass
-
+            l.append([picker.getElementsByTagName("id")[0].firstChild.data,
+              picker.getElementsByTagName("firstName")[0].firstChild.data,
+              picker.getElementsByTagName("lastName")[0].firstChild.data])
+        return l
+            
     def getActiveBatches(self):    
+        """ 
+            Parse a delimited string from a url of all the current batches into a python list
+        """
         l=list()
         f=urllib.urlopen(self.http_address+"batchList")
         for p in f.read().split("*")[:-1]:
             l.append(p.split("|"))
         return l        
 
+    def getActiveBatchesXML(self):
+        """ 
+            Parse an xml list of all the current batches into a python list
+        """
+        l=list()
+        xmldoc = minidom.parse(urllib.urlopen(self.http_address+"batchList.xml"))
+        for batch in xmldoc.getElementsByTagName("batch"):
+            id=batch.getElementsByTagName("id")[0].firstChild.data
+            monthstring=batch.getElementsByTagName("date")[0].getElementsByTagName("day")[0].firstChild.data
+            monthstring+="/"+batch.getElementsByTagName("date")[0].getElementsByTagName("month")[0].firstChild.data
+            monthstring+="/"+batch.getElementsByTagName("date")[0].getElementsByTagName("year")[0].firstChild.data
+            roomnumber=batch.getElementsByTagName("room")[0].getElementsByTagName("number")[0].firstChild.data
+            l.append([id,monthstring,roomnumber])
+        return l
+     
     def getActiveVarieties(self):    
+        """ 
+            Parse a delimited string from a url of all the current batches into a python list
+        """
         l=list()
         f=urllib.urlopen(self.http_address+"varietyList")
         for p in f.read().split("*")[:-1]:
@@ -119,3 +149,17 @@ class DBAPI ():
             l.append(p.split("|"))
         return l        
 
+    def getActiveVarietiesXML(self):
+        """ Parse an xml list of all varieties into a python list
+            NOTE: as of 11/2/2011 the list now performs the cast to float
+                    for the number values
+        """
+        l=list()
+        xmldoc = minidom.parse(urllib.urlopen(self.http_address+"varietyList.xml"))
+        for varieties in xmldoc.getElementsByTagName("variety"):
+            l.append([varieties.getElementsByTagName("id")[0].firstChild.data,
+              varieties.getElementsByTagName("name")[0].firstChild.data,
+              float(varieties.getElementsByTagName("idealWeight")[0].firstChild.data),
+              float(varieties.getElementsByTagName("tolerance")[0].firstChild.data)])
+        return l
+     
