@@ -3,6 +3,7 @@
 {% block extrahead %}
         <style type="text/css">
             #keypad tr td div {
+                background: #f9f9f9;
                 font-size: 2em;
                 padding: 1em;
                 border: 1px solid black;
@@ -13,7 +14,7 @@
         function submitForm() {
             var selected_value = document.getElementById("picker_id").value;
             // var selected_value = $("#picker_id").val();
-            $("#bundy_picker_form").attr("action", "/bundy/confirm/"+selected_value+"/");
+            $("#bundy_picker_form").attr("action", "{% url gleba.glebaAdmin.views.bundy %}confirm/"+selected_value+"/");
             $("#bundy_picker_form").submit();
         }
 
@@ -29,16 +30,22 @@
          
         {% if show_confirmation %}
         function signOn() {
-            $("#bundy_confirmation").attr("action", "/bundy/signon/"+{{picker.id}}+"/");
+            $("#bundy_confirmation").attr("action", "{% url gleba.glebaAdmin.views.bundy %}signon/"+{{picker.id}}+"/");
             $("#bundy_confirmation").submit();
         }
 
         function signOff(lunch) {
-            if (lunch) {
-                $("#bundy_confirmation").attr("action", "/bundy/signoff/"+{{picker.id}}+"?lunch=True");
+            alert("In signOff");
+            if (lunch=='true') {
+                alert("had lunch trying to append it to the end of url");
+                $("#bundy_confirmation").attr("action", "{% url gleba.glebaAdmin.views.bundy %}signoff/"+{{picker.id}}+"?lunch=True");
+                alert("appended {% url gleba.glebaAdmin.views.bundy %}signoff/"+{{picker.id}}+"?lunch=True");
             } else {
-                $("#bundy_confirmation").attr("action", "/bundy/signoff/"+{{picker.id}}+"?lunch=False");
+                alert("had  no lunch trying to append it to the end of url");
+                $("#bundy_confirmation").attr("action", "{% url gleba.glebaAdmin.views.bundy %}signoff/"+{{picker.id}}+"?lunch=False");
+                alert("appended {% url gleba.glebaAdmin.views.bundy %}signoff/"+{{picker.id}}+"?lunch=False");
             }
+            alert("Now submitting");
             $("#bundy_confirmation").submit();
         }
         {% endif %}
@@ -48,7 +55,7 @@
 {% block content %}
 {% if not show_confirmation %}
 
-    <h3>Picker ID:</h3><br/>                                                                                                                    }
+    <h3>Picker ID:</h3><br/>
       <table id="keypad">
             <tr>
                 <td>
@@ -99,7 +106,7 @@
                 </td>
             </tr>
         </table>
-    <form name="bundy_picker_form" action="" method="post" id="bundy_picker_form">
+    <form name="bundy_picker_form" action="" method="POST" id="bundy_picker_form">
         <input id="picker_id" type="text" readonly="readonly"/> 
         <input type="submit" onClick="submitForm()" value="Submit"/>
     </form>
@@ -108,7 +115,7 @@
 {% if show_confirmation %}
     <h3>Welcome, {{picker.firstName}}!<h3/><br/>
 
-    <form name="bundy_confirmation" action="" method="post" id="bundy_confirmation">
+    <form name="bundy_confirmation" action="" method="GET" id="bundy_confirmation">
         {% if signon_flag %}
             <input type="submit" onClick="signOn()" value="Sign on" />
         {% else %}

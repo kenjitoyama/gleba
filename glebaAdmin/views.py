@@ -366,6 +366,9 @@ def generateReport(request):
 
 ##### Bundy Clock handling #####
 def bundy(request):
+    """
+    The default bundy page. Renders the keypad for emp_ID input.
+    """
     return render_to_response('bundy.html')
 
 def bundyOnOff(request, bundy_action, picker_id):
