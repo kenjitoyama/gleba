@@ -66,17 +66,20 @@ class ThreadSerial(threading.Thread):
         return float(self.pattern_matcher.findall(self.scale_string)[0][2])
 
     def kill(self):
-        " Called when thread must be killed. Causes loop of thread to terminate and thread to die"
+        "Called when thread must be killed. Causes loop of thread to terminate
+        and thread to die"
         self.isOk=False
 
 class DBAPI ():
     def __init__(self):
         self.http_address=django_http_path
 
-    def addBox (self,picker, batch, variety, initWeight, finalWeight, timestamp):    
-        """ Performs a url request with for the django add box using all the info in parameters
+    def addBox(self,picker,batch,variety,initWeight,finalWeight,timestamp): 
+        """ Performs a url request with for the django add box using all the
+        info in parameters
             
-                Returns true iff the operation was successful
+                Returns (p,m) p is true iff the operation was successful
+                else m is the error message returned from the server
         """
         params=urllib.urlencode({
             'initialWeight':initWeight,
@@ -92,7 +95,8 @@ class DBAPI ():
         
     def getActivePickers(self):    
         """ 
-            Parse a delimited string from a url of all the current pickers into a python list
+            Parse a delimited string from a url of all the current pickers
+            into a python list
         """
         l=list()
         f=urllib.urlopen(self.http_address+"pickerList")
@@ -114,7 +118,8 @@ class DBAPI ():
             
     def getActiveBatches(self):    
         """ 
-            Parse a delimited string from a url of all the current batches into a python list
+            Parse a delimited string from a url of all the current batches into
+            a python list
         """
         l=list()
         f=urllib.urlopen(self.http_address+"batchList")
@@ -139,7 +144,8 @@ class DBAPI ():
      
     def getActiveVarieties(self):    
         """ 
-            Parse a delimited string from a url of all the current batches into a python list
+            Parse a delimited string from a url of all the current batches into
+            a python list
         """
         l=list()
         f=urllib.urlopen(self.http_address+"varietyList")
