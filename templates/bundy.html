@@ -115,14 +115,17 @@
 {% if show_confirmation %}
     <h3>Welcome, {{picker.firstName}}!<h3/><br/>
 
-    <form name="bundy_confirmation" action="" method="GET" id="bundy_confirmation">
-        {% if signon_flag %}
+    {% if signon_flag %}
+        <form name="bundy_confirmation" action="" method="GET" id="bundy_confirmation">
             <input type="submit" onClick="signOn()" value="Sign on" />
-        {% else %}
-            <input type="submit" onClick="signOff('true')" value="Sign off With Lunch Break" />
-            <input type="submit" onClick="signOff('false')" value="Sign off Without Lunch Break" />
-        {% endif %}
-    </form>
+        </form>
+    {% else %}
+        <form action="{% url gleba.glebaAdmin.views.bundy %}signoff/1" method="GET" id="bundy_confirmation">
+            <input type="radio" name="lunch" value="True" checked>Sign Off WITH Lunch Break</input>
+            <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input>
+            <input type="Submit" value="Sign Off">
+        </form>
+   {% endif %}
 {% endif %}
 
 {% if error_message %}
