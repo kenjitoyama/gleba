@@ -1,3 +1,9 @@
+"""
+This the models for data within the Gleba Software system
+
+Copyright (C) Simon Dawson, Kenji Toyama, Meryl Baquiran, Chris Ellis 2010-2011
+"""
+
 from django.db import models
 from django.db.models import Avg, Sum, Min, Max
 import datetime
@@ -212,7 +218,7 @@ class Batch(models.Model):
                 str(self.flush.crop.room)
 
     def dateString(self):
-        "Returns date as a string day/month/year"
+        """ Returns date as a string day/month/year """
         return  str(self.date.day) + "/" + \
                 str(self.date.month) + "/" + \
                 str(self.date.year)

@@ -15,6 +15,7 @@ import csv
 import datetime
 import Gnuplot
 from django.db.models import Avg, Sum, Min, Max
+import django_tables as tables 
 
 ################# General Utily Functions #################
 def lastMonth():
@@ -152,6 +153,24 @@ def getDateFromRequest(request):
         debug+="The end date is before the start date."
     return (startDate, endDate)
     
+#=== Reporting on pickers with a sortable table ===
+# NOTE working on this
+class PickingRateTable(tables.ModelTable):  
+    """
+        http://blog.elsdoerfer.name/2008/07/09/django-tables-a-queryset-renderer/
+
+        Attempting to create a table for the pickers that is sortable by names or rates.
+
+        This is work in progress.
+    """
+    cFirstName = tables.Column(name='First Name' data='firstName')  
+    cLastName = tables.Column(name='Last Name' data='Last Name')  
+    cTotalPicked = tables.Column(name='Total Picked')  
+    cTotalPickedPerTime = tables.Column(name='Total Picked per Hour')  
+    class Meta:  
+        model = Picker
+
+
 @login_required
 def generateReportAllPicker(request): 
     """ 
@@ -372,6 +391,7 @@ def bundy(request):
     return render_to_response('bundy.html')
 
 def bundyOnOff(request, bundy_action, picker_id):
+    bundy_action=bundy_action.lower()
     picker_list = Picker.objects.filter(active=True, discharged=False).order_by('id')
     picker_entry = Bundy.objects.filter(picker=picker_id, timeOut__isnull=True)
     try:
