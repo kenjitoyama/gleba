@@ -15,7 +15,7 @@ import csv
 import datetime
 import Gnuplot
 from django.db.models import Avg, Sum, Min, Max
-import django_tables as tables 
+"import django_tables as tables "
 
 ################# General Utily Functions #################
 def lastMonth():
@@ -155,20 +155,20 @@ def getDateFromRequest(request):
     
 #=== Reporting on pickers with a sortable table ===
 # NOTE working on this
-class PickingRateTable(tables.ModelTable):  
-    """
+"""class PickingRateTable(tables.ModelTable):  
+    "
         http://blog.elsdoerfer.name/2008/07/09/django-tables-a-queryset-renderer/
 
         Attempting to create a table for the pickers that is sortable by names or rates.
 
         This is work in progress.
-    """
+    "
     cFirstName = tables.Column(name='First Name' data='firstName')  
     cLastName = tables.Column(name='Last Name' data='Last Name')  
     cTotalPicked = tables.Column(name='Total Picked')  
     cTotalPickedPerTime = tables.Column(name='Total Picked per Hour')  
     class Meta:  
-        model = Picker
+        model = Picker"""
 
 
 @login_required
@@ -180,15 +180,29 @@ def generateReportAllPicker(request):
         It uses two dates from the http POST, if they don't make sense the last 31 days are used.
     """
     try:
-        debug=""
+        sort_by = request.GET.get('sort') 
+        debug="sort_by="+sort_by
         startDate, endDate = getDateFromRequest(request)
         data={} # Dictionary: picker objects will be the key and (total picked, kpi) will be value
-        for p in Picker.objects.all():
+        if sort_by=="fName":
+            debug+="going to try sort by first name"
+            pickers=Picker.objects.all().order_by('firstName')
+            debug+="\n"
+            for p in pickers: debug+=str(p.firstName)
+        elif sort_by=="lName":
+            debug+="going to try sort by last name"
+            pickers=Picker.objects.all().order_by('lastName')
+            debug+="\n"
+            for p in pickers: debug+=str(p.firstName)
+        else:
+            pickers=Picker.objects.all()
+        for p in pickers:
             # timeWorked for picker p in hours
             timeWorked=(p.getTimeWorkedBetween(startDate, endDate).seconds)/3600.0
             if timeWorked>0: # p has worked
                 totalPicked=p.getTotalPickedBetween(startDate, endDate)
                 data[p]=(totalPicked, totalPicked/timeWorked)
+    
         return render_to_response(
             'report.html', {
                 'data' :  data,
@@ -393,7 +407,7 @@ def bundy(request):
 def bundyOnOff(request, bundy_action, picker_id):
     bundy_action=bundy_action.lower()
     picker_list = Picker.objects.filter(active=True, discharged=False).order_by('id')
-    picker_entry = Bundy.objects.filter(picker=picker_id, timeOut__isnull=True)
+    picker_entry = Bundy.objects.filter(picker__id=picker_id, timeOut__isnull=True)
     try:
         picker_ = Picker.objects.get(id=picker_id)
     except Exception as e:

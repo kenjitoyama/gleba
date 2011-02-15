@@ -120,7 +120,7 @@
             <input type="submit" onClick="signOn()" value="Sign on" />
         </form>
     {% else %}
-        <form action="{% url gleba.glebaAdmin.views.bundy %}signoff/1" method="GET" id="bundy_confirmation">
+        <form action="{% url gleba.glebaAdmin.views.bundy %}signoff/{{ picker.id }}" method="GET" id="bundy_confirmation">
             <input type="radio" name="lunch" value="True" checked>Sign Off WITH Lunch Break</input>
             <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input>
             <input type="Submit" value="Sign Off">

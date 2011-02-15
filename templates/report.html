@@ -75,9 +75,30 @@
         <h1>Overall Picking ({{ startDate }} - {{endDate}})</h1> 
             <div>	
                     <table>
-                        <tr><td><h4>Picker</h4></td><td><h4>Mushrooms Picked (kg)</h4></td><td><h4>Mushrooms Picked/Hour Worked (kg/hr)</h4></td></tr>
+                        <tr>
+                            <td>
+                                <h4>
+                                    <a href="?sort=fName">First Name</a>
+                                </h4>
+                            </td>
+                            <td>
+                                <h4>
+                                    <a href="?sort=lName">Last Name</a>
+                                </h4>
+                            </td>
+                            <td>
+                                <h4>
+                                    <a href="?sort=totalPicked">Mushrooms Picked (kg)</a>
+                                </h4>
+                            </td>
+                            <td>
+                                <h4>
+                                    <a href="?sort=kpi">Mushrooms Picked/Hour Worked (kg/hr)</a>
+                                </h4>
+                            </td>
+                        </tr>
                     {% for picker, values in data.items  %}
-                        <tr><td>{{ picker.firstName }} {{ picker.lastName }}</td><td>{{values.0}}</td><td>{{values.1}}</td></tr>
+                        <tr><td>{{ picker.firstName }}</td> <td>{{ picker.lastName }}</td><td>{{values.0}}</td><td>{{values.1}}</td></tr>
                     {% endfor %}
                     </table>
                 </div>
