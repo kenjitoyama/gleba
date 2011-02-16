@@ -1,8 +1,40 @@
 {% extends "base.html" %}
 
+
+{% if default_page %}
+    {% block extrahead %}
+    <script type="text/javascript" src="/media/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" src="/media/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="/media/jquery-ui.css" type="text/css" media="screen" title="Base"/>
+    <script type="text/javascript">
+        function submitForm(report_type) {
+            var form = $("#"+report_type+"report_form");
+            var form_url = form.attr("action");
+            var selected_value = $("#"+report_type+"menu").val();
+            form_url = report_type.substring(0, report_type.length-1)+"/" + selected_value + "/";
+            form.attr("action", form_url);
+            form.append($("#startDate"));
+            form.append($("#endDate"));
+            form.submit();
+        }
+
+        function submitAllPickerForm() {
+            var form = $("#all_picker_report_form")    
+            form.append($("#startDate"));
+            form.append($("#endDate"));
+            form.submit();
+        }
+
+        Date.format = 'dd/mm/yyyy';
+        $(function() {
+            $(".dateField").datepicker({dateFormat: 'dd-mm-yy'});
+        });
+    </script>
+    {% endblock %}
+{% endif %} 
+
 {% block content %}
-    {% if report_type_picker %}
-        <h1>Picker Report :: {{ picker.firstName }} {{ picker.lastName }}</h1> 
+    {% if report_type_picker %}        <h1>Picker Report :: {{ picker.firstName }} {{ picker.lastName }}</h1> 
         <table><tr><td>	<img src="{{ graph_filename }}"/></td>
             <td>
                 <div>	
@@ -109,76 +141,75 @@
     {% endif %}
 
     {% if default_page %}
-    <script type="text/javascript" src="/media/jquery-1.4.4.min.js"></script>
-    <script type="text/javascript" src="/media/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="/media/jquery-ui.css" type="text/css" media="screen" title="Base"/>
-    <script type="text/javascript">
-        function submitForm(report_type) {
-            var form = $("#"+report_type+"report_form");
-            var form_url = form.attr("action");
-            var selected_value = $("#"+report_type+"menu").val();
-            form_url = report_type.substring(0, report_type.length-1)+"/" + selected_value + "/";
-            form.attr("action", form_url);
-            form.append($("#startDate"));
-            form.append($("#endDate"));
-            form.submit();
-        }
-
-        function submitAllPickerForm() {
-            var form = $("#all_picker_report_form")    
-            form.append($("#startDate"));
-            form.append($("#endDate"));
-            form.submit();
-        }
-
-        Date.format = 'dd/mm/yyyy';
-        $(function() {
-            $("#startDate").datepicker({dateFormat: 'dd-mm-yy'});
-        });
-        $(function() {
-            $("#endDate").datepicker({dateFormat: 'dd-mm-yy'});
-        });
-    </script>
-    <p>Please select the range for which a report should be generated.</p>
-    <form name="date_form" action="" method="post" id="date_form">
-        <label for="startDate">Start Date</label>
-        <input name="startDate" id="startDate" type="text">
-        <label for="endDate">End Date</label>
-        <input name="endDate" id="endDate" type="text">
-    </form>
-    Picker
-    <form name="picker_form" action="picker/" method="post" id="picker_report_form">
-        <select name="picker" id="picker_menu" style="font-size:20px;">
-            {% for picker in picker_list %}
-            <option value={{ picker.id }}>{{ picker.id }} - {{ picker.firstName }} {{ picker.lastName }}</option>
-            {% endfor %}
-        </select>
-        <input type="submit" onClick="submitForm('picker_')" value="Submit"/>
-    </form>
-    All Pickers
-    <form name="all_picker_form" action="picker/" method="POST" id="all_picker_report_form">
-        <input type="submit" onClick="submitAllPickerForm()" value="Submit" >
-    </form>
+    <div>
+        <h2>Picker</h2>
+        <form name="picker_form" action="picker/" method="post" id="picker_report_form">
+            <select name="picker" id="picker_menu">
+                {% for picker in picker_list %}
+                <option value={{ picker.id }}>{{ picker.id }} - {{ picker.firstName }} {{ picker.lastName }}</option>
+                {% endfor %}
+            </select><br/>
+            <label for="startDate">Start Date</label>
+            <input name="startDate" class="dateField" type="text"><br/>
+            <label for="endDate">End Date</label>
+            <input name="endDate" class="dateField" type="text"><br/>
+            <input type="submit" onClick="submitForm('picker_')" value="Submit"/><br/>
+        </form>
+    </div>
+    
+    <div>
+        <h2>All Pickers</h2>
+        <form name="all_picker_form" action="picker/" method="POST" id="all_picker_report_form">
+            <label for="startDate">Start Date</label>
+            <input name="startDate" class="dateField" type="text"><br/>
+            <label for="endDate">End Date</label>
+            <input name="endDate" class="dateField" type="text"><br/>
+            <input type="submit" onClick="submitAllPickerForm()" value="Submit" ><br/>
+        </form>
+    </div>
         
-    Flush ID
-    <form name="flush_form" action="flush/" method="post" id="flush_report_form">
-        <input type="text" name="flush" id="flush_menu">
-        <input type="submit" onClick="submitForm('flush_')" value="Submit"/>
-    </form>
-    Crop ID
-    <form name="crop_form" action="crop/" method="post" id="crop_report_form">
-        <input type="text" name="crop" id="crop_menu">
-        <input type="submit" onClick="submitForm('crop_')" value="Submit"/>
-    </form>
-    Room
-    <form name="room_form" action="room/" method="post" id="room_report_form">
-        <select name="room" id="room_menu">
-            {% for room in room_list %}
-            <option value={{ room.number }}>{{ room.number }}</option>
-            {% endfor %}
-        </select>
-        <input type="submit" onClick="submitForm('room_')" value="Submit"/>
-    </form>
+    <div>
+        <h2>Flush</h2>
+        <form name="flush_form" action="flush/" method="post" id="flush_report_form">
+            <label for="flush">Flush ID</label>
+            <input type="text" name="flush" id="flush_menu"><br/>
+            <label for="startDate">Start Date</label>
+            <input name="startDate" class="dateField" type="text"><br/>
+            <label for="endDate">End Date</label>
+            <input name="endDate" class="dateField" type="text"><br/>
+            <input type="submit" onClick="submitForm('flush_')" value="Submit"/><br/>
+        </form>
+    </div>
+
+    <div>
+        <h2>Crop</h2>
+        <form name="crop_form" action="crop/" method="post" id="crop_report_form">
+            <label for="crop">Crop ID</label>
+            <input type="text" name="crop" id="crop_menu"><br/>
+            <label for="startDate">Start Date</label>
+            <input name="startDate" class="dateField" type="text"><br/>
+            <label for="endDate">End Date</label>
+            <input name="endDate" class="dateField" type="text"><br/>
+            <input type="submit" onClick="submitForm('crop_')" value="Submit"/>
+        </form>
+    </div>
+
+    <div>
+        <h2>Room</h2>
+        <form name="room_form" action="room/" method="post" id="room_report_form">
+            <label for="room">Room Number</label>
+            <select name="room" id="room_menu">
+                {% for room in room_list %}
+                <option value={{ room.number }}>{{ room.number }}</option>
+                {% endfor %}
+            </select><br/>
+            <label for="startDate">Start Date</label>
+            <input name="startDate" class="dateField" type="text"><br/>
+            <label for="endDate">End Date</label>
+            <input name="endDate" class="dateField" type="text"><br/>
+            <input type="submit" onClick="submitForm('room_')" value="Submit"/>
+        </form>
+    </div>
     {% endif %}
     {{ debug }}
 {% endblock %}
