@@ -97,8 +97,12 @@
                                 </h4>
                             </td>
                         </tr>
-                    {% for picker, values in data.items  %}
-                        <tr><td>{{ picker.firstName }}</td> <td>{{ picker.lastName }}</td><td>{{values.0}}</td><td>{{values.1}}</td></tr>
+                    {% comment %}
+                        data is a list of lists containing [p.firstName,p.lastName,p.totalPicked, p.kpi]
+                        for each picker p
+                    {% endcomment %}
+                    {% for i in data  %}
+                        <tr><td>{{ i.0 }}</td> <td>{{ i.1 }}</td><td>{{ i.2 }}</td><td>{{ i.3 }}</td></tr>
                     {% endfor %}
                     </table>
                 </div>

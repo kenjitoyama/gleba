@@ -179,29 +179,32 @@ def generateReportAllPicker(request):
         Builds a dictionary picker objects will be the key and (total picked, kpi) will be value.
         It uses two dates from the http POST, if they don't make sense the last 31 days are used.
     """
+    debug=""
     try:
         sort_by = request.GET.get('sort') 
-        debug="sort_by="+sort_by
         startDate, endDate = getDateFromRequest(request)
-        data={} # Dictionary: picker objects will be the key and (total picked, kpi) will be value
-        if sort_by=="fName":
-            debug+="going to try sort by first name"
-            pickers=Picker.objects.all().order_by('firstName')
-            debug+="\n"
-            for p in pickers: debug+=str(p.firstName)
-        elif sort_by=="lName":
-            debug+="going to try sort by last name"
-            pickers=Picker.objects.all().order_by('lastName')
-            debug+="\n"
-            for p in pickers: debug+=str(p.firstName)
-        else:
-            pickers=Picker.objects.all()
-        for p in pickers:
+        data=[] # List: [Picker Firstname, Picker Lastname, total picked, kpi] will be value
+
+        #for p in Pickers.objects.filter(getTimeWorkedBetween(startDate, endDate).seconds__gt=0):
+        for p in Picker.objects.all():
             # timeWorked for picker p in hours
             timeWorked=(p.getTimeWorkedBetween(startDate, endDate).seconds)/3600.0
-            if timeWorked>0: # p has worked
+            if timeWorked>0:
                 totalPicked=p.getTotalPickedBetween(startDate, endDate)
-                data[p]=(totalPicked, totalPicked/timeWorked)
+                totalPickedPerHour=totalPicked/timeWorked
+            else:
+                totalPicked=0
+                totalPickedPerHour=0
+            data.append([p.firstName, p.lastName, totalPicked, totalPickedPerHour])
+
+        if sort_by=="fName":
+            data.sort(key=lambda x: x[0])
+        elif sort_by=="lName":
+            data.sort(key=lambda x: x[1])
+        elif sort_by=="totalPicked":
+            data.sort(key=lambda x: x[2])
+        elif sort_by=="kpi":
+            data.sort(key=lambda x: x[3])
     
         return render_to_response(
             'report.html', {
