@@ -20,17 +20,6 @@
     {% if not is_popup %}
     <!-- Header -->
     <div id="header">
-        {% if user.is_authenticated %}
-            User authenitcated
-        {% else %}
-            User not authenitcated
-        {% endif %}
-
-        {% if user.is_staff %}
-            User is Staff
-        {% else %} 
-            User is not Staff
-        {% endif %}
         <div id="branding">
         {% block branding %}{% endblock %}
         </div>

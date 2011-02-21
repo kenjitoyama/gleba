@@ -213,6 +213,7 @@ def generateReportAllPicker(request):
                 'endDate' : endDate,
                 'report_type_all_pickers' : 'True',
                 'debug' : debug,
+                'user' : request.user
             }
         )
     except Exception as e:
@@ -263,6 +264,7 @@ def generateReportPicker(request, picker_id):
                 'graph_filename' : graphFile,
                 'report_type_picker' : 'True',
                 'debug' : debug,
+                'user' : request.user
             }
         )
     except Exception as e:
@@ -302,6 +304,7 @@ def generateReportRoom(request, room_id):
                 'graph_filename' : graphFile,
                 'report_type_room' : 'True',
                 'debug':debug,
+                'user' : request.user
             }
         )
     except Exception as e:
@@ -340,6 +343,7 @@ def generateReportFlush(request, flush_id):
 		        'flush' : flushObj,
                 'graph_filename' : graphFile,
                 'report_type_flush' : 'True',
+                'user' : request.user
             }
         )
     except Exception as e:
@@ -378,6 +382,7 @@ def generateReportCrop(request, crop_id):
 		        'crop' : cropObj,
                 'graph_filename' : graphFile,
                 'report_type_crop' : 'True',
+                'user' : request.user
             }
         )
     except Exception as e:
@@ -396,6 +401,7 @@ def generateReport(request):
             'default_page':'True',
             'picker_list': picker_list,
             'room_list': room_list,
+            'user' : request.user
     })
 
 # NOTE: Working from here downward refactoring
@@ -405,7 +411,7 @@ def bundy(request):
     """
     The default bundy page. Renders the keypad for emp_ID input.
     """
-    return render_to_response('bundy.html')
+    return render_to_response('bundy.html',{'user' : request.user})
 
 def bundyOnOff(request, bundy_action, picker_id):
     bundy_action=bundy_action.lower()
@@ -423,6 +429,7 @@ def bundyOnOff(request, bundy_action, picker_id):
                 'picker_list':picker_list,
                 'signon_flag':False,
                 'show_confirmation': False,
+                'user' : request.user
         });
     elif bundy_action=="signoff":
         session = Bundy.objects.get(picker=picker_id, timeOut__isnull=True)
@@ -432,7 +439,11 @@ def bundyOnOff(request, bundy_action, picker_id):
             else:
                 raise NameError("Lunch parameter in http request not found")
         except Exception as e:
-            return render_to_response('bundy.html', {'error_message' : e})
+            return render_to_response(
+                'bundy.html', {
+                    'error_message' : e,
+                    'user' : request.user
+                });
         session.timeOut=datetime.datetime.now()
         session.hadLunch=hadLunch_
         session.save()
@@ -441,6 +452,7 @@ def bundyOnOff(request, bundy_action, picker_id):
                 'picker_list':picker_list,
                 'signon_flag':False,
                 'show_confirmation': False,
+                'user' : request.user
         });
     else: # display the confirmation
         if(len(picker_entry)==0): # picker is trying to sign on
@@ -450,6 +462,7 @@ def bundyOnOff(request, bundy_action, picker_id):
                     'picker':picker_,
                     'signon_flag':True,
                     'show_confirmation': True,
+                    'user' : request.user
             });
         else:
             return render_to_response(
@@ -458,6 +471,7 @@ def bundyOnOff(request, bundy_action, picker_id):
                     'picker':picker_,
                     'signon_flag':False,
                     'show_confirmation': True,
+                    'user' : request.user
             });
 
 ##### CSV export handling #####
