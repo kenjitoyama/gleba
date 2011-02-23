@@ -145,6 +145,7 @@ def getDateFromRequest(request):
         startDate = datetime.datetime.strptime(request.POST['startDate'], "%d-%m-%Y").date()
     else:
         startDate = datetime.date.today() - datetime.timedelta(days=31)
+
     if 'endDate' in request.POST and len(request.POST['endDate'])>1:
         endDate = datetime.datetime.strptime(request.POST['endDate'], "%d-%m-%Y").date()
     else:
@@ -185,17 +186,13 @@ def generateReportAllPicker(request):
         startDate, endDate = getDateFromRequest(request)
         data=[] # List: [Picker Firstname, Picker Lastname, total picked, kpi] will be value
 
-        #for p in Pickers.objects.filter(getTimeWorkedBetween(startDate, endDate).seconds__gt=0):
         for p in Picker.objects.all():
-            # timeWorked for picker p in hours
             timeWorked=(p.getTimeWorkedBetween(startDate, endDate).seconds)/3600.0
-            if timeWorked>0:
-                totalPicked=p.getTotalPickedBetween(startDate, endDate)
-                totalPickedPerHour=totalPicked/timeWorked
-            else:
-                totalPicked=0
-                totalPickedPerHour=0
-            data.append([p.firstName, p.lastName, totalPicked, totalPickedPerHour])
+            totalPicked=p.getTotalPickedBetween(startDate, endDate)
+            avgInitWeight=p.getAvgInitWeightBetween(startDate,endDate);
+            totalPickedPerHour= totalPicked/timeWorked if (timeWorked>0) else 0
+
+            data.append([p.firstName, p.lastName, totalPicked, totalPickedPerHour, avgInitWeight])
 
         if sort_by=="fName":
             data.sort(key=lambda x: x[0])
@@ -205,7 +202,9 @@ def generateReportAllPicker(request):
             data.sort(key=lambda x: x[2])
         elif sort_by=="kpi":
             data.sort(key=lambda x: x[3])
-    
+        elif sort_by=="avgBox": 
+            data.sort(key=lambda x: x[4])
+
         return render_to_response(
             'report.html', {
                 'data' :  data,

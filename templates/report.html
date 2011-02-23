@@ -107,35 +107,44 @@
         <h1>Overall Picking ({{ startDate }} - {{endDate}})</h1> 
             <div>	
                     <table>
-                        <tr>
-                            <td>
-                                <h4>
-                                    <a href="?sort=fName">First Name</a>
-                                </h4>
-                            </td>
-                            <td>
-                                <h4>
-                                    <a href="?sort=lName">Last Name</a>
-                                </h4>
-                            </td>
-                            <td>
-                                <h4>
-                                    <a href="?sort=totalPicked">Mushrooms Picked (kg)</a>
-                                </h4>
-                            </td>
-                            <td>
-                                <h4>
-                                    <a href="?sort=kpi">Mushrooms Picked/Hour Worked (kg/hr)</a>
-                                </h4>
-                            </td>
-                        </tr>
+                        <thead>
+                            <tr>
+                                <td>
+                                    <h4>
+                                        <a href="?sort=fName&startDate={{startDate}}&endDate={{endDate}}">First Name</a>
+                                    </h4>
+                                </td>
+                                <td>
+                                    <h4>
+                                        <a href="?sort=lName&startDate={{startDate}}&endDate={{endDate}}">Last Name</a>
+                                    </h4>
+                                </td>
+                                <td>
+                                    <h4>
+                                        <a href="?sort=totalPicked&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked (kg)</a>
+                                    </h4>
+                                </td>
+                                <td>
+                                    <h4>
+                                        <a href="?sort=kpi&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked/Hour Worked (kg/hr)</a>
+                                    </h4>
+                                </td>
+                                <td>
+                                    <h4>
+                                        <a href="?sort=avgBox&startDate={{startDate}}&endDate={{endDate}}">Average Initial Box Weight (kg)</a>
+                                    </h4>
+                                </td>
+                            </tr>
+                        </thead>
                     {% comment %}
-                        data is a list of lists containing [p.firstName,p.lastName,p.totalPicked, p.kpi]
+                        data is a list of lists containing [p.firstName,p.lastName,p.totalPicked, p.kpi, p.avgBoxWeight]
                         for each picker p
                     {% endcomment %}
-                    {% for i in data  %}
-                        <tr><td>{{ i.0 }}</td> <td>{{ i.1 }}</td><td>{{ i.2 }}</td><td>{{ i.3 }}</td></tr>
-                    {% endfor %}
+                        <tbody>
+                        {% for i in data  %}
+                            <tr><td>{{ i.0 }}</td> <td>{{ i.1 }}</td><td>{{ i.2 }}</td><td>{{ i.3 }}</td><td>{{ i.4 }}</td></tr>
+                        {% endfor %}
+                        </tbody>
                     </table>
                 </div>
     {% endif %}

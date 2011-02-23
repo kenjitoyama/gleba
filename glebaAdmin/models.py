@@ -25,6 +25,21 @@ class Picker(models.Model):
         "Returns the full name of this picker"
         return self.firstName + ' ' + self.lastName
 
+    def getAvgInitWeight(self):
+        """ Return the average initial weight of boxes picker by picker """
+        avg = Box.objects.filter(picker=self).aggregate(Avg('initialWeight'))['initialWeight__avg']
+        return avg if avg is not None else 0.0
+
+    def getAvgInitWeightOn(self, date):
+        """ Return the average initial weight of boxes picker by picker on date """
+        avg = Box.objects.filter(picker=self, batch__date=date).aggregate(Avg('initialWeight'))['initialWeight__avg']
+        return avg if (avg is not None) else 0.0
+
+    def getAvgInitWeightBetween(self, startDate, endDate):
+        """ Return the average initial weight of boxes picker by picker """
+        avg = Box.objects.filter(picker=self, batch__date__gte=startDate, batch__date__lte=endDate).aggregate(Avg('initialWeight'))['initialWeight__avg']
+        return avg if avg is not None else 0.0
+
     def getTotalPicked(self):
         """ Return total picked for a picker forever """
         total = Box.objects.filter(picker=self).aggregate(Sum('initialWeight'))['initialWeight__sum']
