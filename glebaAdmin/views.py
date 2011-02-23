@@ -141,15 +141,31 @@ def getDateFromRequest(request):
         If request does not contain a valid startDate, 31 days in the past from today is used.
         If request does not contain a valid endDate, today is used.
     """
-    if 'startDate' in request.POST and len(request.POST['startDate'])>1:
-        startDate = datetime.datetime.strptime(request.POST['startDate'], "%d-%m-%Y").date()
+#NOTE: Broken Function needs to detect whether var is in POST or GET and act accordingly
+    if 'startDate' in request.POST or 'startDate' in request.GET:
+        if len(request.POST['startDate'])>1:
+            startDate = datetime.datetime.strptime(request.POST['startDate'], "%d-%m-%Y").date()
+        elif len(request.GET['startDate'])>1:
+            startDate = datetime.datetime.strptime(request.GET['startDate'], "%d-%m-%Y").date()
+        else:
+            startDate = datetime.date.today() - datetime.timedelta(days=31)
     else:
         startDate = datetime.date.today() - datetime.timedelta(days=31)
-
-    if 'endDate' in request.POST and len(request.POST['endDate'])>1:
-        endDate = datetime.datetime.strptime(request.POST['endDate'], "%d-%m-%Y").date()
+        
+    if 'endDate' in request.POST or 'endDate' in request.GET:
+        if len(request.POST['endDate'])>1:
+            startDate = datetime.datetime.strptime(request.POST['endDate'], "%d-%m-%Y").date()
+        elif len(request.GET['endDate'])>1:
+            startDate = datetime.datetime.strptime(request.GET['endDate'], "%d-%m-%Y").date()
+        else:
+            endDate = datetime.date.today()
     else:
         endDate = datetime.date.today()
+
+    """if 'endDate' in request.POST and len(request.POST['endDate'])>1:
+        endDate = datetime.datetime.strptime(request.POST['endDate'], "%d-%m-%Y").date()
+    else:
+        endDate = datetime.date.today()"""
     if endDate<startDate:
         debug+="The end date is before the start date."
     return (startDate, endDate)
