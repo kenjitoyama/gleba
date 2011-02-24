@@ -141,34 +141,18 @@ def getDateFromRequest(request):
         If request does not contain a valid startDate, 31 days in the past from today is used.
         If request does not contain a valid endDate, today is used.
     """
-#NOTE: Broken Function needs to detect whether var is in POST or GET and act accordingly
-    if 'startDate' in request.POST or 'startDate' in request.GET:
-        if len(request.POST['startDate'])>1:
+    try: 
+        if 'startDate' in request.POST and 'endDate' in request.POST:
             startDate = datetime.datetime.strptime(request.POST['startDate'], "%d-%m-%Y").date()
-        elif len(request.GET['startDate'])>1:
+            endDate = datetime.datetime.strptime(request.POST['endDate'], "%d-%m-%Y").date()
+        elif 'startDate' in request.GET and 'endDate' in request.GET:  
             startDate = datetime.datetime.strptime(request.GET['startDate'], "%d-%m-%Y").date()
-        else:
-            startDate = datetime.date.today() - datetime.timedelta(days=31)
-    else:
-        startDate = datetime.date.today() - datetime.timedelta(days=31)
-        
-    if 'endDate' in request.POST or 'endDate' in request.GET:
-        if len(request.POST['endDate'])>1:
-            startDate = datetime.datetime.strptime(request.POST['endDate'], "%d-%m-%Y").date()
-        elif len(request.GET['endDate'])>1:
-            startDate = datetime.datetime.strptime(request.GET['endDate'], "%d-%m-%Y").date()
-        else:
-            endDate = datetime.date.today()
-    else:
+            endDate = datetime.datetime.strptime(request.GET['endDate'], "%d-%m-%Y").date()
+    except: 
         endDate = datetime.date.today()
-
-    """if 'endDate' in request.POST and len(request.POST['endDate'])>1:
-        endDate = datetime.datetime.strptime(request.POST['endDate'], "%d-%m-%Y").date()
-    else:
-        endDate = datetime.date.today()"""
-    if endDate<startDate:
-        debug+="The end date is before the start date."
-    return (startDate, endDate)
+        startDate = endDate - datetime.timedelta(days=31)
+            
+    return (startDate, endDate) if startDate>endDate else (endDate,startDate)
     
 #=== Reporting on pickers with a sortable table ===
 # NOTE working on this
@@ -224,8 +208,8 @@ def generateReportAllPicker(request):
         return render_to_response(
             'report.html', {
                 'data' :  data,
-                'startDate' : startDate,
-                'endDate' : endDate,
+                'startDate' : startDate.strftime("%d-%m-%Y"),
+                'endDate' : endDate.strftime("%d-%m-%Y"),
                 'report_type_all_pickers' : 'True',
                 'debug' : debug,
                 'user' : request.user
@@ -333,10 +317,17 @@ def generateReportFlush(request, flush_id):
         Builds a dictionary, dates are the keys and total picked for a flush will be value.
         Plots this with gnuplot and prints it in table form
     """
+#Broken There is a problem with the the endDate  "local variable 'endDate' referenced before assignment"
     try:
         debug = ""
-        startDate, EndDate = getDateFromRequest(request)
         flushObj=Flush.objects.get(id=flush_id)
+        if 'startDate' in request.POST and 'endDate' in request.POST \
+            or 'startDate' in request.GET and 'endDate' in request.GET:
+            startDate, EndDate = getDateFromRequest(request)
+        else: 
+            startDate=flushObj.startDate
+            endDate=flushObj.endDate if flushObj.endDate is not None else datetime.today()
+
         graphFile = "/media/graphs/flushGraph.png"
         gp = setupGnuPlot(graphFile, startDate, endDate)
 
