@@ -84,6 +84,19 @@ class BoxAdmin(admin.ModelAdmin):
         ('Batch',  {'fields': ['batch']}),
     ]
 
+class BundyAdmin(admin.ModelAdmin):
+    list_display = ('timeIn', 'timeOut', 'picker', 'hadLunch')
+    list_filter = ('timeIn', 'timeOut', 'picker', 'hadLunch')
+    search_fields = ['picker__id', 'picker__firstName', 'picker__lastName']
+    fieldsets = [
+        ('Time In', {'fields': ['timeIn']}),
+        ('Time Out', {'fields': ['timeOut']}),
+        ('Picker',  {'fields': ['picker']}),
+        ('Had Lunch', {'fields': ['hadLunch']}),
+    ]
+
+
+
 admin.site.register(Picker, PickerAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(Crop, CropAdmin)
@@ -91,4 +104,4 @@ admin.site.register(Flush, FlushAdmin)
 admin.site.register(Batch, BatchAdmin)
 admin.site.register(Mushroom, MushroomAdmin)
 admin.site.register(Box, BoxAdmin)
-admin.site.register(Bundy)
+admin.site.register(Bundy, BundyAdmin)
