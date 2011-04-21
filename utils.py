@@ -66,8 +66,8 @@ class ThreadSerial(threading.Thread):
         return float(self.pattern_matcher.findall(self.scale_string)[0][2])
 
     def kill(self):
-        "Called when thread must be killed. Causes loop of thread to terminate
-        and thread to die"
+        """Called when thread must be killed. Causes loop of thread to 
+        terminate and thread to die"""
         self.isOk=False
 
 class DBAPI ():
