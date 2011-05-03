@@ -8,6 +8,11 @@ On GNU/Linux:
 - socat (www.dest-unreach.org/socat/)
 """
 
-SOCAT_EXECUTABLE = '/usr/bin/socat'
+# - Serial Configuration
+#ser_port=1#"/dev/ttyS0"
+ser_port = '/dev/pts/5'
 
-SOCAT_ARGS = '-d -d -u pty,raw,echo=0 pty,raw,echo=0'
+# - Django Configuration
+#    Full http path to the root of the django web app 
+#         Change before deployment
+django_http_path = 'http://localhost:8000/'

@@ -9,8 +9,10 @@ import Queue # for Queue.Empty Exception
 import time
 import gobject
 
-import config
 import subprocess, shlex # for "forking socat"
+
+SOCAT_EXECUTABLE = '/usr/bin/socat'
+SOCAT_ARGS = '-d -d -u pty,raw,echo=0 pty,raw,echo=0'
 
 # user random.uniform(0,10) for generating a random float
 
@@ -25,7 +27,7 @@ class ScaleProcess(multiprocessing.Process):
             raise Exception('A multiprocessing.Queue is necessary')
         self.queue = kwargs['queue']
         if output_format==None:
-            self.output_format = 'ST,GS, {0}KG,'
+            self.output_format = 'ST,GS, {:f}KG,'
         else:
             self.output_format = output_format
 
@@ -44,11 +46,14 @@ class ScaleProcess(multiprocessing.Process):
         """
         Returns the 'line' as given by a scale.
         """
-        return (self.output_format+'\n').format(weight)
+        try:
+            return (self.output_format+'\n').format(float(weight))
+        except:
+            pass
 
 class Scale(gtk.Window):
     def __init__(self, *args, **kwargs):
-        command = config.SOCAT_EXECUTABLE + ' ' + config.SOCAT_ARGS
+        command = SOCAT_EXECUTABLE + ' ' + SOCAT_ARGS
         self.socat_process = subprocess.Popen(shlex.split(command),
                                               shell=False,
                                               stderr=subprocess.PIPE)
@@ -76,15 +81,20 @@ class Scale(gtk.Window):
         self.connect("destroy", self.destroy)
 
         self.main_container = gtk.HBox()
-        self.main_container.set_size_request(400, 40)
+        self.main_container.set_size_request(800, 40)
         #self.weight_input = gtk.Entry(max=10)
         #self.weight_input.connect('activate', self.set_weight_cb)
-        adj = gtk.Adjustment(0.0, 0.0, 11, 1, 1.0, 1.0)
+        adj = gtk.Adjustment(0.0,  # initial value
+                             0.0,  # lower bound
+                             10.0, # upper bound
+                             0.001, # step increment
+                             0,    # page increment
+                             0)    # page size
         adj.connect('value_changed', self.slider_change)
         self.slider = gtk.HScale(adj)
-        self.slider.set_size_request(250, 20)
+        self.slider.set_size_request(700, 20)
         self.slider.set_update_policy(gtk.UPDATE_CONTINUOUS)
-        self.slider.set_digits(1)
+        self.slider.set_digits(3)
         self.slider.set_value_pos(gtk.POS_TOP)
         self.slider.set_draw_value(True)
         self.display = gtk.Label()

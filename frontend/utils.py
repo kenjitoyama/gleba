@@ -12,21 +12,7 @@ import urllib
 from datetime import datetime
 import re
 from xml.dom import minidom
-
-#==========================================
-#   Don't edit above this line.
-#   CONFIGS
-#
-# - Serial Configuration
-ser_port=1#"/dev/ttyS0"
-
-# - Django Configuration
-#    Full http path to the root of the django web app 
-#         Change before deployment
-django_http_path="http://hellscream.hayday.biz/gleba/"
-
-#    Don't edit below this line
-#==========================================
+import config
 
 class ThreadSerial(threading.Thread):
     """
@@ -47,7 +33,7 @@ class ThreadSerial(threading.Thread):
         self.pattern_matcher=re.compile(r"^(ST|US),(GS|[A-Z]+), (\d+\.\d+)KG,$")
         self.scale_string="ST,GS, 0.0KG,"
         self.ser=serial.Serial()
-        self.ser.port=ser_port
+        self.ser.port = config.ser_port
         self.ser.open()
 
     def run(self):
@@ -55,7 +41,7 @@ class ThreadSerial(threading.Thread):
         Read serial until thread killed
         """
         while self.isOk==True:
-            self.weight_string=self.ser.readline()
+            self.scale_string=self.ser.readline()
 
     def isStable(self):
         "Return true iff the weight on the scale is stable"
@@ -72,7 +58,7 @@ class ThreadSerial(threading.Thread):
 
 class DBAPI ():
     def __init__(self):
-        self.http_address=django_http_path
+        self.http_address = config.django_http_path
 
     def addBox(self,picker,batch,variety,initWeight,finalWeight,timestamp): 
         """ Performs a url request with for the django add box using all the
