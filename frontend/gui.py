@@ -490,12 +490,6 @@ class MainWindow(gtk.Window):
             self.weightLabel.set_markup(style)
             self.offsetLabel.set_markup(style)
 
-    def check_box_removed(self):
-        if self.hscale.get_value() < 100:
-            self.boxRemoved = True
-        else:
-            self.boxRemoved = False
-
     def count_up(self, maximum):
         while (self.keepRunning==True):
             self.currentBatch = self.batchComboBox.get_active()
