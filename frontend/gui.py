@@ -253,8 +253,8 @@ class MainWindow(gtk.Window):
     def edit_window(self, whatever):
         # add widgets
         self.start_stop('button')
-        selection, iter = self.historyList.get_selection().get_selected()
-        if iter is not None:
+        selection, iterator = self.historyList.get_selection().get_selected()
+        if iterator is not None:
             self.edit_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
             vb = gtk.VBox()
             editFrame = gtk.Frame(label = 'Modify Entry')
@@ -266,15 +266,15 @@ class MainWindow(gtk.Window):
             vb.pack_start(f2)
             vb.pack_start(f3)
             vb.pack_start(f4)
-            row = selection.get_path(iter)[0]
+            row = selection.get_path(iterator)[0]
             deleteButton = gtk.Button(label = 'Delete Record')
             deleteButton.connect('clicked', self.modify_history_callback,
-                                                iter, row, True)
+                                                iterator, row, True)
             deleteButton.set_size_request(10,15)
             applyButton = gtk.Button(label = 'Apply Changes')
             applyButton.set_size_request(10,35)
             applyButton.connect('clicked', self.modify_history_callback,
-                                                iter, row, False)
+                                                iterator, row, False)
             editFrame.set_size_request(0,60)
             indexList = self.historyEntries[row][6]
             # get batches
@@ -319,9 +319,9 @@ class MainWindow(gtk.Window):
                                               int(WINDOWH/1.6));
             self.edit_window.show_all()
     
-    def modify_history_callback(self, x, iter, row, delete):
+    def modify_history_callback(self, x, iterator, row, delete):
             self.start_stop('button')
-            self.historyStore.remove(iter)
+            self.historyStore.remove(iterator)
             if delete is not True:
                 entry = self.historyEntries[row]
                 #modify      
