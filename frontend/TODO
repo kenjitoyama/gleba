@@ -1,0 +1,11 @@
+================================================================================
+Possible bug:
+Let mushroom A have minimum weight 4.000 and tolerance 0.050,
+mushroom B have minimum weight 5.000 and tolerance 0.100.
+If the operator records a box with final weight 4.030 of type
+mushroom A and then edit the history changing the type of the
+box to a type B, then type B will be invalid (i.e. it will be
+underweight).
+We might need to add more checking in the editing otherwise
+some boxes might have its records corrupted.
+================================================================================
