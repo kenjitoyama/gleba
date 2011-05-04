@@ -115,28 +115,11 @@ class MainWindow(gtk.Window):
                 'weight="bold" font_desc="Calibri 14">{0}</span>'
         self.statusLabel.set_markup(style.format(self.statusText))
 
-        #Input Scroll bar
-        #adj1 = gtk.Adjustment(0.0, 0.0, 8001, 1, 1.0, 1.0)
-
-        #self.hscale = gtk.HScale(adj1)
-        #self.hscale.set_size_request(int(WINDOWW/4), 30)
-        #self.hscale.set_update_policy(gtk.UPDATE_CONTINUOUS)
-        #self.hscale.set_digits(1)
-        #self.hscale.set_value_pos(gtk.POS_TOP)
-        #self.hscale.set_draw_value(True)
-        #self.statusVbox.pack_start(self.hscale, True, True, 0)
-        #self.hscale.show()
-
         #Button to start thread, remove this later
         self.b = gtk.Button(stock=gtk.STOCK_OK)
         #self.statusVbox.pack_start(self.b)
         self.b.connect('clicked', self.history_callback)
         self.b.set_sensitive(False)
-
-        # Button to commit the weight even if out of range
-        #self.recordButton = gtk.Button(label="Record weight")
-        #self.recordButton.connect('clicked', self.history_callback)
-        #self.statusVbox.pack_start(self.recordButton)
 
         #Weight and offset display labels 
         weightDisplayFrame = gtk.Frame(label = 'Weight')
@@ -213,7 +196,7 @@ class MainWindow(gtk.Window):
         
         self.add_initial_data()
 
-        self.keepRunning=True #Kenji: flag to stop the thread
+        self.keepRunning = True #Kenji: flag to stop the thread
         self.count_in_thread(4.3)
         self.show_all()
 
@@ -240,7 +223,9 @@ class MainWindow(gtk.Window):
             for i in range(0,4):
                 if 4*j+i >= len(self.pickers):
                     break
-                button = gtk.Button(label = self.pickers[4*j+i][0]+". "+ self.pickers[4*j+i][1])
+                text = '{0}. {1}'.format(self.pickers[4*j+i][0],
+                                         self.pickers[4*j+i][1])
+                button = gtk.Button(label = text)
                 button.set_size_request(14,10)
                 button.connect('clicked', self.select_picker_callback, 4*j+i)
                 buttons.append(button)
@@ -253,7 +238,8 @@ class MainWindow(gtk.Window):
             for i in range(0,2):
                 if 2*j+i >= len(self.varieties):
                     break
-                button = gtk.Button(label=self.varieties[2*j+i][1]) #self.varieties[2*j+i][0]+". "+ 
+                text = '{0}'.format(self.varieties[2*j+i][1])
+                button = gtk.Button(label = text)
                 button.set_size_request(14,15)
                 button.connect('clicked', self.select_variety_callback, 2*j+i)
                 varietiesButtons.append(button)
@@ -271,43 +257,50 @@ class MainWindow(gtk.Window):
         if iter is not None:
             self.edit_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
             vb = gtk.VBox()
-            editFrame = gtk.Frame(label='Modify Entry')
-            f1 = gtk.Frame(label='Batch')
-            f2 = gtk.Frame(label='Picker')
-            f3 = gtk.Frame(label='Variety')
-            f4 = gtk.Frame(label='')
+            editFrame = gtk.Frame(label = 'Modify Entry')
+            f1 = gtk.Frame(label = 'Batch')
+            f2 = gtk.Frame(label = 'Picker')
+            f3 = gtk.Frame(label = 'Variety')
+            f4 = gtk.Frame(label = '')
             vb.pack_start(f1)
             vb.pack_start(f2)
             vb.pack_start(f3)
             vb.pack_start(f4)
             row = selection.get_path(iter)[0]
-            deleteButton = gtk.Button(label='Delete Record')
-            deleteButton.connect('clicked', self.modify_history_callback, iter, row, True)
+            deleteButton = gtk.Button(label = 'Delete Record')
+            deleteButton.connect('clicked', self.modify_history_callback,
+                                                iter, row, True)
             deleteButton.set_size_request(10,15)
-            applyButton = gtk.Button(label='Apply Changes')
+            applyButton = gtk.Button(label = 'Apply Changes')
             applyButton.set_size_request(10,35)
-            applyButton.connect('clicked', self.modify_history_callback, iter, row, False)
+            applyButton.connect('clicked', self.modify_history_callback,
+                                                iter, row, False)
             editFrame.set_size_request(0,60)
             indexList = self.historyEntries[row][6]
             # get batches
             self.editBatchCombo = gtk.combo_box_new_text()
             #vb.pack_start(self.editBatchCombo)
             for b in self.batches:
-                self.editBatchCombo.append_text('Batch ' + b[0] +\
-                                                ' ' + b[1] +\
-                                                ' Room ' + b[2])
+                self.editBatchCombo.append_text(
+                    'Batch No. {} ({}) Room {}'.format(
+                        b[0], b[1], b[2]
+                ))
             self.editBatchCombo.set_active(indexList[0])
             # get pickers
             self.editPickerCombo = gtk.combo_box_new_text()
             #vb.pack_start(self.editPickerCombo)
             for p in self.pickers:
-                self.editPickerCombo.append_text(p[0] + '. ' + p[1] + ' ' + p[2])
+                self.editPickerCombo.append_text('{}. {} {}'.format(
+                    p[0], p[1], p[2]
+                ))
             self.editPickerCombo.set_active(indexList[2])
             # get varieties
             self.editVarietiesCombo = gtk.combo_box_new_text()
             #vb.pack_start(self.editVarietiesCombo)
             for v in self.varieties:
-                self.editVarietiesCombo.append_text(v[0] + ' ' + v[1])
+                self.editVarietiesCombo.append_text('{}. {}'.format(
+                    v[0], v[1]
+                ))
             self.editVarietiesCombo.set_active(indexList[1])
             # pack everything and show window
             f1.add(self.editBatchCombo)
@@ -322,7 +315,8 @@ class MainWindow(gtk.Window):
             editFrame.add(vb)
             f4.add(vb2)
             self.edit_window.add(editFrame)
-            self.edit_window.set_size_request(int(WINDOWW/2.7), int(WINDOWH/1.6));
+            self.edit_window.set_size_request(int(WINDOWW/2.7),
+                                              int(WINDOWH/1.6));
             self.edit_window.show_all()
     
     def modify_history_callback(self, x, iter, row, delete):
@@ -334,20 +328,22 @@ class MainWindow(gtk.Window):
                 self.currentBatch_ = self.editBatchCombo.get_active()
                 self.currentVariety = self.editVarietiesCombo.get_active()
                 self.currentPicker = self.editPickerCombo.get_active()
-                indexList = (self.currentBatch, self.currentVariety, self.currentPicker)
+                indexList = (self.currentBatch,
+                             self.currentVariety,
+                             self.currentPicker)
                 #retain
                 self.currentPickerWeight = entry[3]
                 self.currentWeight = entry[4]
                 self.historyEntries[row] = (self.pickers[self.currentPicker][0],
-                                                self.batches[self.currentBatch_][0],
-                                                self.varieties[self.currentVariety][0],
-                                                self.currentPickerWeight,
-                                                self.currentWeight,
-                                                time.strftime('%Y-%m-%d %H:%M:%S',
-                                                time.localtime()), indexList)
+                                            self.batches[self.currentBatch_][0],
+                                            self.varieties[self.currentVariety][0],
+                                            self.currentPickerWeight,
+                                            self.currentWeight,
+                                            time.strftime('%Y-%m-%d %H:%M:%S',
+                                                          time.localtime()),
+                                            indexList)
                 #modify treeView model
                 temp = []
-
 
 		entry = 'Picker No. ' + str(self.pickers[self.currentPicker][0])
                 entry += ', ' +str(self.pickers[self.currentPicker][1])
@@ -361,23 +357,8 @@ class MainWindow(gtk.Window):
                 entry += ', Final Weight: ' + str(self.currentWeight)
                 entry += ', Time: ' + time.strftime('%Y-%m-%d %H:%M:%S',
                                                    time.localtime())
-                """entry = "Batch No. " + str(self.batches[self.currentBatch_][0])
-                entry += " (" + str(self.batches[self.currentBatch_][1])
-                entry += ") Room " + str(self.batches[self.currentBatch_][0])
-                entry += ", Variety: " + self.varieties[self.currentVariety][0]
-                entry += ". " + self.varieties[self.currentVariety][1]
-                entry += ", Picker No. " + str(self.pickers[self.currentPicker][0])
-                entry += ", " +str(self.pickers[self.currentPicker][1])
-                entry += " " + str(self.pickers[self.currentPicker][2])
-                entry += ", Picker Weight: " + str(self.currentPickerWeight)
-                entry += ", Final Weight: " + str(self.currentWeight)
-                entry += ", Time: " + time.strftime("%Y-%m-%d %H:%M:%S",
-                                                       time.localtime())"""
                 temp.append(entry)
                 self.historyStore.insert(row, temp)
-                #self.historyList.set_model(self.historyStore)
-                #self.show_all()
-            #gtk.main_quit()
             else:
                 self.historyEntries.pop(row)
             self.edit_window.destroy()
@@ -407,10 +388,10 @@ class MainWindow(gtk.Window):
 
     def commit_callback(self, whatever):
         self.start_stop('button')
-        for (picker, batch, variety,
-             initWeight, finalWeight, timestamp, indexList) in self.historyEntries:
-            db.addBox(picker, batch, variety,
-                      initWeight, finalWeight, timestamp)
+        for (picker, batch, variety, initWeight,
+             finalWeight, timestamp, indexList) in self.historyEntries:
+            db.addBox(picker, batch, variety, initWeight,
+                      finalWeight, timestamp)
         # clear the history
         self.historyStore.clear()
         self.historyEntries = []
@@ -491,7 +472,7 @@ class MainWindow(gtk.Window):
             self.offsetLabel.set_markup(style)
 
     def count_up(self, maximum):
-        while (self.keepRunning==True):
+        while self.keepRunning:
             self.currentBatch = self.batchComboBox.get_active()
             self.currentWeight = self.ts.getWeight()
             if self.currentState == AWAITING_BATCH:
@@ -517,48 +498,35 @@ class MainWindow(gtk.Window):
                 self.showWeight = False
                 self.weightColor = 'white'
                 gobject.idle_add(self.set_status_feedback)
-            if self.showWeight==True:
+            if self.showWeight:
                 self.weightWindow.pop(0)
                 self.weightWindow.append(self.currentWeight)
                 self.weightMin=float(self.varieties[self.currentVariety][2])
                 self.weightTolerance=float(self.varieties[self.currentVariety][3])
-                # If box weight is overweight
-                if self.currentWeight>=self.weightMin+self.weightTolerance:
-                #if self.currentWeight>=1.76:
+                if self.currentWeight >= self.weightMin + self.weightTolerance:
+                    # overweight
                     self.weightColor = 'red'
                     self.currentState = OVERWEIGHT_ADJUST
-                    gobject.idle_add(self.b.set_sensitive,False)
-                # If box weight is underweight
+                    gobject.idle_add(self.b.set_sensitive, False)
                 elif self.currentWeight<self.weightMin:
-                    gobject.idle_add(self.b.set_sensitive,False)
-                #elif self.currentWeight<1.7:
+                    # underweight
+                    gobject.idle_add(self.b.set_sensitive, False)
                     self.weightColor = 'blue'
                     self.currentState = UNDERWEIGHT_ADJUST
-                # If box weight is within acceptable range
-                else:
-                    if self.weightColor is not 'green':
+                else: # within acceptable range
+                    if self.weightColor != 'green':
                         self.start_stop('green')
                     self.weightColor = 'green'
                     self.currentState = REMOVE_BOX
                     if self.weightWindow[0] == self.currentWeight:
                         self.stableWeight = self.weightWindow[0]
                         self.saveWeight = True
-                    if self.saveWeight is False:
+                    if not self.saveWeight:
                         self.stableWeight = self.currentWeight
                         self.saveWeight = True
-                        #gobject.idle_add(self.set_status_feedback)
-                        #time.sleep(2)
-                        
-                        ##############ADDED#################
-                        gobject.idle_add(self.b.set_sensitive,True)
-                        ####################################
-                                         
-                        #if self.ts.getWeight() < 0.5 and self.ts.isStable():
-                            #gobject.idle_add(self.history_callback, self.b)
-                            #self.weightColor = "white"
+                        gobject.idle_add(self.b.set_sensitive, True)
                 gobject.idle_add(self.set_status_feedback)
             time.sleep(0.01)
-
 
     def change_state(self):
         if self.currentState==AWAITING_BATCH:
@@ -573,7 +541,6 @@ class MainWindow(gtk.Window):
             self.showWeight = False
             self.currentState=AWAITING_BOX
             self.set_status_feedback()
-            #self.currentPicker = None
 
     def start_stop(self, sound):
         path = 'file://{0}/'.format(os.getcwd())
