@@ -250,7 +250,7 @@ class MainWindow(gtk.Window):
             temp.append(entry)
             self.historyStore.append(temp)
         
-    def edit_window(self, whatever):
+    def edit_window(self, button):
         # add widgets
         self.start_stop('button')
         selection, iterator = self.historyList.get_selection().get_selected()
@@ -319,7 +319,7 @@ class MainWindow(gtk.Window):
                                               int(WINDOWH/1.6));
             self.edit_window.show_all()
     
-    def modify_history_callback(self, x, iterator, row, delete):
+    def modify_history_callback(self, button, iterator, row, delete):
             self.start_stop('button')
             self.historyStore.remove(iterator)
             if delete is not True:
@@ -364,12 +364,12 @@ class MainWindow(gtk.Window):
             self.edit_window.destroy()
 
 
-    def exit_callback(self, whatever):
+    def exit_callback(self, widget):
         self.keepRunning=False
         self.ts.kill()
         gtk.main_quit()
 
-    def select_picker_callback(self, buttonId, index):
+    def select_picker_callback(self, button, index):
         self.start_stop('button')
         self.currentPicker = index
         if self.currentState==AWAITING_PICKER:
@@ -378,7 +378,7 @@ class MainWindow(gtk.Window):
             self.statusText = statusMessages[self.currentState]
             self.set_status_feedback()
 
-    def select_variety_callback(self, buttonId, index):
+    def select_variety_callback(self, button, index):
         self.start_stop('button')
         self.currentVariety = index
         if self.currentState==AWAITING_VARIETY:
@@ -386,7 +386,7 @@ class MainWindow(gtk.Window):
             self.statusText = statusMessages[self.currentState]
             self.set_status_feedback()
 
-    def commit_callback(self, whatever):
+    def commit_callback(self, button):
         self.start_stop('button')
         for (picker, batch, variety, initWeight,
              finalWeight, timestamp, indexList) in self.historyEntries:
@@ -477,7 +477,7 @@ class MainWindow(gtk.Window):
             self.currentWeight = self.ts.getWeight()
             if self.currentState == AWAITING_BATCH:
                 if self.currentBatch is not None and\
-                   self.currentBatch is not -1:
+                   self.currentBatch >= 0: # -1 if no active item
                     self.currentBatch = self.batchComboBox.get_active()
                     gobject.idle_add(self.change_state)
                     gobject.idle_add(self.set_status_feedback)
@@ -559,7 +559,8 @@ class MainWindow(gtk.Window):
         elif t == gst.MESSAGE_ERROR:
             self.player.set_state(gst.STATE_NULL)
             err, debug = message.parse_error()
-            print 'Error: %s' % err, debug
+            print('Error: {}'.format(err), debug)
+            print('Bus: {}'.format(str(bus)))
 
 if __name__ == '__main__':
     gtk.gdk.threads_init() #serialize access to the interpreter
