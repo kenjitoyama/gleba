@@ -38,25 +38,27 @@ SITE_ID = 1
 # to load the internationalization machinery.
 USE_I18N = True
 
+STATIC_URL = '/static/'
+
 # Absolute path to the project directory
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Main URL for the project
-BASE_URL = 'http://hellscream.hayday.biz/gleba'
+BASE_URL = 'http://localhost:8000'
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '%s/media/' % BASE_PATH
+MEDIA_ROOT = '{0}{1}media/'.format(BASE_PATH[:-1], STATIC_URL)
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '%s/media/' % BASE_URL
+MEDIA_URL = '{0}{1}media/'.format(BASE_URL, STATIC_URL)
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '%sadmin/' % MEDIA_URL
+ADMIN_MEDIA_PREFIX = '{0}admin/'.format(MEDIA_URL)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '3g29@+eq399*b!cvpy6!nez$+k*+)ijh)oht2z2m0vqvpw(50x'
@@ -90,6 +92,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.admindocs',
+    'django.contrib.staticfiles',
     'gleba.glebaAdmin',
 )
 

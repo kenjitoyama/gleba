@@ -17,6 +17,9 @@ import Gnuplot
 from django.db.models import Avg, Sum, Min, Max
 "import django_tables as tables "
 
+# TODO: Move this 'constant' to another file for easier customization
+GRAPHS_OUTPUT_DIRECTORY = '/home/kenji/django-projects/gleba/glebaAdmin/static/media/graphs/'
+
 ################# General Utily Functions #################
 def lastMonth():
     """ Returns a list of the last 31 days including today """
@@ -126,7 +129,10 @@ def setupGnuPlot(graphFile,
         If endDate is not given, today is used."""
     g = Gnuplot.Gnuplot()
     g('set terminal png size 640,480')
-    g("set output '/var/www%s'" % graphFile)
+    g("set output '{directory}{filename}'".format(
+        directory = GRAPHS_OUTPUT_DIRECTORY,
+        filename = graphFile
+    ))
     g('set style fill solid 1.00 border -1')
     g('set style histogram cluster gap 1')
     g("set xtics ("+"".join(['"'+d.strftime("%Y-%m-%d")+'"'+str(i)+',' for i,d in enumerate(dateRange(startDate,endDate)) if (i%5==0)])[:-1]+")")
@@ -229,7 +235,7 @@ def generateReportPicker(request, picker_id):
     try:
         debug = ""
         pickerObj=Picker.objects.get(id=picker_id)
-        graphFile = "/media/graphs/pickerGraph.png"
+        graphFile = 'pickerGraph.png'
         startDate, endDate = getDateFromRequest(request)
         gp = setupGnuPlot(graphFile, startDate, endDate)
 
@@ -241,12 +247,15 @@ def generateReportPicker(request, picker_id):
              hoursDailyTotals[d.strftime("%Y-%m-%d")] = pickerObj.getTimeWorkedOn(d).seconds / 3600.0
 
         # Write data file
-        dataFile = "/media/graphs/picker.data"
-        aFile=open("/var/www"+dataFile,"w")
+        dataFile = 'picker.data'
+        aFile=open(GRAPHS_OUTPUT_DIRECTORY + dataFile, "w")
         for i,k in enumerate(sorted(dailyTotals.keys())):
             aFile.write(str(dailyTotals[k])+' "'+str(k)+'"\n')
         aFile.close()
-        gp("plot '/var/www"+dataFile+"' with histogram")
+        gp("plot '{directory}{filename}' with histogram".format(
+            directory = GRAPHS_OUTPUT_DIRECTORY,
+            filename = dataFile
+        ))
 
         # Build Output Table
         outputTable = []
@@ -281,7 +290,7 @@ def generateReportRoom(request, room_id):
         debug = ""
         startDate, endDate = getDateFromRequest(request)
         roomObj=Room.objects.get(id=room_id)
-        graphFile = "/media/graphs/roomGraph.png"
+        graphFile = 'roomGraph.png'
         gp = setupGnuPlot(graphFile, startDate, endDate)
         startDate, endDate = getDateFromRequest(request)
 
@@ -289,12 +298,15 @@ def generateReportRoom(request, room_id):
         for d in dateRange(startDate, endDate): 
              dailyTotals[d.strftime("%Y-%m-%d")]=roomObj.getTotalPickedOn(d)
 
-        dataFile="/media/graphs/room.data"
-        aFile=open("/var/www"+dataFile,"w")
+        dataFile = 'room.data'
+        aFile=open(GRAPHS_OUTPUT_DIRECTORY + dataFile, "w")
         for i,k in enumerate(sorted(dailyTotals.keys())):
             aFile.write(str(dailyTotals[k])+' "'+str(i)+'"\n')
         aFile.close()
-        gp("plot '/var/www"+dataFile+"' with histogram")
+        gp("plot '{directory}{filename}' with histogram".format(
+            directory = GRAPHS_OUTPUT_DIRECTORY,
+            filename = dataFile
+        ))
 
         return render_to_response(
             'report.html', {
@@ -328,19 +340,22 @@ def generateReportFlush(request, flush_id):
             startDate=flushObj.startDate
             endDate=flushObj.endDate if flushObj.endDate is not None else datetime.today()
 
-        graphFile = "/media/graphs/flushGraph.png"
+        graphFile = 'flushGraph.png'
         gp = setupGnuPlot(graphFile, startDate, endDate)
 
         dailyTotals = {}
         for d in dateRange(startDate, endDate):    
              dailyTotals[d.strftime("%Y-%m-%d")]=flushObj.getTotalPickedOn(d)
 
-        dataFile="/media/graphs/flush.data"
-        aFile=open("/var/www"+dataFile,"w")
+        dataFile = 'flush.data'
+        aFile=open(GRAPHS_OUTPUT_DIRECTORY + dataFile, "w")
         for i,k in enumerate(sorted(dailyTotals.keys())):
             aFile.write(str(dailyTotals[k])+' "'+str(i)+'"\n')
         aFile.close()
-        gp("plot '/var/www"+dataFile+"' with histogram")
+        gp("plot '{directory}{filename}' with histogram".format(
+            directory = GRAPHS_OUTPUT_DIRECTORY,
+            filename = dataFile
+        ))
 
         return render_to_response(
             'report.html', {
@@ -367,19 +382,22 @@ def generateReportCrop(request, crop_id):
         debug = ""
         startDate, endDate = getDateFromRequest(request)
         cropObj=Crop.objects.get(id=crop_id)
-        graphFile = "/media/graphs/cropGraph.png"
+        graphFile = 'cropGraph.png'
         gp = setupGnuPlot(graphFile, startDate, endDate)
 
         dailyTotals = {}
         for d in dateRange(startDate, endDate):    
              dailyTotals[d.strftime("%Y-%m-%d")]=cropObj.getTotalPickedOn(d)
 
-        dataFile="/media/graphs/flush.data"
-        aFile=open("/var/www"+dataFile,"w")
+        dataFile = 'crop.data'
+        aFile=open(GRAPHS_OUTPUT_DIRECTORY + dataFile, "w")
         for i,k in enumerate(sorted(dailyTotals.keys())):
             aFile.write(str(dailyTotals[k])+' "'+str(i)+'"\n')
         aFile.close()
-        gp("plot '/var/www"+dataFile+"' with histogram")
+        gp("plot '{directory}{filename}' with histogram".format(
+            directory = GRAPHS_OUTPUT_DIRECTORY,
+            filename = dataFile
+        ))
 
         return render_to_response(
             'report.html', {

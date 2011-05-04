@@ -1,57 +1,57 @@
 {% extends "base.html" %}
 
-
 {% if default_page %}
-    {% block extrahead %}
-    <script type="text/javascript" src="/media/jquery-1.4.4.min.js"></script>
-    <script type="text/javascript" src="/media/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="/media/jquery-ui.css" type="text/css" media="screen" title="Base"/>
-    <script type="text/javascript">
-        function submitForm(report_type) {
-            var form = $("#"+report_type+"report_form");
-            var form_url = form.attr("action");
-            var selected_value = $("#"+report_type+"menu").val();
-            form_url = report_type.substring(0, report_type.length-1)+"/" + selected_value + "/";
-            form.attr("action", form_url);
-            form.append($("#startDate"));
-            form.append($("#endDate"));
-            form.submit();
-        }
+  {% block extrahead %}
+  <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+  <script type="text/javascript" src="/static/js/jquery-ui/js/jquery-ui-1.8.12.custom.min.js"></script>
+  <link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui-1.8.12.custom.css" type="text/css" media="screen" title="Base"/>
+  <script type="text/javascript">
+    function submitForm(report_type) {
+        var form = $("#"+report_type+"report_form");
+        var form_url = form.attr("action");
+        var selected_value = $("#"+report_type+"menu").val();
+        form_url = report_type.substring(0, report_type.length-1)+"/" + selected_value + "/";
+        form.attr("action", form_url);
+        form.append($("#startDate"));
+        form.append($("#endDate"));
+        form.submit();
+    }
 
-        function submitAllPickerForm() {
-            var form = $("#all_picker_report_form")    
-            form.append($("#startDate"));
-            form.append($("#endDate"));
-            form.submit();
-        }
+    function submitAllPickerForm() {
+        var form = $("#all_picker_report_form")    
+        form.append($("#startDate"));
+        form.append($("#endDate"));
+        form.submit();
+    }
 
-        Date.format = 'dd/mm/yyyy';
-        $(function() {
-            $(".dateField").datepicker({dateFormat: 'dd-mm-yy'});
-        });
-    </script>
-    {% endblock %}
+    Date.format = 'dd/mm/yyyy';
+    $(function() {
+        $(".dateField").datepicker({dateFormat: 'dd-mm-yy'});
+    });
+  </script>
+  {% endblock %}
 {% endif %} 
 
 {% block content %}
-    {% if report_type_picker %}        <h1>Picker Report :: {{ picker.firstName }} {{ picker.lastName }}</h1> 
-        <table><tr><td>	<img src="{{ graph_filename }}"/></td>
-            <td>
-                <div>	
-                    <table>
-                        <tr><td><h4>Date</h4></td><td><h4>Mushrooms Picked (kg)</h4></td><td><h4>Daily Average</h4></td></tr>
-                    {% for date,weight,dailyAverage in data %}
-                        <tr><td>{{date}}</td><td>{{weight}}</td><td>{{dailyAverage}}</td></tr>
-                    {% endfor %}
-                    </table>
-                </div>
-            </td>
-        </table>
+    {% if report_type_picker %}
+    <h1>Picker Report :: {{ picker.firstName }} {{ picker.lastName }}</h1> 
+    <table><tr><td>	<img src="/static/media/graphs/{{ graph_filename }}"/></td>
+      <td>
+        <div>	
+          <table>
+            <tr><td><h4>Date</h4></td><td><h4>Mushrooms Picked (kg)</h4></td><td><h4>Daily Average</h4></td></tr>
+          {% for date,weight,dailyAverage in data %}
+            <tr><td>{{date}}</td><td>{{weight}}</td><td>{{dailyAverage}}</td></tr>
+          {% endfor %}
+          </table>
+        </div>
+      </td>
+    </table>
     {% endif %}
 
     {% if report_type_room %}
         <h1>Room Report :: {{ room.number }}</h1>  
-        <table><tr><td>	<img src="{{ graph_filename }}"/></td>
+        <table><tr><td>	<img src="/static/media/graphs/{{ graph_filename }}"/></td>
             <td>
                 <div>	
                     <table>
@@ -67,7 +67,7 @@
 
     {% if report_type_flush %}
         <h1>Flush Report :: {{ flush }}</h1> 
-        <table><tr><td>	<img src="{{ graph_filename }}"/></td>
+        <table><tr><td>	<img src="/static/media/graphs/{{ graph_filename }}"/></td>
             <td>
                 <div>	
                     <table>
@@ -86,7 +86,7 @@
 
     {% if report_type_crop %}
         <h1>Crop Report :: {{ crop }}</h1> 
-        <table><tr><td>	<img src="{{ graph_filename }}"/></td>
+        <table><tr><td>	<img src="/static/media/graphs/{{ graph_filename }}"/></td>
             <td>
                 <div>	
                     <table>
@@ -151,19 +151,19 @@
 
     {% if default_page %}
     <div>
-        <h2>Picker</h2>
-        <form name="picker_form" action="picker/" method="post" id="picker_report_form">
-            <select name="picker" id="picker_menu">
-                {% for picker in picker_list %}
-                <option value={{ picker.id }}>{{ picker.id }} - {{ picker.firstName }} {{ picker.lastName }}</option>
-                {% endfor %}
-            </select><br/>
-            <label for="startDate">Start Date</label>
-            <input name="startDate" class="dateField" type="text"><br/>
-            <label for="endDate">End Date</label>
-            <input name="endDate" class="dateField" type="text"><br/>
-            <input type="submit" onClick="submitForm('picker_')" value="Submit"/><br/>
-        </form>
+      <h2>Picker</h2>
+      <form name="picker_form" action="picker/" method="post" id="picker_report_form">
+        <select name="picker" id="picker_menu">
+          {% for picker in picker_list %}
+          <option value={{ picker.id }}>{{ picker.id }} - {{ picker.firstName }} {{ picker.lastName }}</option>
+          {% endfor %}
+        </select><br/>
+        <label for="startDate">Start Date</label>
+        <input name="startDate" class="dateField" type="text"><br/>
+        <label for="endDate">End Date</label>
+        <input name="endDate" class="dateField" type="text"><br/>
+        <input type="submit" onClick="submitForm('picker_')" value="Submit"/><br/>
+      </form>
     </div>
     
     <div>
