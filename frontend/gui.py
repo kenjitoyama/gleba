@@ -432,19 +432,27 @@ class MainWindow(gtk.Window):
         indexList.append(self.currentBatch)
         indexList.append(self.currentVariety)
         indexList.append(self.currentPicker)
-        entry = "Picker No. " + str(self.pickers[self.currentPicker][0])
-        entry += ", " +str(self.pickers[self.currentPicker][1])
-        entry += " " + str(self.pickers[self.currentPicker][2])
-        entry += ", Variety: " + self.varieties[self.currentVariety][0]
-        entry += ". " + self.varieties[self.currentVariety][1]
-        entry += ", Batch No. " + str(self.batches[self.currentBatch][0])
-        entry += " (" + str(self.batches[self.currentBatch][1])
-        entry += ") Room " + str(self.batches[self.currentBatch][0])
-        entry += ", Picker Weight: " + str(self.currentPickerWeight)
-        entry += ", Final Weight: " + str(self.currentWeight)
-        entry += ", Time: " + time.strftime("%Y-%m-%d %H:%M:%S",
-                                           time.localtime())
-        temp.append(entry)
+        text = 'Picker {picker_number} ' +\
+               '({picker_firstname} {picker_lastname}), ' +\
+               'Variety {variety_number} ({variety_name}), ' +\
+               'Batch {batch_number} ({batch_date}), Room {room_number}, ' +\
+               'Picker Weight: {picker_weight}, ' +\
+               'Final Weight: {final_weight}, Time: {timestamp}'
+        temp.append(text.format(
+            picker_number    = self.pickers[self.currentPicker][0],
+            picker_firstname = self.pickers[self.currentPicker][1],
+            picker_lastname  = self.pickers[self.currentPicker][2],
+            variety_number   = self.varieties[self.currentVariety][0],
+            variety_name     = self.varieties[self.currentVariety][1],
+            batch_number     = self.batches[self.currentBatch][0],
+            batch_date       = self.batches[self.currentBatch][1],
+            room_number      = self.batches[self.currentBatch][2],
+            picker_weight    = self.currentPickerWeight,
+            final_weight     = self.currentWeight,
+            timestamp        = time.strftime("%Y-%m-%d %H:%M:%S",
+                                             time.localtime())
+        ))
+
         self.historyEntries.append((self.pickers[self.currentPicker][0],
                                     self.batches[self.currentBatch][0],
                                     self.varieties[self.currentVariety][0],
