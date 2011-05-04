@@ -8,8 +8,10 @@ import pygst
 pygst.require("0.10")
 import gst
 import os, sys
+import config
 
 db = utils.DBAPI()
+
 statusMessages = ["Awaiting \n batch",
                   "Awaiting \n box",
                   "Awaiting \n picker",
@@ -26,12 +28,31 @@ OVERWEIGHT_ADJUST = 4
 UNDERWEIGHT_ADJUST = 5
 AWAITING_CONFIRMATION = 6
 REMOVE_BOX = 7
-EDIT = 7
 
-WINDOWW=800.0
-WINDOWH=600.0
-#WINDOWW=1024.0
-#WINDOWH=768.0
+class State:
+    UNINITIALIZED = -1
+    AWAITING_BATCH = 0
+    AWAITING_BOX = 1
+    AWAITING_PICKER = 2
+    AWAITING_VARIETY = 3
+    OVERWEIGHT_ADJUST = 4
+    UNDERWEIGHT_ADJUST = 5
+    AWAITING_CONFIRMATION = 6
+    REMOVE_BOX = 7
+
+status_messages = {
+    State.AWAITING_BATCH:        'Awaiting \n batch',
+    State.AWAITING_BOX:          'Awaiting \n box',
+    State.AWAITING_PICKER:       'Awaiting \n picker',
+    State.AWAITING_VARIETY:      'Awaiting \n variety',
+    State.OVERWEIGHT_ADJUST:     'Overweight,\n Adjust',
+    State.UNDERWEIGHT_ADJUST:    'Underweight,\n Adjust',
+    State.AWAITING_CONFIRMATION: 'Awaiting \n confirmation',
+    State.REMOVE_BOX:            'Remove box'
+}
+
+WINDOWW = config.WINDOW_WIDTH
+WINDOWH = config.WINDOW_HEIGHT
 
 class MainWindow(gtk.Window):
     saveWeight = False
@@ -90,9 +111,9 @@ class MainWindow(gtk.Window):
         self.statusLabel = gtk.Label()
         self.statusLabel.set_size_request(250,200)
         self.statusVbox.pack_start(self.statusLabel)
-        style = "<span foreground='#000000' size='large' " + \
-                "weight='bold' font_desc='Calibri 14'>"
-        self.statusLabel.set_markup( style + self.statusText + "</span>")
+        style = '<span foreground="#000000" size="large" ' + \
+                'weight="bold" font_desc="Calibri 14">{0}</span>'
+        self.statusLabel.set_markup(style.format(self.statusText))
 
         #Input Scroll bar
         adj1 = gtk.Adjustment(0.0, 0.0, 8001, 1, 1.0, 1.0)
@@ -208,9 +229,9 @@ class MainWindow(gtk.Window):
         self.batches = db.getActiveBatches()
         self.varieties = db.getActiveVarieties()
         for b in self.batches:
-            self.batchComboBox.append_text("Batch No. " + b[0] + \
-                                           " (" + b[1] + ") Room " + \
-                                           b[2])
+            self.batchComboBox.append_text('Batch No. {} ({}) Room {}'.format(
+                b[0], b[1], b[2]
+            ))
         buttons = []
         hboxes = []
         for j in range(0,len(self.pickers)/4+int(len(self.pickers)%4!=0)):
@@ -444,28 +465,22 @@ class MainWindow(gtk.Window):
         self.event_box1.modify_bg(gtk.STATE_NORMAL,
                                   gtk.gdk.color_parse(self.weightColor))
         self.statusText = statusMessages[self.currentState]
-        style = "<span foreground='#000000' size='large' " +\
-                "weight='bold' font_desc='Calibri 20'>"
-        self.statusLabel.set_markup( style + self.statusText + "</span>")
+        style = '<span foreground="#000000" size="large" ' +\
+                'weight="bold" font_desc="Calibri 20">{0}</span>'
+        self.statusLabel.set_markup(style.format(self.statusText))
         if self.showWeight is True:
-            style = "<span foreground='#FFFFFF' size='xx-large' " +\
-                    "weight='bold' font_desc='Calibri 24'>"
-            self.weightLabel.set_markup(style +\
-                                        str("%.3f" % self.currentWeight) +\
-                                        "</span>")
-            if self.currentWeight < self.weightMin:
-                    self.offsetLabel.set_markup(style +\
-                                                str("%.3f" % (self.currentWeight-self.weightMin)) +\
-                                                "</span>")
-            else:
-                    self.offsetLabel.set_markup(style +\
-                                                str("+%.3f" % (self.currentWeight-self.weightMin)) +\
-                                                "</span>")
+            style = '<span foreground="#FFFFFF" size="xx-large" ' +\
+                    'weight="bold" font_desc="Calibri 24">{0:.3}</span>'
+            self.weightLabel.set_markup(style.format(self.currentWeight))
+            style = '<span foreground="#FFFFFF" size="xx-large" ' +\
+                    'weight="bold" font_desc="Calibri 24">{0:+.3}</span>'
+            offset = self.currentWeight - self.weightMin
+            self.offsetLabel.set_markup(style.format(offset))
         else:
-            style = "<span foreground='#000000' size='xx-large' " +\
-                    "weight='bold' font_desc='Calibri 24'>"
-            self.weightLabel.set_markup( style + "N/A" + "</span>")
-            self.offsetLabel.set_markup( style + "N/A" + "</span>")
+            style = '<span foreground="#000000" size="xx-large" ' +\
+                    'weight="bold" font_desc="Calibri 24">N/A</span>'
+            self.weightLabel.set_markup(style)
+            self.offsetLabel.set_markup(style)
 
     def check_box_removed(self):
         if self.hscale.get_value() < 100:
@@ -560,8 +575,7 @@ class MainWindow(gtk.Window):
     def start_stop(self, sound):
         path = 'file://{0}/'.format(os.getcwd())
         if sound=="success":
-            self.player.set_property('uri', path + 'success.ogg'
-            )
+            self.player.set_property('uri', path + 'success.ogg')
         elif sound=="green":
             self.player.set_property('uri', path + 'green.ogg')
         elif sound=="button":
