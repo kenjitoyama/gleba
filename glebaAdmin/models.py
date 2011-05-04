@@ -70,9 +70,11 @@ class Picker(models.Model):
             return sum([b.timeWorked() for b in bundies], datetime.timedelta())
         return 0.0
             
-    def getTimeWorkedBetween(self,startDate,endDate):
-        """ Return total timed worked for picker between two given dates """
-        bundies=Bundy.objects.filter(picker=self,
+    def getTimeWorkedBetween(self, startDate, endDate):
+        """
+        Return total timed worked for picker between two given dates
+        """
+        bundies = Bundy.objects.filter(picker=self,
             timeIn__gte=startDate,
             timeIn__lte=endDate+datetime.timedelta(days=1),
             timeOut__isnull=False)

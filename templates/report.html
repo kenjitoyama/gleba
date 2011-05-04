@@ -103,51 +103,58 @@
         </div>
     {% endif %}
 
-    {% if report_type_all_pickers %}
-        <h1>Overall Picking ({{ startDate }} - {{endDate}})</h1> 
-            <div>	
-                    <table>
-                        <thead>
-                            <tr>
-                                <td>
-                                    <h4>
-                                        <a href="?sort=fName&startDate={{startDate}}&endDate={{endDate}}">First Name</a>
-                                    </h4>
-                                </td>
-                                <td>
-                                    <h4>
-                                        <a href="?sort=lName&startDate={{startDate}}&endDate={{endDate}}">Last Name</a>
-                                    </h4>
-                                </td>
-                                <td>
-                                    <h4>
-                                        <a href="?sort=totalPicked&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked (kg)</a>
-                                    </h4>
-                                </td>
-                                <td>
-                                    <h4>
-                                        <a href="?sort=kpi&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked/Hour Worked (kg/hr)</a>
-                                    </h4>
-                                </td>
-                                <td>
-                                    <h4>
-                                        <a href="?sort=avgBox&startDate={{startDate}}&endDate={{endDate}}">Average Initial Box Weight (kg)</a>
-                                    </h4>
-                                </td>
-                            </tr>
-                        </thead>
-                    {% comment %}
-                        data is a list of lists containing [p.firstName,p.lastName,p.totalPicked, p.kpi, p.avgBoxWeight]
-                        for each picker p
-                    {% endcomment %}
-                        <tbody>
-                        {% for i in data  %}
-                            <tr><td>{{ i.0 }}</td> <td>{{ i.1 }}</td><td>{{ i.2 }}</td><td>{{ i.3 }}</td><td>{{ i.4 }}</td></tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-    {% endif %}
+    {%if report_type_all_pickers%}
+    <h1>Overall Picking ({{ startDate }} ~ {{endDate}})</h1> 
+    <div>	
+      <table>
+        <thead>
+          <tr>
+            <td>
+              <h4>
+                <a href="?sort=fName&startDate={{startDate}}&endDate={{endDate}}">First Name</a>
+              </h4>
+            </td>
+            <td>
+              <h4>
+                <a href="?sort=lName&startDate={{startDate}}&endDate={{endDate}}">Last Name</a>
+              </h4>
+            </td>
+            <td>
+              <h4>
+                <a href="?sort=totalPicked&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked (kg)</a>
+              </h4>
+            </td>
+            <td>
+              <h4>
+                <a href="?sort=kpi&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked/Hour Worked (kg/hr)</a>
+              </h4>
+            </td>
+            <td>
+              <h4>
+                <a href="?sort=avgBox&startDate={{startDate}}&endDate={{endDate}}">Average Initial Box Weight (kg)</a>
+              </h4>
+            </td>
+          </tr>
+        </thead>
+{% comment %}
+    data is a list of lists containing [p.firstName,p.lastName,p.totalPicked, p.kpi, p.avgBoxWeight]
+    for each picker p
+{% endcomment %}
+        <tbody>
+          {%for picker in data %}
+          <tr>
+            <td>{{picker.0}}</td>
+            <td>{{picker.1}}</td>
+            <td>{{picker.2}}</td>
+            <td>{{picker.3}}</td>
+            <td>{{picker.4}}</td>
+          </tr>
+          {%endfor%}
+        </tbody>
+      </table>
+    </div>
+    {{data}}
+    {%endif%}
 
     {% if default_page %}
     <div>

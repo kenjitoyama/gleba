@@ -1,4 +1,4 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from glebaAdmin.models import Box
 from glebaAdmin.models import Batch
 from glebaAdmin.models import Bundy 
@@ -24,43 +24,42 @@ def last_month():
     return [datetime.date.today() - datetime.timedelta(days = i)
             for i in range(31)]
 
-def date_range(startDate, endDate):
+def date_range(start_date, end_date):
     """
     Returns a list of the days between startDate and endDate inclusive.
     """
     date_list = []
-    if startDate > endDate:
-        startDate, endDate = endDate, startDate
-    while startDate <= endDate:
-        date_list.append(startDate)
-        startDate += datetime.timedelta(days = 1)
+    if start_date > end_date:
+        start_date, end_date = end_date, start_date
+    while start_date <= end_date:
+        date_list.append(start_date)
+        start_date += datetime.timedelta(days = 1)
     return date_list
 
 ################# Frontend Communications #################
 def addBox(request):
-    if ('picker' in request.GET and
-        'initialWeight' in request.GET and
-        'finalWeight' in request.GET and
-        'timestamp' in request.GET and
+    if ('picker'         in request.GET and
         'contentVariety' in request.GET and
-        'batch' in request.GET):
-        p  = request.GET['picker']
-        iw = request.GET['initialWeight']
-        fw = request.GET['finalWeight']
-        ts = request.GET['timestamp']
-        cv = request.GET['contentVariety']
-        b  = request.GET['batch']
+        'batch'          in request.GET and
+        'initialWeight'  in request.GET and
+        'finalWeight'    in request.GET and
+        'timestamp'      in request.GET):
+        picker_id          = request.GET['picker']
+        content_variety_id = request.GET['contentVariety']
+        batch_id           = request.GET['batch']
+        initial_weight_tmp = request.GET['initialWeight']
+        final_weight_tmp   = request.GET['finalWeight']
+        timestamp_tmp      = request.GET['timestamp']
         try:
-            picker_ = Picker.objects.get(id = p)
-            mushroom = Mushroom.objects.get(id = cv)
-            batch_ = Batch.objects.get(id = b)
-            box = Box(
-                initialWeight = float(iw),
-                finalWeight = float(fw),
-                timestamp = ts,
-                contentVariety = mushroom,
-                picker = picker_,
-                batch = batch_,
+            picker_obj = get_object_or_404(Picker, pk = picker_id)
+            mushroom = get_object_or_404(Mushroom, pk = content_variety_id)
+            batch_obj = get_object_or_404(Batch, pk = batch_id)
+            box = Box(initialWeight = float(initial_weight_tmp),
+                      finalWeight = float(final_weight_tmp),
+                      timestamp = timestamp_tmp,
+                      contentVariety = mushroom,
+                      picker = picker_obj,
+                      batch = batch_obj,
             )
             box.save()
         except Exception as e:
@@ -71,40 +70,72 @@ def addBox(request):
         return render_to_response('error.html', {'error_list' : error_list})
 
 def getPickerList(request):
-    picker_list = Picker.objects.filter(active = True,
-                                        discharged = False).order_by('id')
+    """
+    Returns the list of Pickers that are active and not discharged.
+
+    The result is a Django QuerySet.
+    """
+    picker_list = Picker.objects.filter(active = True, discharged = False)\
+                                .order_by('id')
     return render_to_response('pickerList.html', {
         'picker_list' : picker_list,
     })
 
 def getPickerListXML(request):
-    picker_list = Picker.objects.filter(active = True,
-                                        discharged = False).order_by('id')
+    """
+    Returns the list of Pickers that are active and not discharged.
+
+    The result is given in an XML format.
+    """
+    picker_list = Picker.objects.filter(active = True, discharged = False)\
+                                .order_by('id')
     return render_to_response('pickerList.xml', {
         'picker_list' : picker_list,
     })
 
 def getBatchList(request):
-    batch_list = Batch.objects.filter(
-        flush__endDate__isnull = True).order_by('id')
+    """
+    Returns the list of Batches that are not finished yet
+    (i.e. endDate is null).
+
+    The result is a Django QuerySet.
+    """
+    batch_list = Batch.objects.filter(flush__endDate__isnull = True)\
+                              .order_by('id')
     return render_to_response('batchList.html', {
         'batch_list' : batch_list,
     })
 
 def getBatchListXML(request):
-    batch_list = Batch.objects.filter(
-        flush__endDate__isnull = True).order_by('id')
+    """
+    Returns the list of Batches that are not finished yet
+    (i.e. endDate is null).
+
+    The result is given in an XML format.
+    """
+    batch_list = Batch.objects.filter(flush__endDate__isnull = True)\
+                              .order_by('id')
     return render_to_response('batchList.xml', {
         'batch_list' : batch_list,
     })
 
 def getVarietyList(request):
+    """
+    Returns the list of Varieties that are still being used.
+
+    The result is a Django QuerySet.
+    """
     variety_list = Mushroom.objects.filter(active = True).order_by('variety')
     return render_to_response('varietyList.html', {
         'variety_list' : variety_list,
     })
 
 def getVarietyListXML(request):
+    """
+    Returns the list of Varieties that are still being used.
+
+    The result is given in an XML format.
+    """
     variety_list = Mushroom.objects.filter(active = True).order_by('variety')
     return render_to_response('varietyList.xml', {
         'variety_list' : variety_list,
@@ -148,20 +179,21 @@ def getDateFromRequest(request):
     """
     try: 
         if 'startDate' in request.POST and 'endDate' in request.POST:
-            startDate = datetime.datetime.strptime(
+            start_date = datetime.datetime.strptime(
                 request.POST['startDate'], "%d-%m-%Y").date()
-            endDate = datetime.datetime.strptime(
+            end_date = datetime.datetime.strptime(
                 request.POST['endDate'], "%d-%m-%Y").date()
         elif 'startDate' in request.GET and 'endDate' in request.GET:  
-            startDate = datetime.datetime.strptime(
+            start_date = datetime.datetime.strptime(
                 request.GET['startDate'], "%d-%m-%Y").date()
-            endDate = datetime.datetime.strptime(
+            end_date = datetime.datetime.strptime(
                 request.GET['endDate'], "%d-%m-%Y").date()
     except: 
-        endDate = datetime.date.today()
-        startDate = endDate - datetime.timedelta(days = 31)
+        end_date = datetime.date.today()
+        start_date = end_date - datetime.timedelta(days = 31)
             
-    return (startDate, endDate) if startDate>endDate else (endDate, startDate)
+    return ((start_date, end_date) if start_date > end_date
+                                  else (end_date, start_date))
     
 #=== Reporting on pickers with a sortable table ===
 # NOTE working on this
@@ -195,18 +227,19 @@ def generateReportAllPicker(request):
     debug = ""
     try:
         sort_by = request.GET.get('sort') 
-        startDate, endDate = getDateFromRequest(request)
+        start_date, end_date = getDateFromRequest(request)
         data = [] # List: [Picker Firstname, Picker Lastname,
                   #        total picked, kpi] will be value
 
-        for p in Picker.objects.all():
-            total_time = p.getTimeWorkedBetween(startDate, endDate)
+        for picker in Picker.objects.all():
+            total_time = picker.getTimeWorkedBetween(start_date, end_date)
             timeWorked = (total_time.seconds)/3600.0
-            totalPicked = p.getTotalPickedBetween(startDate, endDate)
-            avgInitWeight = p.getAvgInitWeightBetween(startDate, endDate)
+            totalPicked = picker.getTotalPickedBetween(start_date, end_date)
+            avgInitWeight = picker.getAvgInitWeightBetween(start_date,
+                                                           end_date)
             totalPickedPerHour = (totalPicked/timeWorked if (timeWorked>0)
                                                          else 0)
-            data.append([p.firstName, p.lastName, totalPicked,
+            data.append([picker.firstName, picker.lastName, totalPicked,
                          totalPickedPerHour, avgInitWeight])
 
         if sort_by == "fName":
@@ -221,12 +254,12 @@ def generateReportAllPicker(request):
             data.sort(key = lambda x: x[4])
 
         return render_to_response('report.html', {
-            'data' :  data,
-            'startDate' : startDate.strftime("%d-%m-%Y"),
-            'endDate' : endDate.strftime("%d-%m-%Y"),
+            'user' :                    request.user,
+            'data' :                    data,
+            'startDate' :               start_date.strftime("%d-%m-%Y"),
+            'endDate' :                 end_date.strftime("%d-%m-%Y"),
             'report_type_all_pickers' : 'True',
-            'debug' : debug,
-            'user' : request.user
+            'debug' :                   debug,
         })
     except Exception as e:
         return render_to_response('error.html', {
