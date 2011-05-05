@@ -3,10 +3,13 @@ Gleba is an open source automated weighing system.
 Gleba was originally written by Simon Dawson, Meryl Baquiran, Chris Ellis
 and Daniel Kenji Toyama for Barrett's Mushrooms.
 
-Requirements:
+Dependencies:
+Python 2.7 (http://www.python.org/)
 Django 1.3+ (http://www.djangoproject.com/)
 Gnuplot.py 1.8+ (http://gnuplot-py.sourceforge.net/)
 Socat 1.7.1.3+ (http://www.dest-unreach.org/socat/) (for testing only)
+PySerial 2.5+ (http://pyserial.sourceforge.net/)
+PyGTK 2.22+ (http://www.pygtk.org/)
 
 The testing suite is written only for POSIX (because of its dependency
 on socat), but there are plans to support it in Windows too.
