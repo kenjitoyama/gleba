@@ -438,31 +438,36 @@ def generateReportCrop(request, crop_id):
     """
     try:
         debug = ""
-        startDate, endDate = getDateFromRequest(request)
-        cropObj = Crop.objects.get(id = crop_id)
-        graphFile = 'cropGraph.png'
-        gp = setupGnuPlot(graphFile, startDate, endDate)
+        crop_obj = get_object_or_404(Crop, pk = crop_id)
+        start_date = crop_obj.startDate
+        end_date = (crop_obj.endDate if crop_obj.endDate is not None
+                                     else datetime.date.today())
+        graph_file = 'cropGraph.png'
+        gp = setupGnuPlot(graph_file, start_date, end_date)
 
-        dailyTotals = {}
-        for d in date_range(startDate, endDate):    
-            dailyTotals[d.strftime("%Y-%m-%d")] = cropObj.getTotalPickedOn(d)
+        daily_totals = {}
+        for d in date_range(start_date, end_date):    
+            daily_totals[d.strftime("%Y-%m-%d")] = crop_obj.getTotalPickedOn(d)
 
-        dataFile = 'crop.data'
-        aFile = open(GRAPHS_OUTPUT_DIRECTORY + dataFile, "w")
-        for i, k in enumerate(sorted(dailyTotals.keys())):
-            aFile.write(str(dailyTotals[k]) + ' "' + str(i) + '"\n')
-        aFile.close()
+        data_filename = 'crop.data'
+        data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
+        for idx, key in enumerate(sorted(daily_totals.keys())):
+            data_file.write('{0} "{1}"\n'.format(
+                str(daily_totals[key]), str(idx)
+            ))
+        data_file.close()
         gp("plot '{directory}{filename}' with histogram".format(
             directory = GRAPHS_OUTPUT_DIRECTORY,
-            filename = dataFile
+            filename = data_filename
         ))
 
         return render_to_response( 'report.html', {
-            'data' : [(k,dailyTotals[k])
-                      for k in sorted(dailyTotals.keys())],
-            'total' : sum([(dailyTotals[k]) for k in dailyTotals.keys()]),
-            'crop' : cropObj,
-            'graph_filename' : graphFile,
+            'data' : [(key, daily_totals[key])
+                      for key in sorted(daily_totals.keys())],
+            'total' : sum([(daily_totals[key])
+                           for key in daily_totals.keys()]),
+            'crop' : crop_obj,
+            'graph_filename' : graph_file,
             'report_type_crop' : 'True',
             'user' : request.user
         })
