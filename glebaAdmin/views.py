@@ -233,20 +233,20 @@ def generateReportAllPicker(request):
 
         for picker in Picker.objects.all():
             total_time = picker.getTimeWorkedBetween(start_date, end_date)
-            timeWorked = (total_time.seconds)/3600.0
-            totalPicked = picker.getTotalPickedBetween(start_date, end_date)
-            avgInitWeight = picker.getAvgInitWeightBetween(start_date,
-                                                           end_date)
-            totalPickedPerHour = (totalPicked/timeWorked if (timeWorked>0)
-                                                         else 0)
-            data.append([picker.firstName, picker.lastName, totalPicked,
-                         totalPickedPerHour, avgInitWeight])
+            time_worked = (total_time.seconds)/3600.0
+            total_picked = picker.getTotalPickedBetween(start_date, end_date)
+            avg_init_weight = picker.getAvgInitWeightBetween(start_date,
+                                                             end_date)
+            total_picked_per_hour = (total_picked/time_worked
+                                     if (time_worked>0) else 0)
+            data.append([picker.firstName, picker.lastName, total_picked,
+                         total_picked_per_hour, avg_init_weight])
 
         if sort_by == "fName":
             data.sort(key = lambda x: x[0])
         elif sort_by == "lName":
             data.sort(key = lambda x: x[1])
-        elif sort_by == "totalPicked":
+        elif sort_by == "total_picked":
             data.sort(key = lambda x: x[2])
         elif sort_by == "kpi":
             data.sort(key = lambda x: x[3])
@@ -277,44 +277,46 @@ def generateReportPicker(request, picker_id):
     """
     try:
         debug = ""
-        pickerObj = Picker.objects.get(id = picker_id)
-        graphFile = 'pickerGraph.png'
-        startDate, endDate = getDateFromRequest(request)
-        gp = setupGnuPlot(graphFile, startDate, endDate)
+        picker_obj = get_object_or_404(Picker, pk = picker_id)
+        graph_file = 'pickerGraph.png'
+        start_date, end_date = getDateFromRequest(request)
+        gp = setupGnuPlot(graph_file, start_date, end_date)
 
         # Rolling monthly total picking
-        dailyTotals = {}
-        hoursDailyTotals = {}
-        for d in date_range(startDate, endDate):     
-            dailyTotals[d.strftime("%Y-%m-%d")] =\
-                pickerObj.getTotalPickedOn(d)
-            hoursDailyTotals[d.strftime("%Y-%m-%d")] =\
-                pickerObj.getTimeWorkedOn(d).seconds / 3600.0
+        daily_totals = {}
+        hours_daily_totals = {}
+        for d in date_range(start_date, end_date):     
+            daily_totals[d.strftime("%Y-%m-%d")] =\
+                picker_obj.getTotalPickedOn(d)
+            hours_daily_totals[d.strftime("%Y-%m-%d")] =\
+                picker_obj.getTimeWorkedOn(d).seconds / 3600.0
 
         # Write data file
-        dataFile = 'picker.data'
-        aFile = open(GRAPHS_OUTPUT_DIRECTORY + dataFile, "w")
-        for i, k in enumerate(sorted(dailyTotals.keys())):
-            aFile.write(str(dailyTotals[k]) + ' "' + str(k) + '"\n')
-        aFile.close()
+        data_filename = 'picker.data'
+        data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
+        for idx, key in enumerate(sorted(daily_totals.keys())):
+            data_file.write('{0} "{1}"\n '.format(
+                str(daily_totals[key]), str(key))
+            )
+        data_file.close()
         gp("plot '{directory}{filename}' with histogram".format(
             directory = GRAPHS_OUTPUT_DIRECTORY,
-            filename = dataFile
+            filename = data_filename
         ))
 
         # Build Output Table
         outputTable = []
-        for k in sorted(dailyTotals.keys()):
-            if(hoursDailyTotals[k] == 0):
-                outputTable.append((k, dailyTotals[k], 0.0))
+        for key in sorted(daily_totals.keys()):
+            if(hours_daily_totals[key] == 0):
+                outputTable.append((key, daily_totals[key], 0.0))
             else:
-                outputTable.append((k, dailyTotals[k],
-                                    dailyTotals[k]/hoursDailyTotals[k]))
+                outputTable.append((key, daily_totals[key],
+                                    daily_totals[key]/hours_daily_totals[key]))
         # Render Page
         return render_to_response('report.html', {
                 'data' : outputTable,
-                'picker' : pickerObj,
-                'graph_filename' : graphFile,
+                'picker' : picker_obj,
+                'graph_filename' : graph_file,
                 'report_type_picker' : 'True',
                 'debug' : debug,
                 'user' : request.user
@@ -336,31 +338,32 @@ def generateReportRoom(request, room_id):
     """
     try:
         debug = ""
-        startDate, endDate = getDateFromRequest(request)
-        roomObj = Room.objects.get(id = room_id)
-        graphFile = 'roomGraph.png'
-        gp = setupGnuPlot(graphFile, startDate, endDate)
-        startDate, endDate = getDateFromRequest(request)
+        room_obj = get_object_or_404(Room, pk = room_id)
+        graph_file = 'roomGraph.png'
+        start_date, end_date = getDateFromRequest(request)
+        gp = setupGnuPlot(graph_file, start_date, end_date)
 
-        dailyTotals = {}
-        for d in date_range(startDate, endDate): 
-            dailyTotals[d.strftime("%Y-%m-%d")] = roomObj.getTotalPickedOn(d)
+        daily_totals = {}
+        for d in date_range(start_date, end_date): 
+            daily_totals[d.strftime("%Y-%m-%d")] = room_obj.getTotalPickedOn(d)
 
-        dataFile = 'room.data'
-        aFile = open(GRAPHS_OUTPUT_DIRECTORY + dataFile, "w")
-        for i, k in enumerate(sorted(dailyTotals.keys())):
-            aFile.write(str(dailyTotals[k]) + ' "' + str(i) + '"\n')
-        aFile.close()
+        data_filename = 'room.data'
+        data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
+        for idx, key in enumerate(sorted(daily_totals.keys())):
+            data_file.write('{0} "{1}"\n'.format(
+                str(daily_totals[key]), str(idx))
+            )
+        data_file.close()
         gp("plot '{directory}{filename}' with histogram".format(
             directory = GRAPHS_OUTPUT_DIRECTORY,
-            filename = dataFile
+            filename = data_filename
         ))
 
         return render_to_response( 'report.html', {
-            'data' : [(k,dailyTotals[k])
-                      for k in sorted(dailyTotals.keys())],
-            'room' : roomObj,
-            'graph_filename' : graphFile,
+            'data' : [(k, daily_totals[k])
+                      for k in sorted(daily_totals.keys())],
+            'room' : room_obj,
+            'graph_filename' : graph_file,
             'report_type_room' : 'True',
             'debug':debug,
             'user' : request.user
