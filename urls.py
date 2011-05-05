@@ -27,7 +27,7 @@ urlpatterns = patterns('',
     # Bundies
     (r'^bundy/$', 'gleba.glebaAdmin.views.bundy'),
     (r'^bundy/(signon|signoff|confirm)/(\d+)/$', 'gleba.glebaAdmin.views.bundyOnOff'),
-    (r'^csv/$', 'gleba.glebaAdmin.views.generateCSVRange'),
+    (r'^csv/$', 'gleba.glebaAdmin.views.generate_csv_range'),
 
     # Logins
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),

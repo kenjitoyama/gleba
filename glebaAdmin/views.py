@@ -15,6 +15,8 @@ import Gnuplot
 # Kenji TODO: Move this 'constant' to another file for easier customization
 GRAPHS_OUTPUT_DIRECTORY = ('/home/kenji/django-projects/gleba/glebaAdmin/' +
                           'static/media/graphs/')
+CSV_OUTPUT_DIRECTORY = ('/home/kenji/django-projects/gleba/glebaAdmin/' +
+                        'static/media/csv/')
 
 ################# General Utily Functions #################
 def last_month():
@@ -561,74 +563,98 @@ def bundyOnOff(request, bundy_action, picker_id):
             })
 
 ##### CSV export handling #####
-def writeListToFile(filename, exportList):
-    exportFile = open(filename, "wb")
-    exportWriter = csv.writer(exportFile)
-    exportWriter.writerows(exportList)
-    exportFile.close()
+def write_list_to_file(filename, export_list):
+    """
+    Writes a list of lines (export_list) to a file (filename).
+    """
+    export_file = open(filename, "wb")
+    export_writer = csv.writer(export_file)
+    export_writer.writerows(export_list)
+    export_file.close()
 
-def buildExportList(period = 31): #period in days
+def build_export_list(period = 31): #period in days
+    """
+    Builds a list of Pickers and the total time they've worked.
+    """
     header = ("Name", "Hours worked")
-    exportList = [header]
-    employedPickers = Picker.objects.filter(discharged = False)
-    for p in employedPickers:
-        daysWorked = Bundy.objects.filter(
+    export_list = [header]
+    employed_pickers = Picker.objects.filter(discharged = False)
+    for picker in employed_pickers:
+        days_worked = Bundy.objects.filter(
             timeIn__gte = (datetime.date.today() -
                            datetime.timedelta(days=period)),
-            picker = p,
+            picker = picker,
             timeOut__isnull=False
         )
-        totalHoursWorked = 0
-        for b in daysWorked:
-            totalHoursWorked += (b.timeOut-b.timeIn).seconds/3600.0
-        exportList.append(((p.firstName + " " + p.lastName), totalHoursWorked))
-    return exportList
+        total_hours_worked = 0
+        for bundy in days_worked:
+            total_hours_worked += (bundy.timeOut-bundy.timeIn).seconds/3600.0
+        export_list.append(('{} {}'.format(picker.firstName, picker.lastName),
+                            total_hours_worked))
+    return export_list
 
-def buildExportListRange(startDate, endDate = datetime.date.today()):
+def build_export_list_range(start_date, end_date = datetime.date.today()):
+    """
+    Builds a list of Pickers and the total time they've worked during a
+    date range.
+    """
     header = ("Name", "Hours worked")
-    exportList = [header]
-    employedPickers = Picker.objects.filter(discharged=False)
-    for p in employedPickers:
-        daysWorked = Bundy.objects.filter(
-            timeIn__gte = startDate,
-            timeIn__lte = endDate,
-            picker = p,
+    export_list = [header]
+    employed_pickers = Picker.objects.filter(discharged=False)
+    for picker in employed_pickers:
+        days_worked = Bundy.objects.filter(
+            timeIn__gte = start_date,
+            timeIn__lte = end_date,
+            picker = picker,
             timeOut__isnull=False
         )
-        totalHoursWorked = 0
-        for b in daysWorked:
-            totalHoursWorked += (b.timeOut-b.timeIn).seconds/3600.0
-        exportList.append(((p.firstName + " " + p.lastName), totalHoursWorked))
-    return exportList
+        total_hours_worked = 0
+        for bundy in days_worked:
+            total_hours_worked += (bundy.timeOut-bundy.timeIn).seconds/3600.0
+        export_list.append(('{} {}'.format(picker.firstName, picker.lastName),
+                            total_hours_worked))
+    return export_list
 
 @login_required
-def generateCSV(request):
-    fpath = "/var/www/media/csv/"
-    fname = "timesheet_" + datetime.date.today().isoformat() + ".csv"
-    writeListToFile(fpath + fname, buildExportList() )
+def generate_csv(request):
+    """
+    Generates a CSV file for all employed Pickers.
+
+    Returns a simple file with the name of each Picker and the total amount
+    of hours worked according to the Bundy records.
+    """
+    fpath = CSV_OUTPUT_DIRECTORY
+    fname = 'timesheet_{}.csv'.format(datetime.date.today().isoformat())
+    write_list_to_file(fpath + fname, build_export_list() )
     return render_to_response('csv.html', {
-        'csvfile' : "/media/csv/" + fname,
+        'csvfile' : '/static/media/csv/' + fname,
         'csvfilename' : fname,
     })
 
 @login_required
-def generateCSVRange(request):
-    endDate = None
+def generate_csv_range(request):
+    """
+    Generates a CSV file for all employed Pickers over a date range.
+
+    Returns a simple file with the name of each Picker and the total amount
+    """
+    end_date = None
     if 'endDate' in request.POST:
-        endDate = datetime.datetime.strptime(
+        end_date = datetime.datetime.strptime(
             request.POST['endDate'], "%d-%m-%Y")
     if 'startDate' in request.POST:
-        startDate = datetime.datetime.strptime(
+        start_date = datetime.datetime.strptime(
             request.POST['startDate'], "%d-%m-%Y")
-        fpath = "/var/www/media/csv/"
-        fname = "timesheet_" + datetime.date.today().isoformat() + ".csv"
-        if endDate is None:
-            writeListToFile(fpath + fname, buildExportListRange(startDate))
+        fpath = CSV_OUTPUT_DIRECTORY
+        fname = 'timesheet_{}.csv'.format(datetime.date.today().isoformat())
+        if end_date is None:
+            write_list_to_file(fpath + fname,
+                               build_export_list_range(start_date))
         else:
-            writeListToFile(fpath + fname, buildExportListRange(startDate,
-                                                                endDate))
+            write_list_to_file(fpath + fname,
+                               build_export_list_range(start_date, end_date))
         return render_to_response('csv.html', {
-            'csvfile' : "/media/csv/" + fname,
+            'csvfile' : '/static/media/csv/' + fname,
             'csvfilename' : fname,
         })
     else:
