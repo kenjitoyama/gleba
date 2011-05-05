@@ -34,7 +34,7 @@
                 {% endif %}
                 <a href="{% url gleba.glebaAdmin.views.generateReport %}">Report</a> /
                 <a href="{% url gleba.glebaAdmin.views.bundy %}">Bundy</a> /
-                <a href="{% url gleba.glebaAdmin.views.generateCSVRange %}">CSV</a> /
+                <a href="{% url gleba.glebaAdmin.views.generate_csv_range %}">CSV</a> /
                 {% url admin:password_change as password_change_url %}
                 {% if password_change_url %}
                     <a href="{{ password_change_url }}">

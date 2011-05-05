@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 
 {% block extrahead %}
-        <style type="text/css">
-            #keypad tr td div {
-                background: #f9f9f9;
-                font-size: 2em;
-                padding: 1em;
-                border: 1px solid black;
-            }
-        </style>
-    <script type="text/javascript" src="/media/jquery-1.4.4.min.js"></script>
+    <style type="text/css">
+    #keypad tr td div {
+        background: #f9f9f9;
+        font-size: 2em;
+        padding: 1em;
+        border: 1px solid black;
+    }
+    </style>
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
     <script type="text/javascript">
         function submitForm() {
             var selected_value = document.getElementById("picker_id").value;
             // var selected_value = $("#picker_id").val();
-            $("#bundy_picker_form").attr("action", "{% url gleba.glebaAdmin.views.bundy %}confirm/"+selected_value+"/");
+            $("#bundy_picker_form").attr("action",
+                "{%url gleba.glebaAdmin.views.bundy%}confirm/"+selected_value+"/");
             $("#bundy_picker_form").submit();
         }
 
@@ -54,89 +55,77 @@
 
 {% block content %}
 {% if not show_confirmation %}
-
     <h3>Picker ID:</h3><br/>
       <table id="keypad">
-            <tr>
-                <td>
-                        <div onClick="appendNumber(1)">1</div>
-                </td>
-                <td>
-                        <div onClick="appendNumber(2)">2</div>
-                </td>
-                <td>
-
-                        <div onClick="appendNumber(3)">3</div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                        <div onClick="appendNumber(4)">4</div>
-                </td>
-                <td>
-
-                        <div onClick="appendNumber(5)">5</div>
-                </td>
-                <td>
-                        <div onClick="appendNumber(6)">6</div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-
-                        <div onClick="appendNumber(7)">7</div>
-                </td>
-                <td>
-                        <div onClick="appendNumber(8)">8</div>
-                </td>
-                <td>
-                        <div onClick="appendNumber(9)">9</div>
-
-                </td>
-            </tr>
-            <tr>
-                <td>
-                        <div onClick="appendNumber(0)">0</div>
-                </td>
-                <td>
-                        <div onClick="backspace()"><-</div>
-
-                </td>
-                <td>
-                </td>
-            </tr>
-        </table>
-    <form name="bundy_picker_form" action="" method="POST" id="bundy_picker_form">
-        <input id="picker_id" type="text" readonly="readonly"/> 
-        <input type="submit" onClick="submitForm()" value="Submit"/>
+        <tr>
+          <td>
+            <div onClick="appendNumber(1)">1</div>
+          </td>
+          <td>
+            <div onClick="appendNumber(2)">2</div>
+          </td>
+          <td>
+            <div onClick="appendNumber(3)">3</div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div onClick="appendNumber(4)">4</div>
+          </td>
+          <td>
+            <div onClick="appendNumber(5)">5</div>
+          </td>
+          <td>
+            <div onClick="appendNumber(6)">6</div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div onClick="appendNumber(7)">7</div>
+          </td>
+          <td>
+            <div onClick="appendNumber(8)">8</div>
+          </td>
+          <td>
+            <div onClick="appendNumber(9)">9</div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div onClick="appendNumber(0)">0</div>
+          </td>
+          <td>
+            <div onClick="backspace()">&lt;-</div>
+          </td>
+          <td>
+          </td>
+        </tr>
+      </table>
+    <form name="bundy_picker_form" action="" method="post" id="bundy_picker_form">
+      <input id="picker_id" type="text" readonly="readonly"/> 
+      <input type="submit" onClick="submitForm()" value="Submit"/>
     </form>
 {% endif %}
 
 {% if show_confirmation %}
-    <h3>Welcome, {{picker.firstName}}!<h3/><br/>
-
-    {% if signon_flag %}
-        <form name="bundy_confirmation" action="" method="GET" id="bundy_confirmation">
-            <input type="submit" onClick="signOn()" value="Sign on" />
-        </form>
-    {% else %}
-        <form action="{% url gleba.glebaAdmin.views.bundy %}signoff/{{ picker.id }}" method="GET" id="bundy_confirmation">
-            <input type="radio" name="lunch" value="True" checked>Sign Off WITH Lunch Break</input>
-            <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input>
-            <input type="Submit" value="Sign Off">
-        </form>
-   {% endif %}
+  <h3>Welcome, {{picker.firstName}}!<h3/><br/>
+  {% if signon_flag %}
+    <form name="bundy_confirmation" action="" method="GET" id="bundy_confirmation">
+      <input type="submit" onClick="signOn()" value="Sign on" />
+    </form>
+  {% else %}
+    <form action="{% url gleba.glebaAdmin.views.bundy %}signoff/{{ picker.id }}" method="GET" id="bundy_confirmation">
+      <input type="radio" name="lunch" value="True" checked>Sign Off WITH Lunch Break</input>
+      <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input>
+      <input type="Submit" value="Sign Off">
+    </form>
+  {% endif %}
 {% endif %}
 
-{% if error_message %}
-<div>
-    {{ error_message }}
+{{error_message}}
+
+<div id="debug_div">
+{{debug}}
 </div>
-{% endif %}
-
-{% if debug %}
-    debug:
-    {{ debug }}
-{% endif %}
 
 {% endblock %}

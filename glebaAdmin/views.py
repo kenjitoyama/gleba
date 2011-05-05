@@ -505,31 +505,29 @@ def bundy(request):
     return render_to_response('bundy.html', {'user' : request.user})
 
 def bundyOnOff(request, bundy_action, picker_id):
+    picker = get_object_or_404(Picker, pk = picker_id)
     bundy_action = bundy_action.lower()
     picker_list = Picker.objects.filter(active = True,
                                         discharged = False).order_by('id')
     picker_entry = Bundy.objects.filter(picker__id = picker_id,
                                         timeOut__isnull = True)
-    try:
-        picker_ = Picker.objects.get(id = picker_id)
-    except Exception as e:
-        return render_to_response('bundy.html', {'error_message' : e})
     if bundy_action == "signon":
-        session = Bundy(picker = picker_, timeIn = datetime.datetime.now())
+        session = Bundy(picker = picker, timeIn = datetime.datetime.now())
         session.save()
         return render_to_response('bundy.html', {
-            'picker_list':picker_list,
-            'signon_flag':False,
+            'picker_list':       picker_list,
+            'signon_flag':       False,
             'show_confirmation': False,
-            'user' : request.user
+            'user' :             request.user
         })
     elif bundy_action == "signoff":
-        session = Bundy.objects.get(picker = picker_id, timeOut__isnull = True)
+        session = Bundy.objects.get(picker = picker_id,
+                                    timeOut__isnull = True)
         try: 
-            if 'lunch' in request.GET and len(request.GET['lunch'])>1:
+            if 'lunch' in request.GET and len(request.GET['lunch']) > 1:
                 hadLunch_ = (str(request.GET['lunch']) == "True")
             else:
-                raise NameError("Lunch parameter in http request not found")
+                raise NameError("Lunch parameter in HTTP request not found.")
         except Exception as e:
             return render_to_response('bundy.html', {
                 'error_message' : e,
@@ -547,19 +545,19 @@ def bundyOnOff(request, bundy_action, picker_id):
     else: # display the confirmation
         if(len(picker_entry) == 0): # picker is trying to sign on
             return render_to_response('bundy.html', {
-                'picker_list':picker_list,
-                'picker':picker_,
-                'signon_flag':True,
+                'picker_list':       picker_list,
+                'picker':            picker,
+                'signon_flag':       True,
                 'show_confirmation': True,
-                'user' : request.user
+                'user' :             request.user
             })
-        else:
+        else: # just display the numpad
             return render_to_response('bundy.html', {
-                'picker_list':picker_list,
-                'picker':picker_,
-                'signon_flag':False,
+                'picker_list':       picker_list,
+                'picker':            picker,
+                'signon_flag':       False,
                 'show_confirmation': True,
-                'user' : request.user
+                'user' :             request.user
             })
 
 ##### CSV export handling #####
