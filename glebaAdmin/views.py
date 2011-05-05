@@ -383,45 +383,40 @@ def generateReportFlush(request, flush_id):
     be value.
     Plots this with gnuplot and prints it in table form
     """
-#Broken There is a problem with the the endDate 
-#"local variable 'endDate' referenced before assignment"
     try:
         debug = ""
-        flushObj = Flush.objects.get(id=flush_id)
-        if ('startDate' in request.POST and
-            'endDate' in request.POST or
-            'startDate' in request.GET and
-            'endDate' in request.GET):
-            startDate, EndDate = getDateFromRequest(request)
-        else: 
-            startDate = flushObj.startDate
-            endDate = (flushObj.endDate if flushObj.endDate is not None
-                                        else datetime.today())
+        flushObj = get_object_or_404(Flush, pk = flush_id)
+        start_date = flushObj.startDate
+        end_date = (flushObj.endDate if flushObj.endDate is not None
+                                     else datetime.date.today())
 
-        graphFile = 'flushGraph.png'
-        gp = setupGnuPlot(graphFile, startDate, endDate)
+        graph_file = 'flushGraph.png'
+        gp = setupGnuPlot(graph_file, start_date, end_date)
 
-        dailyTotals = {}
-        for d in date_range(startDate, endDate):    
-            dailyTotals[d.strftime("%Y-%m-%d")] = flushObj.getTotalPickedOn(d)
+        daily_totals = {}
+        for d in date_range(start_date, end_date):    
+            daily_totals[d.strftime("%Y-%m-%d")] = flushObj.getTotalPickedOn(d)
 
-        dataFile = 'flush.data'
-        aFile = open(GRAPHS_OUTPUT_DIRECTORY + dataFile, "w")
-        for i, k in enumerate(sorted(dailyTotals.keys())):
-            aFile.write(str(dailyTotals[k])+' "'+str(i)+'"\n')
-        aFile.close()
+        data_filename = 'flush.data'
+        data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
+        for idx, key in enumerate(sorted(daily_totals.keys())):
+            data_file.write('{0} "{1}"\n'.format(
+                str(daily_totals[key]), str(idx)
+            ))
+        data_file.close()
         gp("plot '{directory}{filename}' with histogram".format(
             directory = GRAPHS_OUTPUT_DIRECTORY,
-            filename = dataFile
+            filename = data_filename
         ))
 
         return render_to_response(
             'report.html', {
-                'data' : [(k,dailyTotals[k])
-                          for k in sorted(dailyTotals.keys())],
-                'total' : sum([(dailyTotals[k]) for k in dailyTotals.keys()]),
+                'data' : [(key, daily_totals[key])
+                          for key in sorted(daily_totals.keys())],
+                'total' : sum([(daily_totals[key])
+                              for key in daily_totals.keys()]),
 		        'flush' : flushObj,
-                'graph_filename' : graphFile,
+                'graph_filename' : graph_file,
                 'report_type_flush' : 'True',
                 'user' : request.user
             }
