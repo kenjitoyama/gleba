@@ -12,13 +12,13 @@ import config
 
 DB = utils.DBAPI()
 
-STATUS_MESSAGES = ['Awaiting \n batch',
-                  'Awaiting \n box',
-                  'Awaiting \n picker',
-                  'Awaiting \n variety',
-                  'Overweight,\n Adjust',
-                  'Underweight,\n Adjust',
-                  'Awaiting \n confirmation',
+STATUS_MESSAGES = ['Awaiting\nbatch',
+                  'Awaiting\nbox',
+                  'Awaiting\npicker',
+                  'Awaiting\nvariety',
+                  'Overweight,\nAdjust',
+                  'Underweight,\nAdjust',
+                  'Awaiting\nconfirmation',
                   'Remove box']
 AWAITING_BATCH = 0
 AWAITING_BOX = 1
@@ -28,28 +28,6 @@ OVERWEIGHT_ADJUST = 4
 UNDERWEIGHT_ADJUST = 5
 AWAITING_CONFIRMATION = 6
 REMOVE_BOX = 7
-
-class State:
-    UNINITIALIZED = -1
-    AWAITING_BATCH = 0
-    AWAITING_BOX = 1
-    AWAITING_PICKER = 2
-    AWAITING_VARIETY = 3
-    OVERWEIGHT_ADJUST = 4
-    UNDERWEIGHT_ADJUST = 5
-    AWAITING_CONFIRMATION = 6
-    REMOVE_BOX = 7
-
-STATUS_MESSAGES = {
-    State.AWAITING_BATCH:        'Awaiting \n batch',
-    State.AWAITING_BOX:          'Awaiting \n box',
-    State.AWAITING_PICKER:       'Awaiting \n picker',
-    State.AWAITING_VARIETY:      'Awaiting \n variety',
-    State.OVERWEIGHT_ADJUST:     'Overweight,\n Adjust',
-    State.UNDERWEIGHT_ADJUST:    'Underweight,\n Adjust',
-    State.AWAITING_CONFIRMATION: 'Awaiting \n confirmation',
-    State.REMOVE_BOX:            'Remove box'
-}
 
 WINDOWW = config.WINDOW_WIDTH
 WINDOWH = config.WINDOW_HEIGHT
@@ -68,8 +46,7 @@ class MainWindow(gtk.Window):
     show_weight = False
     min_weight = 0.0
     weight_window = []
-    for i in range(0, 100):
-        weight_window.append(0)
+    history_entries = []
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -97,7 +74,7 @@ class MainWindow(gtk.Window):
         status_frame.add(status_vbox)
 
         #Extra Frame for Batch ComboBox, add to leftmost VBox
-        batch_frame = gtk.Frame(label='Batch')
+        batch_frame = gtk.Frame(label = 'Batch')
         batch_frame.set_size_request(0, 0) # minimum as possible
         status_vbox.pack_start(batch_frame)
 
@@ -207,47 +184,55 @@ class MainWindow(gtk.Window):
         bus.connect('message', self.on_message)
 
     def add_initial_data(self):
-        self.pickers   = DB.getActivePickers()
+        """
+        Alleviates the burden of adding data from __init__().
+        """
         self.batches   = DB.getActiveBatches()
+        self.pickers   = DB.getActivePickers()
         self.varieties = DB.getActiveVarieties()
-        for b in self.batches:
-            self.batch_combo_box.append_text('Batch No. {} ({}) Room {}'.format(
-                b[0], b[1], b[2]
+        # add batches
+        batch_text_format = 'Batch No. {} ({}) Room {}'
+        for batch in self.batches:
+            self.batch_combo_box.append_text(batch_text_format.format(
+                batch[0], batch[1], batch[2]
             ))
-        buttons = []
-        hboxes = []
-        for j in range(0, len(self.pickers)/4+int(len(self.pickers)%4!=0)):
-            hboxes.append(gtk.HBox())
-            self.picker_vbox.pack_start(hboxes[j])
-            for i in range(0, 4):
-                if 4*j+i >= len(self.pickers):
+        # add pickers
+        picker_total = len(self.pickers)
+        cols = config.PICKER_COLS
+        rows = picker_total/cols + int(picker_total%cols != 0)
+        for row in range(0, rows):
+            hbox = gtk.HBox()
+            for col in range(0, cols):
+                idx = cols*row + col
+                if idx >= picker_total:
                     break
-                text = '{0}. {1}'.format(self.pickers[4*j+i][0],
-                                         self.pickers[4*j+i][1])
+                text = '{0}. {1}'.format(self.pickers[idx][0],
+                                         self.pickers[idx][1])
                 button = gtk.Button(label = text)
                 button.set_size_request(14, 10)
-                button.connect('clicked', self.select_picker_callback, 4*j+i)
-                buttons.append(button)
-                hboxes[j].pack_start(button)
-        varieties_hboxes = []
-        varieties_buttons = []
-        for j in range(0, len(self.varieties)/2+int(len(self.varieties)%2!=0)):
-            varieties_hboxes.append(gtk.HBox())
-            self.varieties_vbox.pack_start(varieties_hboxes[j])
-            for i in range(0, 2):
-                if 2*j+i >= len(self.varieties):
+                button.connect('clicked', self.select_picker_callback, idx)
+                hbox.pack_start(button)
+            self.picker_vbox.pack_start(hbox)
+        # add varieties
+        variety_total = len(self.varieties)
+        cols = config.VARIETY_COLS
+        rows = variety_total/cols + int(variety_total%cols != 0)
+        for row in range(0, rows):
+            hbox = gtk.HBox()
+            for col in range(0, cols):
+                idx = cols*row + col
+                if idx >= variety_total:
                     break
-                text = '{0}'.format(self.varieties[2*j+i][1])
+                text = '{0}'.format(self.varieties[idx][1])
                 button = gtk.Button(label = text)
                 button.set_size_request(14, 15)
-                button.connect('clicked', self.select_variety_callback, 2*j+i)
-                varieties_buttons.append(button)
-                varieties_hboxes[j].pack_start(button)
-        self.history_entries = []
-        for entry in self.history_entries:
-            temp = []
-            temp.append(entry)
-            self.history_store.append(temp)
+                button.connect('clicked', self.select_variety_callback, idx)
+                hbox.pack_start(button)
+            self.varieties_vbox.pack_start(hbox)
+        # initialize weight_window
+        for i in range(0, 100):
+            self.weight_window.append(0)
+
         
     def edit_window(self, button):
         # add widgets

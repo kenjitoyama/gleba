@@ -10,13 +10,23 @@ On GNU/Linux:
 
 # - Serial Configuration
 #ser_port=1#"/dev/ttyS0"
-ser_port = '/dev/pts/5'
+ser_port = '/dev/pts/7'
 
 # - Django Configuration
 #    Full http path to the root of the django web app 
 #         Change before deployment
 django_http_path = 'http://localhost:8000/'
 
+################################################################################
+# GUI settings
+################################################################################
+
 # Window size
 WINDOW_WIDTH  = 800.0
 WINDOW_HEIGHT = 600.0
+
+# Number of Picker columns
+PICKER_COLS = 3
+
+# Number of Variety columns
+VARIETY_COLS = 2
