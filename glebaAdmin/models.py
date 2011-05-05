@@ -9,75 +9,100 @@ from django.db.models import Avg, Sum, Min, Max
 import datetime
 
 class Picker(models.Model):
-
     firstName = models.CharField(max_length=50)
     lastName = models.CharField(max_length=50)
     active = models.BooleanField()
     discharged = models.BooleanField()
 
     class Meta:
-        verbose_name_plural="Pickers"
+        verbose_name_plural = 'Pickers'
 
     def __unicode__(self):
-        return "Picker "  + str(self.id)  + ' ' +  self.fullName()
+        return u'Picker ({picker_id} {picker_fullname})'.format(
+            picker_id = str(self.id), picker_fullname = self.fullName()
+        )
 
     def fullName(self):
-        "Returns the full name of this picker"
-        return self.firstName + ' ' + self.lastName
+        """
+        Returns the full name of this picker.
+        """
+        return '{first_name} {last_name}'.format(
+            first_name = self.firstName, last_name = self.lastName
+        )
 
     def getAvgInitWeight(self):
-        """ Return the average initial weight of boxes picker by picker """
-        avg = Box.objects.filter(picker=self).aggregate(Avg('initialWeight'))['initialWeight__avg']
-        return avg if avg is not None else 0.0
-
-    def getAvgInitWeightOn(self, date):
-        """ Return the average initial weight of boxes picker by picker on date """
-        avg = Box.objects.filter(picker=self, batch__date=date).aggregate(Avg('initialWeight'))['initialWeight__avg']
+        """
+        Return the average initial weight of boxes picker by picker.
+        """
+        avg = Box.objects.filter(picker=self).aggregate(
+                Avg('initialWeight'))['initialWeight__avg']
         return avg if (avg is not None) else 0.0
 
-    def getAvgInitWeightBetween(self, startDate, endDate):
-        """ Return the average initial weight of boxes picker by picker """
-        avg = Box.objects.filter(picker=self, batch__date__gte=startDate, batch__date__lte=endDate).aggregate(Avg('initialWeight'))['initialWeight__avg']
-        return avg if avg is not None else 0.0
+    def getAvgInitWeightOn(self, date):
+        """
+        Return the average initial weight of boxes picker by picker on date.
+        """
+        avg = Box.objects.filter(picker=self, batch__date=date).aggregate(
+                Avg('initialWeight'))['initialWeight__avg']
+        return avg if (avg is not None) else 0.0
+
+    def getAvgInitWeightBetween(self, start_date, end_date):
+        """
+        Return the average initial weight of boxes picker by picker.
+        """
+        avg = Box.objects.filter(picker=self,
+                                 batch__date__gte = start_date,
+                                 batch__date__lte = end_date).aggregate(
+                                 Avg('initialWeight'))['initialWeight__avg']
+        return avg if (avg is not None) else 0.0
 
     def getTotalPicked(self):
-        """ Return total picked for a picker forever """
-        total = Box.objects.filter(picker=self).aggregate(Sum('initialWeight'))['initialWeight__sum']
-        if total is not None:
-            return total
-        return 0.0
+        """
+        Return total picked for a picker forever.
+        """
+        total = Box.objects.filter(picker=self).aggregate(
+                    Sum('initialWeight'))['initialWeight__sum']
+        return total if (total is not None) else 0.0
 
     def getTotalPickedOn(self, date): 
-        """ Return total picked for a picker forever, on a given date """
-        total = Box.objects.filter(picker=self, batch__date=date).aggregate(Sum('initialWeight'))['initialWeight__sum']
-        if total is not None:
-            return total
-        return 0.0
+        """
+        Return total picked for a picker forever, on a given date.
+        """
+        total = Box.objects.filter(picker=self, batch__date=date).aggregate(
+                    Sum('initialWeight'))['initialWeight__sum']
+        return total if (total is not None) else 0.0
 
-    def getTotalPickedBetween(self, startDate, endDate): 
-        """ Return total picked for a picker, between two given dates given date """
-        total = Box.objects.filter(picker=self, batch__date__gte=startDate, batch__date__lte=endDate).aggregate(Sum('initialWeight'))['initialWeight__sum']
-        if total is not None:
-            return total
-        return 0.0
+    def getTotalPickedBetween(self, start_date, end_date): 
+        """
+        Return total picked for a picker, between two given dates given date.
+        """
+        total = Box.objects.filter(picker = self,
+                                   batch__date__gte = start_date,
+                                   batch__date__lte = end_date).aggregate(
+                                   Sum('initialWeight'))['initialWeight__sum']
+        return total if (total is not None) else 0.0
 
     def getTimeWorkedOn(self,date):
-        """ Return total time worked for picker on a given day """
-        bundies=Bundy.objects.filter(picker=self,
-            timeIn__startswith=date,
-            timeOut__isnull=False)
+        """
+        Return total time worked for picker on a given day.
+        """
+        bundies = Bundy.objects.filter(picker = self,
+                                       timeIn__startswith = date,
+                                       timeOut__isnull = False)
         if bundies is not None:
             return sum([b.timeWorked() for b in bundies], datetime.timedelta())
         return 0.0
             
-    def getTimeWorkedBetween(self, startDate, endDate):
+    def getTimeWorkedBetween(self, start_date, end_date):
         """
         Return total timed worked for picker between two given dates
         """
-        bundies = Bundy.objects.filter(picker=self,
-            timeIn__gte=startDate,
-            timeIn__lte=endDate+datetime.timedelta(days=1),
-            timeOut__isnull=False)
+        bundies = Bundy.objects.filter(
+            picker = self,
+            timeIn__gte = startDate,
+            timeIn__lte = endDate + datetime.timedelta(days=1),
+            timeOut__isnull = False
+        )
         if bundies is not None:
             return sum([b.timeWorked() for b in bundies], datetime.timedelta())
         return 0.0
@@ -91,154 +116,185 @@ class Bundy(models.Model):
     lunchBreak=datetime.timedelta(minutes=30)
 
     class Meta:
-        verbose_name_plural="Bundies"
+        verbose_name_plural = 'Bundies'
 
     def __unicode__(self):
-        return "Bundy " + str(self.picker) + ' ' + str(self.timeIn)
+        return 'Bundy ({picker_name}) ({time_in})'.format(
+            picker_name = self.picker.fullName(),
+            time_in = str(self.timeIn)
+        )
 
     def timeWorked(self):
-        "Returns the amount of time worked as a timedelta" 
-        return self.timeOut-self.timeIn-self.lunchBreak if self.hadLunch else self.timeOut-self.timeIn
+        """
+        Returns the amount of time worked as a timedelta" 
+        """
+        return (self.timeOut - self.timeIn-self.lunchBreak if self.hadLunch
+                else self.timeOut-self.timeIn)
 
 class Room(models.Model):
     number = models.IntegerField()
     status = models.CharField(max_length=50)
 
     class Meta:
-        verbose_name_plural="Rooms"
+        verbose_name_plural = 'Rooms'
 
     def __unicode__(self):
-        return "Room " + str(self.number)
+        return 'Room {}'.format(str(self.number))
 
     def getTotalPickedOn(self, date): 
-        """ Return total picked for this room on a given date """
-        total = Box.objects.filter(batch__flush__crop__room=self,
-                                   batch__date=date).aggregate(Sum('initialWeight'))['initialWeight__sum']
-        if total is not None:
-            return total
-        return 0.0
+        """
+        Return total picked for this room on a given date.
+        """
+        total = Box.objects.filter(batch__flush__crop__room = self,
+                                   batch__date = date).aggregate(
+                                   Sum('initialWeight'))['initialWeight__sum']
+        return total if (total is not None) else 0.0
 
-    def getTotalPickedBetween(self, startDate, endDate): 
-        """ Return total picked for a picker, between two given dates given date """
-        total = Box.objects.filter(batch__flush__crop__room=self,
-                                   batch__date__gte=startDate, 
-                                   batch__date__lte=endDate).aggregate(Sum('initialWeight'))['initialWeight__sum']
-        if total is not None:
-            return total
-        return 0.0
-
-
+    def getTotalPickedBetween(self, start_date, end_date): 
+        """
+        Return total picked for a picker, between two given dates given date
+        """
+        total = Box.objects.filter(batch__flush__crop__room = self,
+                                   batch__date__gte = start_date, 
+                                   batch__date__lte = end_date).aggregate(
+                                   Sum('initialWeight'))['initialWeight__sum']
+        return total if (total is not None) else 0.0
 
 class Crop(models.Model):
     startDate = models.DateField('date started')
-    endDate = models.DateField('date completed', blank=True, null=True)
+    endDate = models.DateField('date completed', blank = True, null = True)
     room = models.ForeignKey(Room)
 
     class Meta:
-        verbose_name_plural="Crops"
+        verbose_name_plural = 'Crops'
 
     def __unicode__(self):
-        return "Crop "  + str(self.id) + " (" +\
-               self.startDateString() +  " - " +\
-               self.endDateString() + ") " +\
-               str(self.room)
+        return 'Crop {crop_id} ({start_date} ~ {end_date}) {room}'.format(
+            crop_id = str(self.id),
+            start_date = self.dateString(),
+            end_date = self.dateString(start = False),
+            room = str(self.room)
+        )
 
-    def startDateString(self):
-        "Returns startDate as a string day/month/year"
-        return  str(self.startDate.day) + "/" + \
-                str(self.startDate.month) + "/" + \
-                str(self.startDate.year)
+    def dateString(self, start = True):
+        """
+        Returns startDate or endDate as a string day/month/year.
 
-    def endDateString(self):
-        "Returns endDate as a string day/month/year"
-        if self.endDate is None:
-            return ''
+        If start is True (the default) then startDate will be returned,
+        otherwise endDate will be returned.
+        """
+        date_format = '{day}/{month}/{year}'
+        if start:
+            return date_format.format(day =   str(self.startDate.day),
+                                      month = str(self.startDate.month),
+                                      year =  str(self.startDate.year))
         else:
-            return  str(self.endDate.day) + "/" + \
-                    str(self.endDate.month) + "/" + \
-                    str(self.endDate.year)
+            return date_format.format(day =   str(self.endDate.day),
+                                      month = str(self.endDate.month),
+                                      year =  str(self.endDate.year))
 
     def getTotalPickedOn(self, date): 
-        """ Return total picked for this cop on a given date """
-        total = Box.objects.filter(batch__flush__crop=self,
-                                   batch__date=date).aggregate(Sum('initialWeight'))['initialWeight__sum']
-        if total is not None:
-            return total
-        return 0.0
+        """
+        Return total picked for this cop on a given date.
+        """
+        total = Box.objects.filter(batch__flush__crop = self,
+                                   batch__date = date).aggregate(
+                                   Sum('initialWeight'))['initialWeight__sum']
+        return total if (total is not None) else 0.0
 
-    def getTotalPickedBetween(self, startDate, endDate): 
-        """ Return total picked for a picker, between two given dates given date """
-        total = Box.objects.filter(batch__flush__crop=self,
-                                   batch__date__gte=startDate, 
-                                   batch__date__lte=endDate).aggregate(Sum('initialWeight'))['initialWeight__sum']
-        if total is not None:
-            return total
-        return 0.0
+    def getTotalPickedBetween(self, start_date, end_date): 
+        """
+        Return total picked for a picker, between two given dates given date.
+        """
+        total = Box.objects.filter(batch__flush__crop = self,
+                                   batch__date__gte = start_date, 
+                                   batch__date__lte = end_date).aggregate(
+                                   Sum('initialWeight'))['initialWeight__sum']
+        return total if (total is not None) else 0.0
 
 class Flush(models.Model):
     startDate = models.DateField('date started')
-    endDate = models.DateField('date completed', blank=True, null=True)
+    endDate = models.DateField('date completed', blank = True, null = True)
     flushNo = models.IntegerField()
     crop = models.ForeignKey(Crop, limit_choices_to = {'endDate__isnull':True})
 
     class Meta:
-        verbose_name_plural="Flushes"
+        verbose_name_plural = 'Flushes'
 
     def __unicode__(self):
-        return "Flush " + str(self.flushNo) + " (" + \
-            self.startDateString() + " - " +\
-            self.endDateString() + ") " +\
-            str(self.crop.room) + " ID " + str(self.id)
-
-    def startDateString(self):
-        "Returns startDate as a string day/month/year"
-        return  str(self.startDate.day) + "/" + \
-                str(self.startDate.month) + "/" + \
-                str(self.startDate.year)
-
-    def endDateString(self):
-        "Returns endDate as a string day/month/year"
         if self.endDate is None:
-            return ''
+            end_date_string = 'unfinished'
         else:
-            return  str(self.endDate.day) + "/" + \
-                    str(self.endDate.month) + "/" + \
-                    str(self.endDate.year)
+            end_date_string = self.dateString(start = False)
+        return ('Flush {flush_no} ({start_date} ~ {end_date}) ' +\
+               '{room} ID {flush_id}').format(
+            flush_no = self.flushNo,
+            start_date = self.dateString(),
+            end_date = end_date_string,
+            room = str(self.crop.room),
+            flush_id = self.id
+        )
+
+    def dateString(self, start = True):
+        """
+        Returns startDate or endDate as a string day/month/year.
+
+        If start is True (the default) then startDate will be returned,
+        otherwise endDate will be returned.
+        """
+        date_format = '{day}/{month}/{year}'
+        if start:
+            return date_format.format(day =   str(self.startDate.day),
+                                      month = str(self.startDate.month),
+                                      year =  str(self.startDate.year))
+        else:
+            return date_format.format(day =   str(self.endDate.day),
+                                      month = str(self.endDate.month),
+                                      year =  str(self.endDate.year))
 
     def getTotalPickedOn(self, date): 
-        """ Return total picked for this flush on a given date """
-        total = Box.objects.filter(batch__flush=self,
-                                   batch__date=date).aggregate(Sum('initialWeight'))['initialWeight__sum']
-        if total is not None:
-            return total
-        return 0.0
+        """
+        Return total picked for this flush on a given date.
+        """
+        total = Box.objects.filter(batch__flush = self,
+                                   batch__date = date).aggregate(
+                                   Sum('initialWeight'))['initialWeight__sum']
+        return total if (total is not None) else 0.0
 
-    def getTotalPickedBetween(self, startDate, endDate): 
-        """ Return total picked for this flush between two given dates """
-        total = Box.objects.filter(batch__flush=self,
-                                   batch__date__gte=startDate, 
-                                   batch__date__lte=endDate).aggregate(Sum('initialWeight'))['initialWeight__sum']
-        if total is not None:
-            return total
-        return 0.0
+    def getTotalPickedBetween(self, start_date, end_date): 
+        """
+        Return total picked for this flush between two given dates.
+        """
+        total = Box.objects.filter(batch__flush = self,
+                                   batch__date__gte = start_date, 
+                                   batch__date__lte = end_date).aggregate(
+                                   Sum('initialWeight'))['initialWeight__sum']
+        return total if (total is not None) else 0.0
 
 class Batch(models.Model):
     date = models.DateField('date started')
-    flush = models.ForeignKey(Flush, limit_choices_to = {'endDate__isnull':True})
+    flush = models.ForeignKey(Flush,
+                              limit_choices_to = {'endDate__isnull': True})
 
     class Meta:
-        verbose_name_plural="Batches"
+        verbose_name_plural = 'Batches'
 
     def __unicode__(self):
-        return "Batch " + str(self.id) + " (" + \
-                self.dateString() + ") " +\
-                str(self.flush.crop.room)
+        return 'Batch {batch_id} ({batch_date}) {room}'.format(
+            batch_id = str(self.id),
+            batch_date = self.dateString(),
+            room = str(self.flush.crop.room)
+        )
 
     def dateString(self):
-        """ Returns date as a string day/month/year """
-        return  str(self.date.day) + "/" + \
-                str(self.date.month) + "/" + \
-                str(self.date.year)
+        """
+        Returns date as a string day/month/year.
+        """
+        return '{day}/{month}/{year}'.format(
+            day =   str(self.date.day),
+            month = str(self.date.month),
+            year =  str(self.date.year)
+        )
 
 class Mushroom(models.Model):
     variety = models.CharField(max_length=50)
@@ -247,10 +303,12 @@ class Mushroom(models.Model):
     active = models.BooleanField()
 
     class Meta:
-        verbose_name_plural="Mushrooms"
+        verbose_name_plural = 'Mushrooms'
 
     def __unicode__(self):
-        return "Mushroom " + str(self.variety)
+        return 'Mushroom {variety}'.format(
+            variety = str(self.variety)
+        )
 
 class Box(models.Model):
     initialWeight = models.FloatField()
@@ -261,7 +319,11 @@ class Box(models.Model):
     batch = models.ForeignKey(Batch)
 
     class Meta:
-        verbose_name_plural="Boxes"
+        verbose_name_plural = 'Boxes'
 
     def __unicode__(self):
-        return "Box " + str(self.id) + ", contains " + str(self.contentVariety) + " picked by " + str(self.picker)
+        return 'Box {box_id} contains {variety} picked by {picker}'.format(
+            box_id = str(self.id),
+            variety = str(self.contentVariety),
+            picker = str(self.picker)
+        )
