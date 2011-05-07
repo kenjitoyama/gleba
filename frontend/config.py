@@ -17,6 +17,8 @@ ser_port = '/dev/pts/7'
 #         Change before deployment
 django_http_path = 'http://localhost:8000/'
 
+WEIGHT_WINDOW_SIZE = 100
+
 ################################################################################
 # GUI settings
 ################################################################################

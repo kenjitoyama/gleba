@@ -227,9 +227,8 @@ class MainWindow(gtk.Window):
                 hbox.pack_start(button)
             self.varieties_vbox.pack_start(hbox)
         # initialize weight_window
-        for i in range(0, 100):
+        for i in range(0, config.WEIGHT_WINDOW_SIZE):
             self.weight_window.append(0)
-
         
     def edit_window(self, button):
         # add widgets
