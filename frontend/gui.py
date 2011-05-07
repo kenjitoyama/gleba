@@ -88,9 +88,6 @@ class MainWindow(gtk.Window):
         self.status_label = gtk.Label()
         self.status_label.set_size_request(250, 200)
         status_vbox.pack_start(self.status_label)
-        style = '<span foreground="#000000" size="large" ' + \
-                'weight="bold" font_desc="Calibri 14">{0}</span>'
-        self.status_label.set_markup(style.format(self.status_text))
 
         #Button to start thread, remove this later
         self.b = gtk.Button(stock=gtk.STOCK_OK)
@@ -435,22 +432,17 @@ class MainWindow(gtk.Window):
         self.event_box1.modify_bg(gtk.STATE_NORMAL,
                                   gtk.gdk.color_parse(self.weight_color))
         self.status_text = STATUS_MESSAGES[self.current_state]
-        style = '<span foreground="#000000" size="large" ' +\
-                'weight="bold" font_desc="Calibri 20">{0}</span>'
-        self.status_label.set_markup(style.format(self.status_text))
+        markup = config.STATUS_STYLE.format(text = self.status_text)
+        self.status_label.set_markup(markup)
         if self.show_weight is True:
-            style = '<span foreground="#FFFFFF" size="xx-large" ' +\
-                    'weight="bold" font_desc="Calibri 24">{0:.3}</span>'
-            self.weight_label.set_markup(style.format(self.current_weight))
-            style = '<span foreground="#FFFFFF" size="xx-large" ' +\
-                    'weight="bold" font_desc="Calibri 24">{0:+.3}</span>'
+            markup = config.WEIGHT_STYLE.format(self.current_weight)
+            self.weight_label.set_markup(markup)
             offset = self.current_weight - self.min_weight
-            self.offset_label.set_markup(style.format(offset))
+            markup = config.OFFSET_STYLE.format(offset)
+            self.offset_label.set_markup(markup)
         else:
-            style = '<span foreground="#000000" size="xx-large" ' +\
-                    'weight="bold" font_desc="Calibri 24">N/A</span>'
-            self.weight_label.set_markup(style)
-            self.offset_label.set_markup(style)
+            self.weight_label.set_markup(config.NA_MARKUP)
+            self.offset_label.set_markup(config.NA_MARKUP)
 
     def count_up(self, maximum):
         while self.keep_running:

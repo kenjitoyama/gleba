@@ -30,3 +30,9 @@ PICKER_COLS = 3
 
 # Number of Variety columns
 VARIETY_COLS = 2
+
+# Status appearance (don't change the stuff inside the curly brackets}
+STATUS_STYLE = '<span foreground="#000000" font="Calibri 30">{text}</span>'
+WEIGHT_STYLE = '<span foreground="#ffffff" font="Calibri 30">{0:.3}</span>'
+OFFSET_STYLE = '<span foreground="#ffffff" font="Calibri 30">{0:+.3}</span>'
+NA_MARKUP = '<span foreground="#000000" font_desc="Calibri 30">N/A</span>'
