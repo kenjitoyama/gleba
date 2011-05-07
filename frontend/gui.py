@@ -322,19 +322,27 @@ class MainWindow(gtk.Window):
             #modify treeView model
             temp = []
 
-            entry = 'Picker No. ' + str(self.pickers[self.current_picker][0])
-            entry += ', ' +str(self.pickers[self.current_picker][1])
-            entry += ' ' + str(self.pickers[self.current_picker][2])
-            entry += ', Variety: ' + self.varieties[self.current_variety][0]
-            entry += '. ' + self.varieties[self.current_variety][1]
-            entry += ', Batch No. ' + str(self.batches[self.current_batch_][0])
-            entry += ' (' + str(self.batches[self.current_batch_][1])
-            entry += ') Room ' + str(self.batches[self.current_batch_][0])
-            entry += ', Picker Weight: ' + str(self.current_picker_weight)
-            entry += ', Final Weight: ' + str(self.current_weight)
-            entry += ', Time: ' + time.strftime('%Y-%m-%d %H:%M:%S',
-                                                       time.localtime())
-            temp.append(entry)
+            text = ('Picker {picker_number} ' +
+                   '({picker_firstname} {picker_lastname}), ' +
+                   'Variety {variety_number} ({variety_name}), ' +
+                   'Batch {batch_number} ({batch_date}), ' +
+                   'Room {room_number}, ' +
+                   'Picker Weight: {picker_weight}, ' +
+                   'Final Weight: {final_weight}, Time: {timestamp}')
+            temp.append(text.format(
+                picker_number    = self.pickers[self.current_picker][0],
+                picker_firstname = self.pickers[self.current_picker][1],
+                picker_lastname  = self.pickers[self.current_picker][2],
+                variety_number   = self.varieties[self.current_variety][0],
+                variety_name     = self.varieties[self.current_variety][1],
+                batch_number     = self.batches[self.current_batch][0],
+                batch_date       = self.batches[self.current_batch][1],
+                room_number      = self.batches[self.current_batch][2],
+                picker_weight    = self.current_picker_weight,
+                final_weight     = self.current_weight,
+                timestamp        = time.strftime('%Y-%m-%d %H:%M:%S',
+                                                 time.localtime())
+            ))
             self.history_store.insert(row, temp)
         else:
             self.history_entries.pop(row)
@@ -389,12 +397,12 @@ class MainWindow(gtk.Window):
         index_list.append(self.current_batch)
         index_list.append(self.current_variety)
         index_list.append(self.current_picker)
-        text = 'Picker {picker_number} ' +\
-               '({picker_firstname} {picker_lastname}), ' +\
-               'Variety {variety_number} ({variety_name}), ' +\
-               'Batch {batch_number} ({batch_date}), Room {room_number}, ' +\
-               'Picker Weight: {picker_weight}, ' +\
-               'Final Weight: {final_weight}, Time: {timestamp}'
+        text = ('Picker {picker_number} ' +
+               '({picker_firstname} {picker_lastname}), ' +
+               'Variety {variety_number} ({variety_name}), ' +
+               'Batch {batch_number} ({batch_date}), Room {room_number}, ' +
+               'Picker Weight: {picker_weight}, ' +
+               'Final Weight: {final_weight}, Time: {timestamp}')
         temp.append(text.format(
             picker_number    = self.pickers[self.current_picker][0],
             picker_firstname = self.pickers[self.current_picker][1],
