@@ -185,9 +185,9 @@ class MainWindow(gtk.Window):
         """
         Alleviates the burden of adding data from __init__().
         """
-        self.batches   = DB.getActiveBatches()
-        self.pickers   = DB.getActivePickers()
-        self.varieties = DB.getActiveVarieties()
+        self.batches   = DB.get_active_batches()
+        self.pickers   = DB.get_active_pickers()
+        self.varieties = DB.get_active_varieties()
         # add batches
         batch_text_format = 'Batch No. {} ({}) Room {}'
         for batch in self.batches:
@@ -376,7 +376,7 @@ class MainWindow(gtk.Window):
         self.start_stop('button')
         for (picker, batch, variety, init_weight,
              final_weight, timestamp, index_list) in self.history_entries:
-            DB.addBox(picker, batch, variety, init_weight,
+            DB.add_box(picker, batch, variety, init_weight,
                       final_weight, timestamp)
         # clear the history
         self.history_store.clear()
@@ -445,7 +445,7 @@ class MainWindow(gtk.Window):
     def count_up(self):
         while self.keep_running:
             self.current_batch = self.batch_combo_box.get_active()
-            self.current_weight = self.serial_thread.getWeight()
+            self.current_weight = self.serial_thread.get_weight()
             if self.current_state == AWAITING_BATCH:
                 if self.current_batch is not None and\
                    self.current_batch >= 0: # -1 if no active item

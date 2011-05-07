@@ -43,17 +43,23 @@ class ThreadSerial(threading.Thread):
         while self.should_run == True:
             self.scale_string = self.ser.readline()
 
-    def isStable(self):
-        "Return true iff the weight on the scale is stable"
+    def is_stable(self):
+        """
+        Return true iff the weight on the scale is stable
+        """
         return self.pattern_matcher.findall(self.scale_string)[0][0] == 'ST'
 
-    def getWeight(self):
-        "Returns the value of the weight on the scale as float"
+    def get_weight(self):
+        """
+        Returns the value of the weight on the scale as float
+        """
         return float(self.pattern_matcher.findall(self.scale_string)[0][2])
 
     def kill(self):
-        """Called when thread must be killed. Causes loop of thread to 
-        terminate and thread to die"""
+        """
+        Called when thread must be killed. Causes loop of thread to 
+        terminate and thread to die
+        """
         self.should_run = False
 
 class DBAPI ():
@@ -63,8 +69,8 @@ class DBAPI ():
     def __init__(self):
         self.http_address = config.django_http_path
 
-    def addBox(self, picker, batch, variety,
-                     initial_weight, final_weight, timestamp): 
+    def add_box(self, picker, batch, variety,
+                      initial_weight, final_weight, timestamp): 
         """
         Performs a url request with for the django add box using all the
         info in parameters
@@ -84,7 +90,7 @@ class DBAPI ():
         request = urllib.urlopen(full_address.format(params))
         return ((request.read() == 'success'), request.read())
 
-    def getActivePickers(self):
+    def get_active_pickers(self):
         """
         Parse a delimited string from a url of all the current pickers
         into a python list.
@@ -96,7 +102,7 @@ class DBAPI ():
             result.append(picker.split("|"))
         return result
 
-    def getActivePickersXML(self):
+    def get_active_pickers_xml(self):
         """
         Parse an xml list of all the current pickers into a python list.
         """
@@ -112,7 +118,7 @@ class DBAPI ():
                            lname_elem.firstChild.data])
         return result
 
-    def getActiveBatches(self):
+    def get_active_batches(self):
         """
         Parse a delimited string from a url of all the current batches into
         a python list.
@@ -124,7 +130,7 @@ class DBAPI ():
             result.append(batch.split('|'))
         return result
 
-    def getActiveBatchesXML(self):
+    def get_active_batches_xml(self):
         """
         Parse an xml list of all the current batches into a python list.
         """
@@ -145,7 +151,7 @@ class DBAPI ():
             result.append([batch_id, batch_date, room_number])
         return result
 
-    def getActiveVarieties(self):
+    def get_active_varieties(self):
         """
         Parse a delimited string from a url of all the current batches into
         a python list
@@ -157,7 +163,7 @@ class DBAPI ():
             result.append(variety.split("|"))
         return result
 
-    def getActiveVarietiesXML(self):
+    def get_active_varieties_xml(self):
         """
         Parse an xml list of all varieties into a python list
 
