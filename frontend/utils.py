@@ -9,7 +9,6 @@ Copyright (C) Simon Dawson, Kenji Toyama, Meryl Baquiran, Chris Ellis 2010-2011
 import serial
 import threading
 import urllib
-from datetime import datetime
 import re
 from xml.dom import minidom
 import config
@@ -29,10 +28,11 @@ class ThreadSerial(threading.Thread):
         in this function.
         """
         threading.Thread.__init__(self)
-        self.isOk=True
-        self.pattern_matcher=re.compile(r"^(ST|US),(GS|[A-Z]+), (\d+\.\d+)KG,$")
-        self.scale_string="ST,GS, 0.0KG,"
-        self.ser=serial.Serial()
+        self.should_run = True
+        self.pattern_matcher = re.compile(
+            r'^(ST|US),(GS|[A-Z]+), (\d+\.\d+)KG,$')
+        self.scale_string = 'ST,GS, 0.0KG,'
+        self.ser = serial.Serial()
         self.ser.port = config.ser_port
         self.ser.open()
 
@@ -40,12 +40,12 @@ class ThreadSerial(threading.Thread):
         """
         Read serial until thread killed
         """
-        while self.isOk==True:
-            self.scale_string=self.ser.readline()
+        while self.should_run == True:
+            self.scale_string = self.ser.readline()
 
     def isStable(self):
         "Return true iff the weight on the scale is stable"
-        return self.pattern_matcher.findall(self.scale_string)[0][0]=="ST"
+        return self.pattern_matcher.findall(self.scale_string)[0][0] == 'ST'
 
     def getWeight(self):
         "Returns the value of the weight on the scale as float"
@@ -54,13 +54,17 @@ class ThreadSerial(threading.Thread):
     def kill(self):
         """Called when thread must be killed. Causes loop of thread to 
         terminate and thread to die"""
-        self.isOk=False
+        self.should_run = False
 
 class DBAPI ():
+    """
+    This class is a helper in accessing DB related functions of Gleba.
+    """
     def __init__(self):
         self.http_address = config.django_http_path
 
-    def addBox(self,picker,batch,variety,initWeight,finalWeight,timestamp): 
+    def addBox(self, picker, batch, variety,
+                     initial_weight, final_weight, timestamp): 
         """
         Performs a url request with for the django add box using all the
         info in parameters
@@ -68,42 +72,45 @@ class DBAPI ():
         Returns (p,m) p is true iff the operation was successful
         else m is the error message returned from the server
         """
-        params=urllib.urlencode({
-            'initialWeight':initWeight,
-            'finalWeight':finalWeight,
-            'timestamp':timestamp,
-            'contentVariety':variety,
-            'picker':picker,
-            'batch':batch
-            })
-        f=urllib.urlopen((self.http_address+"addBox?%s")%params)
-        r=((f.read()=="success"),f.read())
-        return r
-        
+        params = urllib.urlencode({
+            'initialWeight':  initial_weight,
+            'finalWeight':    final_weight,
+            'timestamp':      timestamp,
+            'contentVariety': variety,
+            'picker':         picker,
+            'batch':          batch
+        })
+        full_address = self.http_address + 'addBox?{}'
+        request = urllib.urlopen(full_address.format(params))
+        return ((request.read() == 'success'), request.read())
+
     def getActivePickers(self):
         """
         Parse a delimited string from a url of all the current pickers
-        into a python list
+        into a python list.
         """
-        l=list()
+        result = []
         full_address = self.http_address + 'pickerList'
-        f=urllib.urlopen(full_address)
-        for p in f.read().split("*")[:-1]:
-            l.append(p.split("|"))
-        return l
+        pickers = urllib.urlopen(full_address)
+        for picker in pickers.read().split("*")[:-1]:
+            result.append(picker.split("|"))
+        return result
 
     def getActivePickersXML(self):
         """
-        Parse an xml list of all the current pickers into a python list
+        Parse an xml list of all the current pickers into a python list.
         """
-        l = list()
+        result = []
         full_address = self.http_address + 'pickerList.xml'
         xmldoc = minidom.parse(urllib.urlopen(full_address))
         for picker in xmldoc.getElementsByTagName("picker"):
-            l.append([picker.getElementsByTagName("id")[0].firstChild.data,
-              picker.getElementsByTagName("firstName")[0].firstChild.data,
-              picker.getElementsByTagName("lastName")[0].firstChild.data])
-        return l
+            id_elem = picker.getElementsByTagName('id')[0]
+            fname_elem = picker.getElementsByTagName('firstName')[0]
+            lname_elem = picker.getElementsByTagName('lastName')[0]
+            result.append([id_elem.firstChild.data,
+                           fname_elem.firstChild.data,
+                           lname_elem.firstChild.data])
+        return result
 
     def getActiveBatches(self):
         """
@@ -125,22 +132,14 @@ class DBAPI ():
         full_address = self.http_address + 'batchList.xml'
         xmldoc = minidom.parse(urllib.urlopen(full_address))
         for batch in xmldoc.getElementsByTagName("batch"):
-            batch_id = day = month = year = room_number = None
-            for elem in batch.childNodes:
-                if elem.nodeName == 'id':
-                    batch_id = elem.firstChild.data
-                elif elem.nodeName == 'date':
-                    for field in elem.childNodes:
-                        if field.nodeName == 'day':
-                            day = field.firstChild.data
-                        elif field.nodeName == 'month':
-                            month = field.firstChild.data
-                        elif field.nodeName == 'year':
-                            year = field.firstChild.data
-                elif elem.nodeName == 'room':
-                    for field in elem.childNodes:
-                        if field.nodeName == 'number':
-                            room_number = field.firstChild.data
+            batch_id = batch.getElementsByTagName('id')[0].firstChild.data
+            date_elem = batch.getElementsByTagName('date')[0]
+            day = date_elem.getElementsByTagName('day')[0].firstChild.data
+            month = date_elem.getElementsByTagName('month')[0].firstChild.data
+            year = date_elem.getElementsByTagName('year')[0].firstChild.data
+            room_elem = batch.getElementsByTagName('room')[0]
+            room_number = (room_elem.getElementsByTagName('number')[0]
+                           .firstChild.data)
             date_format = u'{}/{}/{}'
             batch_date = date_format.format(day, month, year)
             result.append([batch_id, batch_date, room_number])
@@ -151,25 +150,31 @@ class DBAPI ():
         Parse a delimited string from a url of all the current batches into
         a python list
         """
-        l=list()
-        f=urllib.urlopen(self.http_address+"varietyList")
-        for p in f.read().split("*")[:-1]:
-        # Last elements are the idealWeight and Tolerance
-            #l.append(p.split("|")[:-2])
-            l.append(p.split("|"))
-        return l
+        result = []
+        full_address = self.http_address + 'varietyList'
+        varieties = urllib.urlopen(full_address)
+        for variety in varieties.read().split("*")[:-1]:
+            result.append(variety.split("|"))
+        return result
 
     def getActiveVarietiesXML(self):
-        """ Parse an xml list of all varieties into a python list
-            NOTE: as of 11/2/2011 the list now performs the cast to float
-                    for the number values
         """
-        l=list()
-        xmldoc = minidom.parse(urllib.urlopen(self.http_address+"varietyList.xml"))
-        for varieties in xmldoc.getElementsByTagName("variety"):
-            l.append([varieties.getElementsByTagName("id")[0].firstChild.data,
-              varieties.getElementsByTagName("name")[0].firstChild.data,
-              float(varieties.getElementsByTagName("idealWeight")[0].firstChild.data),
-              float(varieties.getElementsByTagName("tolerance")[0].firstChild.data)])
-        return l
+        Parse an xml list of all varieties into a python list
+
+        NOTE: as of 11/2/2011 the list now performs the cast to float
+              for the number values
+        """
+        result = []
+        full_address = self.http_address + 'varietyList.xml'
+        xmldoc = minidom.parse(urllib.urlopen(full_address))
+        for variety in xmldoc.getElementsByTagName('variety'):
+            id_elem = variety.getElementsByTagName("id")[0]
+            name_elem = variety.getElementsByTagName("name")[0]
+            iw_elem = variety.getElementsByTagName("idealWeight")[0]
+            fw_elem = variety.getElementsByTagName("tolerance")[0]
+            result.append([id_elem.firstChild.data,
+                           name_elem.firstChild.data,
+                           float(iw_elem.firstChild.data),
+                           float(fw_elem.firstChild.data)])
+        return result
 
