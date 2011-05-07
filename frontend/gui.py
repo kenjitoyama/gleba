@@ -170,7 +170,8 @@ class MainWindow(gtk.Window):
         self.add_initial_data()
 
         self.keep_running = True #Kenji: flag to stop the thread
-        self.count_in_thread(4.3)
+        self.reading_thread = Thread(target = self.count_up)
+        self.reading_thread.start()
         self.show_all()
 
         self.player = gst.element_factory_make('playbin2', 'player')
@@ -423,9 +424,6 @@ class MainWindow(gtk.Window):
         self.history_list.set_model(self.history_store)
         self.show_all()
 
-    def count_in_thread(self, maximum):
-        Thread(target=self.count_up, args=(maximum,)).start()
-
     def set_status_feedback(self):
         self.event_box.modify_bg(gtk.STATE_NORMAL,
                                  gtk.gdk.color_parse(self.weight_color))
@@ -444,7 +442,7 @@ class MainWindow(gtk.Window):
             self.weight_label.set_markup(config.NA_MARKUP)
             self.offset_label.set_markup(config.NA_MARKUP)
 
-    def count_up(self, maximum):
+    def count_up(self):
         while self.keep_running:
             self.current_batch = self.batch_combo_box.get_active()
             self.current_weight = self.serial_thread.getWeight()
