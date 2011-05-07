@@ -61,11 +61,12 @@ class DBAPI ():
         self.http_address = config.django_http_path
 
     def addBox(self,picker,batch,variety,initWeight,finalWeight,timestamp): 
-        """ Performs a url request with for the django add box using all the
+        """
+        Performs a url request with for the django add box using all the
         info in parameters
-            
-                Returns (p,m) p is true iff the operation was successful
-                else m is the error message returned from the server
+
+        Returns (p,m) p is true iff the operation was successful
+        else m is the error message returned from the server
         """
         params=urllib.urlencode({
             'initialWeight':initWeight,
@@ -79,59 +80,76 @@ class DBAPI ():
         r=((f.read()=="success"),f.read())
         return r
         
-    def getActivePickers(self):    
-        """ 
-            Parse a delimited string from a url of all the current pickers
-            into a python list
+    def getActivePickers(self):
+        """
+        Parse a delimited string from a url of all the current pickers
+        into a python list
         """
         l=list()
-        f=urllib.urlopen(self.http_address+"pickerList")
+        full_address = self.http_address + 'pickerList'
+        f=urllib.urlopen(full_address)
         for p in f.read().split("*")[:-1]:
             l.append(p.split("|"))
-        return l        
+        return l
 
     def getActivePickersXML(self):
-        """ 
-            Parse an xml list of all the current pickers into a python list
         """
-        l=list()
-        xmldoc = minidom.parse(urllib.urlopen(self.http_address+"pickerList.xml"))
+        Parse an xml list of all the current pickers into a python list
+        """
+        l = list()
+        full_address = self.http_address + 'pickerList.xml'
+        xmldoc = minidom.parse(urllib.urlopen(full_address))
         for picker in xmldoc.getElementsByTagName("picker"):
             l.append([picker.getElementsByTagName("id")[0].firstChild.data,
               picker.getElementsByTagName("firstName")[0].firstChild.data,
               picker.getElementsByTagName("lastName")[0].firstChild.data])
         return l
-            
-    def getActiveBatches(self):    
-        """ 
-            Parse a delimited string from a url of all the current batches into
-            a python list
+
+    def getActiveBatches(self):
         """
-        l=list()
-        f=urllib.urlopen(self.http_address+"batchList")
-        for p in f.read().split("*")[:-1]:
-            l.append(p.split("|"))
-        return l        
+        Parse a delimited string from a url of all the current batches into
+        a python list.
+        """
+        result = []
+        full_address = self.http_address + 'batchList'
+        batches = urllib.urlopen(full_address)
+        for batch in batches.read().split('*')[:-1]:
+            result.append(batch.split('|'))
+        return result
 
     def getActiveBatchesXML(self):
-        """ 
-            Parse an xml list of all the current batches into a python list
         """
-        l=list()
-        xmldoc = minidom.parse(urllib.urlopen(self.http_address+"batchList.xml"))
+        Parse an xml list of all the current batches into a python list.
+        """
+        result = []
+        full_address = self.http_address + 'batchList.xml'
+        xmldoc = minidom.parse(urllib.urlopen(full_address))
         for batch in xmldoc.getElementsByTagName("batch"):
-            id=batch.getElementsByTagName("id")[0].firstChild.data
-            monthstring=batch.getElementsByTagName("date")[0].getElementsByTagName("day")[0].firstChild.data
-            monthstring+="/"+batch.getElementsByTagName("date")[0].getElementsByTagName("month")[0].firstChild.data
-            monthstring+="/"+batch.getElementsByTagName("date")[0].getElementsByTagName("year")[0].firstChild.data
-            roomnumber=batch.getElementsByTagName("room")[0].getElementsByTagName("number")[0].firstChild.data
-            l.append([id,monthstring,roomnumber])
-        return l
-     
-    def getActiveVarieties(self):    
-        """ 
-            Parse a delimited string from a url of all the current batches into
-            a python list
+            batch_id = day = month = year = room_number = None
+            for elem in batch.childNodes:
+                if elem.nodeName == 'id':
+                    batch_id = elem.firstChild.data
+                elif elem.nodeName == 'date':
+                    for field in elem.childNodes:
+                        if field.nodeName == 'day':
+                            day = field.firstChild.data
+                        elif field.nodeName == 'month':
+                            month = field.firstChild.data
+                        elif field.nodeName == 'year':
+                            year = field.firstChild.data
+                elif elem.nodeName == 'room':
+                    for field in elem.childNodes:
+                        if field.nodeName == 'number':
+                            room_number = field.firstChild.data
+            date_format = u'{}/{}/{}'
+            batch_date = date_format.format(day, month, year)
+            result.append([batch_id, batch_date, room_number])
+        return result
+
+    def getActiveVarieties(self):
+        """
+        Parse a delimited string from a url of all the current batches into
+        a python list
         """
         l=list()
         f=urllib.urlopen(self.http_address+"varietyList")
@@ -139,7 +157,7 @@ class DBAPI ():
         # Last elements are the idealWeight and Tolerance
             #l.append(p.split("|")[:-2])
             l.append(p.split("|"))
-        return l        
+        return l
 
     def getActiveVarietiesXML(self):
         """ Parse an xml list of all varieties into a python list
@@ -154,4 +172,4 @@ class DBAPI ():
               float(varieties.getElementsByTagName("idealWeight")[0].firstChild.data),
               float(varieties.getElementsByTagName("tolerance")[0].firstChild.data)])
         return l
-     
+
