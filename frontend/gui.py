@@ -382,13 +382,6 @@ class MainWindow(gtk.Window):
         self.history_entries = []
         self.show_all()
 
-    def get_active_text(self, combobox):
-        model = combobox.get_model()
-        active = combobox.get_active()
-        if active < 0:
-            return None
-        return model[active][0]
-
     def history_callback(self, button):
         self.start_stop('success')
         self.current_weight = self.stable_weight
