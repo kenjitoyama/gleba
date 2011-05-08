@@ -9,7 +9,7 @@ Django 1.3+ (http://www.djangoproject.com/)
 Gnuplot.py 1.8+ (http://gnuplot-py.sourceforge.net/)
 Socat 1.7.1.3+ (http://www.dest-unreach.org/socat/) (for testing only)
 PySerial 2.5+ (http://pyserial.sourceforge.net/)
-PyGTK 2.22+ (http://www.pygtk.org/)
+PyGObject with GTK+ 2.22+ in the GI repository (http://http://live.gnome.org/PyGObject)
 
 The testing suite is written only for POSIX (because of its dependency
 on socat), but there are plans to support it in Windows too.
