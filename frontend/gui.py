@@ -107,7 +107,6 @@ class MainWindow(Gtk.Window):
         #Add batch HBox for combo box and button to batch_frame
 
         #Batch ComboBox, pack into batch HBox
-        #self.batch_combo_box = Gtk.combo_box_new_text()
         self.batch_combo_box = Gtk.ComboBox().new_text()
         batch_frame.add(self.batch_combo_box)
         
@@ -115,11 +114,6 @@ class MainWindow(Gtk.Window):
         self.status_label = Gtk.Label()
         self.status_label.set_size_request(250, 200)
         status_vbox.add(self.status_label)
-
-        #Button to start thread, remove this later
-        self.b = Gtk.Button(stock = Gtk.STOCK_OK)
-        self.b.connect('clicked', self.history_callback)
-        self.b.set_sensitive(False)
 
         #Weight and offset display labels 
         weight_display_frame = Gtk.Frame(label = 'Weight')
@@ -516,7 +510,7 @@ class MainWindow(Gtk.Window):
                 self.show_weight = False
                 self.weight_color = config.WHITE_COLOR
                 gobject.idle_add(self.set_status_feedback)
-                gobject.idle_add(self.history_callback, self.b)
+                gobject.idle_add(self.history_callback, None)
             elif self.current_state == AWAITING_BOX:
                 if self.current_weight > config.BOX_WEIGHT:
                     gobject.idle_add(self.change_state)
@@ -537,10 +531,8 @@ class MainWindow(Gtk.Window):
                     # overweight
                     self.weight_color = config.RED_COLOR
                     self.current_state = OVERWEIGHT_ADJUST
-                    gobject.idle_add(self.b.set_sensitive, False)
                 elif self.current_weight < self.min_weight:
                     # underweight
-                    gobject.idle_add(self.b.set_sensitive, False)
                     self.weight_color = config.BLUE_COLOR
                     self.current_state = UNDERWEIGHT_ADJUST
                 else: # within acceptable range
@@ -554,7 +546,6 @@ class MainWindow(Gtk.Window):
                     if not self.save_weight:
                         self.stable_weight = self.current_weight
                         self.save_weight = True
-                        gobject.idle_add(self.b.set_sensitive, True)
                 gobject.idle_add(self.set_status_feedback)
             time.sleep(0.01)
 
