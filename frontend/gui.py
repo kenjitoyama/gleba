@@ -48,7 +48,6 @@ class MainWindow(Gtk.Window):
     current_weight = 0
     current_state = 0
     stable_weight = 0
-    status_text = STATUS_MESSAGES[current_state]
     show_weight = False
     min_weight = 0.0
     weight_window = []
@@ -391,7 +390,6 @@ class MainWindow(Gtk.Window):
         if self.current_state == AWAITING_PICKER:
             self.current_picker_weight = self.current_weight
             self.change_state()
-            self.status_text = STATUS_MESSAGES[self.current_state]
             self.set_status_feedback()
 
     def select_variety_callback(self, button, index):
@@ -405,7 +403,6 @@ class MainWindow(Gtk.Window):
         self.current_variety = index
         if self.current_state == AWAITING_VARIETY:
             self.change_state()
-            self.status_text = STATUS_MESSAGES[self.current_state]
             self.set_status_feedback()
 
     def commit_callback(self, button):
@@ -477,8 +474,8 @@ class MainWindow(Gtk.Window):
         color = Gdk.Color(*self.weight_color) # unpack the tuple
         self.event_box.modify_bg(Gtk.StateType.NORMAL, color)
         self.event_box1.modify_bg(Gtk.StateType.NORMAL, color)
-        self.status_text = STATUS_MESSAGES[self.current_state]
-        markup = config.STATUS_STYLE.format(text = self.status_text)
+        markup = config.STATUS_STYLE.format(
+            text = STATUS_MESSAGES[self.current_state])
         self.status_label.set_markup(markup)
         if self.show_weight is True:
             markup = config.WEIGHT_STYLE.format(self.current_weight)
