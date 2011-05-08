@@ -1,4 +1,7 @@
 #!/usr/bin/python
+"""
+This is the main client the end-user will interact with.
+"""
 from threading import Thread
 import time
 import gtk
@@ -60,6 +63,25 @@ class MainWindow(gtk.Window):
         self.set_size_request(int(WINDOWW), int(WINDOWH))
         self.connect('destroy', self.exit_callback)
 
+        self.add_widgets()
+        self.add_initial_data()
+
+        self.keep_running = True #Kenji: flag to stop the thread
+        self.reading_thread = Thread(target = self.count_up)
+        self.reading_thread.start()
+        self.show_all()
+
+        self.player = gst.element_factory_make('playbin2', 'player')
+        fakesink = gst.element_factory_make('fakesink', 'fakesink')
+        self.player.set_property('video-sink', fakesink)
+        bus = self.player.get_bus()
+        bus.add_signal_watch()
+        bus.connect('message', self.on_message)
+
+    def add_widgets(self):
+        """
+        Adds GUI widgets to this object.
+        """
         #Main HBox, pack into main window
         main_hbox = gtk.HBox()
         self.add(main_hbox)
@@ -161,25 +183,11 @@ class MainWindow(gtk.Window):
         edit_button = gtk.Button(label='Edit')
         edit_button.set_size_request(20, 20)
         edit_button_box.pack_start(edit_button)
-        edit_button.connect('clicked', self.edit_window)
+        edit_button.connect('clicked', self.open_edit_window)
 
         commit_button = gtk.Button(label='Commit')
         commit_button.connect('clicked', self.commit_callback)
         edit_button_box.pack_start(commit_button)
-        
-        self.add_initial_data()
-
-        self.keep_running = True #Kenji: flag to stop the thread
-        self.reading_thread = Thread(target = self.count_up)
-        self.reading_thread.start()
-        self.show_all()
-
-        self.player = gst.element_factory_make('playbin2', 'player')
-        fakesink = gst.element_factory_make('fakesink', 'fakesink')
-        self.player.set_property('video-sink', fakesink)
-        bus = self.player.get_bus()
-        bus.add_signal_watch()
-        bus.connect('message', self.on_message)
 
     def add_initial_data(self):
         """
@@ -231,7 +239,11 @@ class MainWindow(gtk.Window):
         for i in range(0, config.WEIGHT_WINDOW_SIZE):
             self.weight_window.append(0)
         
-    def edit_window(self, button):
+    def open_edit_window(self, button):
+        """
+        This callback is fired when editing an entry in the
+        history list.
+        """
         # add widgets
         self.start_stop('button')
         selection, iterator = self.history_list.get_selection().get_selected()
@@ -298,6 +310,10 @@ class MainWindow(gtk.Window):
             self.edit_dialog.show_all()
     
     def modify_history_callback(self, button, iterator, row, delete):
+        """
+        This callback is fired when an entry in the history list has been
+        edited in the edit window.
+        """
         self.start_stop('button')
         self.history_store.remove(iterator)
         if delete is not True:
@@ -351,11 +367,20 @@ class MainWindow(gtk.Window):
 
 
     def exit_callback(self, widget):
+        """
+        This callback is fired when the user exits the program.
+        """
         self.keep_running = False
         self.serial_thread.kill()
         gtk.main_quit()
 
     def select_picker_callback(self, button, index):
+        """
+        This callback is fired when the user press a picker button.
+
+        The result of this callback is that the current_picker is changed
+        to be the actual picker the user has chosen.
+        """
         self.start_stop('button')
         self.current_picker = index
         if self.current_state == AWAITING_PICKER:
@@ -365,6 +390,12 @@ class MainWindow(gtk.Window):
             self.set_status_feedback()
 
     def select_variety_callback(self, button, index):
+        """
+        This callback is fired when the user press a variety button.
+
+        The result of this callback is that the current_variety is changed
+        to be the actual variety the user has chosen.
+        """
         self.start_stop('button')
         self.current_variety = index
         if self.current_state == AWAITING_VARIETY:
@@ -373,6 +404,9 @@ class MainWindow(gtk.Window):
             self.set_status_feedback()
 
     def commit_callback(self, button):
+        """
+        This callback is fired when our algorithm detects the removal of a box.
+        """
         self.start_stop('button')
         for (picker, batch, variety, init_weight,
              final_weight, timestamp, index_list) in self.history_entries:
@@ -384,6 +418,10 @@ class MainWindow(gtk.Window):
         self.show_all()
 
     def history_callback(self, button):
+        """
+        This callback is fired when any entry in the history list has been
+        added, deleted or modified.
+        """
         self.start_stop('success')
         self.current_weight = self.stable_weight
         temp = []
@@ -425,6 +463,9 @@ class MainWindow(gtk.Window):
         self.show_all()
 
     def set_status_feedback(self):
+        """
+        This callback is fired when the status_label needs to be updated.
+        """
         self.event_box.modify_bg(gtk.STATE_NORMAL,
                                  gtk.gdk.color_parse(self.weight_color))
         self.event_box1.modify_bg(gtk.STATE_NORMAL,
@@ -443,12 +484,15 @@ class MainWindow(gtk.Window):
             self.offset_label.set_markup(config.NA_MARKUP)
 
     def count_up(self):
+        """
+        This is the main thread that consumes the stream given from a scale.
+        """
         while self.keep_running:
             self.current_batch = self.batch_combo_box.get_active()
             self.current_weight = self.serial_thread.get_weight()
             if self.current_state == AWAITING_BATCH:
-                if self.current_batch is not None and\
-                   self.current_batch >= 0: # -1 if no active item
+                if (self.current_batch is not None and
+                    self.current_batch >= 0): # -1 if no active item
                     self.current_batch = self.batch_combo_box.get_active()
                     gobject.idle_add(self.change_state)
                     gobject.idle_add(self.set_status_feedback)
@@ -461,10 +505,11 @@ class MainWindow(gtk.Window):
                 gobject.idle_add(self.set_status_feedback)
                 gobject.idle_add(self.history_callback, self.b)
             elif self.current_state == AWAITING_BOX:
-                if self.current_weight > 0.1:
+                if self.current_weight > config.BOX_WEIGHT:
                     gobject.idle_add(self.change_state)
                     gobject.idle_add(self.set_status_feedback)
-            elif self.current_batch is not None and self.current_weight < 0.1:
+            elif (self.current_batch is not None and
+                  self.current_weight < config.BOX_WEIGHT):
                 self.current_state = AWAITING_BOX
                 self.show_weight = False
                 self.weight_color = 'white'
@@ -501,6 +546,9 @@ class MainWindow(gtk.Window):
             time.sleep(0.01)
 
     def change_state(self):
+        """
+        This method is fired when the overall state of the program is updated.
+        """
         if self.current_state == AWAITING_BATCH:
             self.current_state = AWAITING_BOX
         elif self.current_state == AWAITING_BOX:
@@ -515,6 +563,9 @@ class MainWindow(gtk.Window):
             self.set_status_feedback()
 
     def start_stop(self, sound):
+        """
+        This method is used to play or stop a sound file.
+        """
         path = 'file://{0}/'.format(os.getcwd())
         if sound == 'success':
             self.player.set_property('uri', path + 'success.ogg')
@@ -525,6 +576,9 @@ class MainWindow(gtk.Window):
         self.player.set_state(gst.STATE_PLAYING)
 
     def on_message(self, bus, message):
+        """
+        This callback is fired when messages for GStreamer happen.
+        """
         message_type = message.type
         if message_type == gst.MESSAGE_EOS:
             self.player.set_state(gst.STATE_NULL)

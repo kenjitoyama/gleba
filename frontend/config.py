@@ -19,6 +19,9 @@ django_http_path = 'http://localhost:8000/'
 
 WEIGHT_WINDOW_SIZE = 100
 
+# BOX_WEIGHT represents the actual weight of a box in Kg without contents.
+BOX_WEIGHT = 0.2
+
 ################################################################################
 # GUI settings
 ################################################################################
