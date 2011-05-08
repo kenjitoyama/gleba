@@ -68,8 +68,8 @@ class MainWindow(Gtk.Window):
         self.add_widgets()
         self.add_initial_data()
 
-        self.keep_running = True #Kenji: flag to stop the thread
-        self.reading_thread = Thread(target = self.count_up)
+        self.keep_running = True # Kenji: flag to stop the consumer thread
+        self.reading_thread = Thread(target = self.consumer_thread)
         self.reading_thread.start()
         self.show_all()
 
@@ -91,7 +91,6 @@ class MainWindow(Gtk.Window):
         #status_frame for leftmost VBox, pack into main_hbox
         status_frame = Gtk.Frame()
         status_frame.set_size_request(int(WINDOWW/2.5), int(WINDOWH/6))
-        #main_hbox.pack_start(status_frame)
         main_hbox.add(status_frame)
 
         #Leftmost VBox, add to status_frame
@@ -102,8 +101,6 @@ class MainWindow(Gtk.Window):
         batch_frame = Gtk.Frame(label = 'Batch')
         batch_frame.set_size_request(0, 0) # minimum as possible
         status_vbox.add(batch_frame)
-
-        #Add batch HBox for combo box and button to batch_frame
 
         #Batch ComboBox, pack into batch HBox
         self.batch_combo_box = Gtk.ComboBox().new_text()
@@ -154,7 +151,6 @@ class MainWindow(Gtk.Window):
         adj1 = Gtk.Adjustment(0.0, 0.0, 101.0, 0.1, 1.0, 1.0)
 
         scrolled_window = Gtk.ScrolledWindow(adj1)
-        #scrolled_window.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_AUTOMATIC)
         scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC,
                                    Gtk.PolicyType.AUTOMATIC)
 
@@ -248,7 +244,6 @@ class MainWindow(Gtk.Window):
         self.start_stop('button')
         selection, iterator = self.history_list.get_selection().get_selected()
         if iterator is not None:
-            #self.edit_dialog = Gtk.Window(Gtk.WindowType.TOPLEVEL)
             self.edit_dialog = Gtk.Window()
             vertical_box = Gtk.VBox()
             edit_frame = Gtk.Frame(label = 'Modify Entry')
@@ -262,48 +257,51 @@ class MainWindow(Gtk.Window):
             vertical_box.add(frame4)
             # Kenji: TODO row is super ugly. change this later.
             row = int(str(selection.get_path(iterator)))
+            edit_frame.set_size_request(0, 60)
+            index_list = self.history_entries[row][6]
+            # get batches
+            edit_batch_combo = Gtk.ComboBox().new_text()
+            for batch in self.batches:
+                edit_batch_combo.append_text(
+                    'Batch No. {} ({}) Room {}'.format(
+                        batch[0], batch[1], batch[2]
+                ))
+            edit_batch_combo.set_active(index_list[0])
+            # get pickers
+            edit_picker_combo = Gtk.ComboBox().new_text()
+            for picker in self.pickers:
+                edit_picker_combo.append_text('{}. {} {}'.format(
+                    picker[0], picker[1], picker[2]
+                ))
+            edit_picker_combo.set_active(index_list[2])
+            # get varieties
+            edit_varieties_combo = Gtk.ComboBox().new_text()
+            for variety in self.varieties:
+                edit_varieties_combo.append_text('{}. {}'.format(
+                    variety[0], variety[1]
+                ))
+            edit_varieties_combo.set_active(index_list[1])
+            # pack everything and show window
+            frame1.add(edit_batch_combo)
+            frame2.add(edit_picker_combo)
+            frame3.add(edit_varieties_combo)
+            vertical_box2 = Gtk.VBox()
+            frame5 = Gtk.Frame()
+            frame5.set_size_request(100, 50)
             delete_button = Gtk.Button(label = 'Delete Record')
             delete_button.connect('clicked', self.modify_history_callback,
-                                                iterator, row, True)
+                                             iterator, row, True,
+                                             edit_batch_combo,
+                                             edit_varieties_combo,
+                                             edit_picker_combo)
             delete_button.set_size_request(10, 15)
             apply_button = Gtk.Button(label = 'Apply Changes')
             apply_button.set_size_request(10, 35)
             apply_button.connect('clicked', self.modify_history_callback,
-                                                iterator, row, False)
-            edit_frame.set_size_request(0, 60)
-            index_list = self.history_entries[row][6]
-            # get batches
-            #self.edit_batch_combo = Gtk.combo_box_new_text()
-            self.edit_batch_combo = Gtk.ComboBox().new_text()
-            for batch in self.batches:
-                self.edit_batch_combo.append_text(
-                    'Batch No. {} ({}) Room {}'.format(
-                        batch[0], batch[1], batch[2]
-                ))
-            self.edit_batch_combo.set_active(index_list[0])
-            # get pickers
-            #self.edit_picker_combo = Gtk.combo_box_new_text()
-            self.edit_picker_combo = Gtk.ComboBox().new_text()
-            for picker in self.pickers:
-                self.edit_picker_combo.append_text('{}. {} {}'.format(
-                    picker[0], picker[1], picker[2]
-                ))
-            self.edit_picker_combo.set_active(index_list[2])
-            # get varieties
-            #self.edit_varieties_combo = Gtk.combo_box_new_text()
-            self.edit_varieties_combo = Gtk.ComboBox().new_text()
-            for variety in self.varieties:
-                self.edit_varieties_combo.append_text('{}. {}'.format(
-                    variety[0], variety[1]
-                ))
-            self.edit_varieties_combo.set_active(index_list[1])
-            # pack everything and show window
-            frame1.add(self.edit_batch_combo)
-            frame2.add(self.edit_picker_combo)
-            frame3.add(self.edit_varieties_combo)
-            vertical_box2 = Gtk.VBox()
-            frame5 = Gtk.Frame()
-            frame5.set_size_request(100, 50)
+                                                iterator, row, False,
+                                                edit_batch_combo,
+                                                edit_varieties_combo,
+                                                edit_picker_combo)
             vertical_box2.add(apply_button)
             vertical_box2.add(frame5)
             vertical_box2.add(delete_button)
@@ -314,7 +312,8 @@ class MainWindow(Gtk.Window):
                                               int(WINDOWH/1.6))
             self.edit_dialog.show_all()
     
-    def modify_history_callback(self, button, iterator, row, delete):
+    def modify_history_callback(self, button, iterator, row, delete,
+                                      batch_combobox, varieties_combobox, picker_combobox):
         """
         This callback is fired when an entry in the history list has been
         edited in the edit window.
@@ -326,9 +325,9 @@ class MainWindow(Gtk.Window):
         else:
             entry = self.history_entries[row]
             #modify      
-            self.current_batch = self.edit_batch_combo.get_active()
-            self.current_variety = self.edit_varieties_combo.get_active()
-            self.current_picker = self.edit_picker_combo.get_active()
+            self.current_batch = batch_combobox.get_active()
+            self.current_variety = varieties_combobox.get_active()
+            self.current_picker = picker_combobox.get_active()
             index_list = (self.current_batch,
                           self.current_variety,
                           self.current_picker)
@@ -368,7 +367,6 @@ class MainWindow(Gtk.Window):
             ))
             self.history_store.insert(row, temp)
         self.edit_dialog.destroy()
-
 
     def exit_callback(self, widget):
         """
@@ -487,7 +485,7 @@ class MainWindow(Gtk.Window):
             self.weight_label.set_markup(config.NA_MARKUP)
             self.offset_label.set_markup(config.NA_MARKUP)
 
-    def count_up(self):
+    def consumer_thread(self):
         """
         This is the main thread that consumes the stream given from a scale.
         """
