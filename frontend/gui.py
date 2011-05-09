@@ -244,7 +244,7 @@ class MainWindow(Gtk.Window):
         self.start_stop('button')
         selection, iterator = self.history_list.get_selection().get_selected()
         if iterator is not None:
-            self.edit_dialog = Gtk.Window()
+            edit_dialog = Gtk.Window()
             vertical_box = Gtk.VBox()
             edit_frame = Gtk.Frame(label = 'Modify Entry')
             frame1 = Gtk.Frame(label = 'Batch')
@@ -293,7 +293,8 @@ class MainWindow(Gtk.Window):
                                              iterator, row, True,
                                              edit_batch_combo,
                                              edit_varieties_combo,
-                                             edit_picker_combo)
+                                             edit_picker_combo,
+                                             edit_dialog)
             delete_button.set_size_request(10, 15)
             apply_button = Gtk.Button(label = 'Apply Changes')
             apply_button.set_size_request(10, 35)
@@ -301,19 +302,23 @@ class MainWindow(Gtk.Window):
                                                 iterator, row, False,
                                                 edit_batch_combo,
                                                 edit_varieties_combo,
-                                                edit_picker_combo)
+                                                edit_picker_combo,
+                                                edit_dialog)
             vertical_box2.add(apply_button)
             vertical_box2.add(frame5)
             vertical_box2.add(delete_button)
             edit_frame.add(vertical_box)
             frame4.add(vertical_box2)
-            self.edit_dialog.add(edit_frame)
-            self.edit_dialog.set_size_request(int(WINDOWW/2.7),
-                                              int(WINDOWH/1.6))
-            self.edit_dialog.show_all()
+            edit_dialog.add(edit_frame)
+            edit_dialog.set_size_request(int(WINDOWW/2.7),
+                                         int(WINDOWH/1.6))
+            edit_dialog.show_all()
     
     def modify_history_callback(self, button, iterator, row, delete,
-                                      batch_combobox, varieties_combobox, picker_combobox):
+                                      batch_combobox,
+                                      varieties_combobox,
+                                      picker_combobox,
+                                      edit_dialog):
         """
         This callback is fired when an entry in the history list has been
         edited in the edit window.
@@ -366,7 +371,7 @@ class MainWindow(Gtk.Window):
                                                  time.localtime())
             ))
             self.history_store.insert(row, temp)
-        self.edit_dialog.destroy()
+        edit_dialog.destroy()
 
     def exit_callback(self, widget):
         """
