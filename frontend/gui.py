@@ -135,10 +135,10 @@ class MainWindow(Gtk.Window):
         picker_frame.add(self.picker_vbox)
         main_hbox.add(picker_frame)
 
-        self.history_vbox = Gtk.VBox()
+        history_vbox = Gtk.VBox()
         varieties_frame = Gtk.Frame(label = 'Varieties')
         varieties_frame.set_size_request(int(WINDOWW/2), int(WINDOWH/2))
-        self.history_vbox.add(varieties_frame)
+        history_vbox.add(varieties_frame)
 	
         self.varieties_vbox = Gtk.VBox()
         varieties_frame.add(self.varieties_vbox)
@@ -157,8 +157,8 @@ class MainWindow(Gtk.Window):
         history_frame1 = Gtk.Frame()
         history_frame1.add(scrolled_window)
         history_frame1.set_size_request(int(WINDOWW/2), int(WINDOWH/3))
-        history_frame.add(self.history_vbox)
-        self.history_vbox.add(history_frame1)
+        history_frame.add(history_vbox)
+        history_vbox.add(history_frame1)
         
         self.history_list = Gtk.TreeView()
         self.history_store = Gtk.ListStore(str)
@@ -173,7 +173,7 @@ class MainWindow(Gtk.Window):
         
         history_frame2 = Gtk.Frame()
         history_frame2.set_size_request(int(WINDOWW/2), int(WINDOWH/24))
-        self.history_vbox.add(history_frame2)
+        history_vbox.add(history_frame2)
         history_frame2.add(edit_button_box)
         
         edit_button = Gtk.Button(label='Edit')
