@@ -194,7 +194,7 @@ def getDateFromRequest(request):
         end_date = datetime.date.today()
         start_date = end_date - datetime.timedelta(days = 31)
             
-    return ((start_date, end_date) if start_date > end_date
+    return ((start_date, end_date) if start_date < end_date
                                   else (end_date, start_date))
     
 #=== Reporting on pickers with a sortable table ===
