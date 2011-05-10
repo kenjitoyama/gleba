@@ -52,20 +52,18 @@ def addBox(request):
         initial_weight_tmp = request.GET['initialWeight']
         final_weight_tmp   = request.GET['finalWeight']
         timestamp_tmp      = request.GET['timestamp']
-        try:
-            picker_obj = get_object_or_404(Picker, pk = picker_id)
-            mushroom = get_object_or_404(Mushroom, pk = content_variety_id)
-            batch_obj = get_object_or_404(Batch, pk = batch_id)
-            box = Box(initialWeight = float(initial_weight_tmp),
-                      finalWeight = float(final_weight_tmp),
-                      timestamp = timestamp_tmp,
-                      contentVariety = mushroom,
-                      picker = picker_obj,
-                      batch = batch_obj,
-            )
-            box.save()
-        except Exception as e:
-            return render_to_response('error.html', {'error_list' : e})
+
+        picker_obj = get_object_or_404(Picker, pk = picker_id)
+        mushroom = get_object_or_404(Mushroom, pk = content_variety_id)
+        batch_obj = get_object_or_404(Batch, pk = batch_id)
+        box = Box(initialWeight = float(initial_weight_tmp),
+                  finalWeight = float(final_weight_tmp),
+                  timestamp = timestamp_tmp,
+                  contentVariety = mushroom,
+                  picker = picker_obj,
+                  batch = batch_obj,
+        )
+        box.save()
         return render_to_response('index.html')
     else:
         error_list = ['Not enough parameters']
@@ -227,47 +225,41 @@ def generateReportAllPicker(request):
     last 31 days are used.
     """
     debug = ""
-    try:
-        sort_by = request.GET.get('sort') 
-        start_date, end_date = getDateFromRequest(request)
-        data = [] # List: [Picker Firstname, Picker Lastname,
-                  #        total picked, kpi] will be value
+    sort_by = request.GET.get('sort') 
+    start_date, end_date = getDateFromRequest(request)
+    data = [] # List: [Picker Firstname, Picker Lastname,
+              #        total picked, kpi] will be value
 
-        for picker in Picker.objects.all():
-            total_time = picker.getTimeWorkedBetween(start_date, end_date)
-            time_worked = (total_time.seconds)/3600.0
-            total_picked = picker.getTotalPickedBetween(start_date, end_date)
-            avg_init_weight = picker.getAvgInitWeightBetween(start_date,
-                                                             end_date)
-            total_picked_per_hour = (total_picked/time_worked
-                                     if (time_worked>0) else 0)
-            data.append([picker.firstName, picker.lastName, total_picked,
-                         total_picked_per_hour, avg_init_weight])
+    for picker in Picker.objects.all():
+        total_time = picker.getTimeWorkedBetween(start_date, end_date)
+        time_worked = (total_time.seconds)/3600.0
+        total_picked = picker.getTotalPickedBetween(start_date, end_date)
+        avg_init_weight = picker.getAvgInitWeightBetween(start_date,
+                                                         end_date)
+        total_picked_per_hour = (total_picked/time_worked
+                                 if (time_worked>0) else 0)
+        data.append([picker.firstName, picker.lastName, total_picked,
+                     total_picked_per_hour, avg_init_weight])
 
-        if sort_by == "fName":
-            data.sort(key = lambda x: x[0])
-        elif sort_by == "lName":
-            data.sort(key = lambda x: x[1])
-        elif sort_by == "total_picked":
-            data.sort(key = lambda x: x[2])
-        elif sort_by == "kpi":
-            data.sort(key = lambda x: x[3])
-        elif sort_by == "avgBox": 
-            data.sort(key = lambda x: x[4])
+    if sort_by == "fName":
+        data.sort(key = lambda x: x[0])
+    elif sort_by == "lName":
+        data.sort(key = lambda x: x[1])
+    elif sort_by == "total_picked":
+        data.sort(key = lambda x: x[2])
+    elif sort_by == "kpi":
+        data.sort(key = lambda x: x[3])
+    elif sort_by == "avgBox": 
+        data.sort(key = lambda x: x[4])
 
-        return render_to_response('report.html', {
-            'user' :                    request.user,
-            'data' :                    data,
-            'startDate' :               start_date.strftime("%d-%m-%Y"),
-            'endDate' :                 end_date.strftime("%d-%m-%Y"),
-            'report_type_all_pickers' : 'True',
-            'debug' :                   debug,
-        })
-    except Exception as e:
-        return render_to_response('error.html', {
-            'error_list' : e,
-            'debug' : debug
-        })
+    return render_to_response('report.html', {
+        'user' :                    request.user,
+        'data' :                    data,
+        'startDate' :               start_date.strftime("%d-%m-%Y"),
+        'endDate' :                 end_date.strftime("%d-%m-%Y"),
+        'report_type_all_pickers' : 'True',
+        'debug' :                   debug,
+    })
 
 @login_required
 def generateReportPicker(request, picker_id):
@@ -277,57 +269,51 @@ def generateReportPicker(request, picker_id):
     Builds a dictionary, dates are the keys and total picked will be value.
     Plots this with gnuplot and prints it in table form
     """
-    try:
-        debug = ""
-        picker_obj = get_object_or_404(Picker, pk = picker_id)
-        graph_filename = 'pickerGraph.png'
-        start_date, end_date = getDateFromRequest(request)
-        gp = setupGnuPlot(graph_filename, start_date, end_date)
+    debug = ""
+    picker_obj = get_object_or_404(Picker, pk = picker_id)
+    graph_filename = 'pickerGraph.png'
+    start_date, end_date = getDateFromRequest(request)
+    gp = setupGnuPlot(graph_filename, start_date, end_date)
 
-        # Rolling monthly total picking
-        daily_totals = {}
-        hours_daily_totals = {}
-        for d in date_range(start_date, end_date):     
-            daily_totals[d.strftime("%Y-%m-%d")] =\
-                picker_obj.getTotalPickedOn(d)
-            hours_daily_totals[d.strftime("%Y-%m-%d")] =\
-                picker_obj.getTimeWorkedOn(d).seconds / 3600.0
+    # Rolling monthly total picking
+    daily_totals = {}
+    hours_daily_totals = {}
+    for d in date_range(start_date, end_date):     
+        daily_totals[d.strftime("%Y-%m-%d")] =\
+            picker_obj.getTotalPickedOn(d)
+        hours_daily_totals[d.strftime("%Y-%m-%d")] =\
+            picker_obj.getTimeWorkedOn(d).seconds / 3600.0
 
-        # Write data file
-        data_filename = 'picker.data'
-        data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
-        for idx, key in enumerate(sorted(daily_totals.keys())):
-            data_file.write('{0} "{1}"\n '.format(
-                str(daily_totals[key]), str(key))
-            )
-        data_file.close()
-        gp("plot '{directory}{filename}' with histogram".format(
-            directory = GRAPHS_OUTPUT_DIRECTORY,
-            filename = data_filename
-        ))
+    # Write data file
+    data_filename = 'picker.data'
+    data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
+    for idx, key in enumerate(sorted(daily_totals.keys())):
+        data_file.write('{0} "{1}"\n '.format(
+            str(daily_totals[key]), str(key))
+        )
+    data_file.close()
+    gp("plot '{directory}{filename}' with histogram".format(
+        directory = GRAPHS_OUTPUT_DIRECTORY,
+        filename = data_filename
+    ))
 
-        # Build Output Table
-        outputTable = []
-        for key in sorted(daily_totals.keys()):
-            if(hours_daily_totals[key] == 0):
-                outputTable.append((key, daily_totals[key], 0.0))
-            else:
-                outputTable.append((key, daily_totals[key],
-                                    daily_totals[key]/hours_daily_totals[key]))
-        # Render Page
-        return render_to_response('report.html', {
-                'data' : outputTable,
-                'picker' : picker_obj,
-                'graph_filename' : graph_filename,
-                'report_type_picker' : 'True',
-                'debug' : debug,
-                'user' : request.user
-        })
-    except Exception as e:
-        return render_to_response('error.html', {
-            'error_list' : e,
-            'debug' : debug
-        })
+    # Build Output Table
+    outputTable = []
+    for key in sorted(daily_totals.keys()):
+        if(hours_daily_totals[key] == 0):
+            outputTable.append((key, daily_totals[key], 0.0))
+        else:
+            outputTable.append((key, daily_totals[key],
+                                daily_totals[key]/hours_daily_totals[key]))
+    # Render Page
+    return render_to_response('report.html', {
+            'data' : outputTable,
+            'picker' : picker_obj,
+            'graph_filename' : graph_filename,
+            'report_type_picker' : 'True',
+            'debug' : debug,
+            'user' : request.user
+    })
 
 @login_required
 def generateReportRoom(request, room_id):
@@ -338,43 +324,37 @@ def generateReportRoom(request, room_id):
     be value.
     Plots this with gnuplot and prints it in table form
     """
-    try:
-        debug = ""
-        room_obj = get_object_or_404(Room, pk = room_id)
-        graph_filename = 'roomGraph.png'
-        start_date, end_date = getDateFromRequest(request)
-        gp = setupGnuPlot(graph_filename, start_date, end_date)
+    debug = ""
+    room_obj = get_object_or_404(Room, pk = room_id)
+    graph_filename = 'roomGraph.png'
+    start_date, end_date = getDateFromRequest(request)
+    gp = setupGnuPlot(graph_filename, start_date, end_date)
 
-        daily_totals = {}
-        for d in date_range(start_date, end_date): 
-            daily_totals[d.strftime("%Y-%m-%d")] = room_obj.getTotalPickedOn(d)
+    daily_totals = {}
+    for d in date_range(start_date, end_date): 
+        daily_totals[d.strftime("%Y-%m-%d")] = room_obj.getTotalPickedOn(d)
 
-        data_filename = 'room.data'
-        data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
-        for idx, key in enumerate(sorted(daily_totals.keys())):
-            data_file.write('{0} "{1}"\n'.format(
-                str(daily_totals[key]), str(idx))
-            )
-        data_file.close()
-        gp("plot '{directory}{filename}' with histogram".format(
-            directory = GRAPHS_OUTPUT_DIRECTORY,
-            filename = data_filename
-        ))
+    data_filename = 'room.data'
+    data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
+    for idx, key in enumerate(sorted(daily_totals.keys())):
+        data_file.write('{0} "{1}"\n'.format(
+            str(daily_totals[key]), str(idx))
+        )
+    data_file.close()
+    gp("plot '{directory}{filename}' with histogram".format(
+        directory = GRAPHS_OUTPUT_DIRECTORY,
+        filename = data_filename
+    ))
 
-        return render_to_response( 'report.html', {
-            'data' : [(k, daily_totals[k])
-                      for k in sorted(daily_totals.keys())],
-            'room' : room_obj,
-            'graph_filename' : graph_filename,
-            'report_type_room' : 'True',
-            'debug':debug,
-            'user' : request.user
-        })
-    except Exception as e:
-        return render_to_response('error.html', {
-            'error_list' : e,
-            'debug' : debug
-        })
+    return render_to_response( 'report.html', {
+        'data' : [(k, daily_totals[k])
+                  for k in sorted(daily_totals.keys())],
+        'room' : room_obj,
+        'graph_filename' : graph_filename,
+        'report_type_room' : 'True',
+        'debug':debug,
+        'user' : request.user
+    })
 
 @login_required
 def generateReportFlush(request, flush_id):
@@ -385,49 +365,43 @@ def generateReportFlush(request, flush_id):
     be value.
     Plots this with gnuplot and prints it in table form
     """
-    try:
-        debug = ""
-        flushObj = get_object_or_404(Flush, pk = flush_id)
-        start_date = flushObj.startDate
-        end_date = (flushObj.endDate if flushObj.endDate is not None
-                                     else datetime.date.today())
+    debug = ""
+    flushObj = get_object_or_404(Flush, pk = flush_id)
+    start_date = flushObj.startDate
+    end_date = (flushObj.endDate if flushObj.endDate is not None
+                                 else datetime.date.today())
 
-        graph_filename = 'flushGraph.png'
-        gp = setupGnuPlot(graph_filename, start_date, end_date)
+    graph_filename = 'flushGraph.png'
+    gp = setupGnuPlot(graph_filename, start_date, end_date)
 
-        daily_totals = {}
-        for d in date_range(start_date, end_date):    
-            daily_totals[d.strftime("%Y-%m-%d")] = flushObj.getTotalPickedOn(d)
+    daily_totals = {}
+    for d in date_range(start_date, end_date):    
+        daily_totals[d.strftime("%Y-%m-%d")] = flushObj.getTotalPickedOn(d)
 
-        data_filename = 'flush.data'
-        data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
-        for idx, key in enumerate(sorted(daily_totals.keys())):
-            data_file.write('{0} "{1}"\n'.format(
-                str(daily_totals[key]), str(idx)
-            ))
-        data_file.close()
-        gp("plot '{directory}{filename}' with histogram".format(
-            directory = GRAPHS_OUTPUT_DIRECTORY,
-            filename = data_filename
+    data_filename = 'flush.data'
+    data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
+    for idx, key in enumerate(sorted(daily_totals.keys())):
+        data_file.write('{0} "{1}"\n'.format(
+            str(daily_totals[key]), str(idx)
         ))
+    data_file.close()
+    gp("plot '{directory}{filename}' with histogram".format(
+        directory = GRAPHS_OUTPUT_DIRECTORY,
+        filename = data_filename
+    ))
 
-        return render_to_response(
-            'report.html', {
-                'data' : [(key, daily_totals[key])
-                          for key in sorted(daily_totals.keys())],
-                'total' : sum([(daily_totals[key])
-                              for key in daily_totals.keys()]),
-		        'flush' : flushObj,
-                'graph_filename' : graph_filename,
-                'report_type_flush' : 'True',
-                'user' : request.user
-            }
-        )
-    except Exception as e:
-        return render_to_response('error.html', {
-            'error_list' : e,
-            'debug' : debug
-        })
+    return render_to_response(
+        'report.html', {
+            'data' : [(key, daily_totals[key])
+                      for key in sorted(daily_totals.keys())],
+            'total' : sum([(daily_totals[key])
+                          for key in daily_totals.keys()]),
+	        'flush' : flushObj,
+            'graph_filename' : graph_filename,
+            'report_type_flush' : 'True',
+            'user' : request.user
+        }
+    )
 
 @login_required
 def generateReportCrop(request, crop_id):
@@ -438,46 +412,40 @@ def generateReportCrop(request, crop_id):
     be value.
     Plots this with gnuplot and prints it in table form
     """
-    try:
-        debug = ""
-        crop_obj = get_object_or_404(Crop, pk = crop_id)
-        start_date = crop_obj.startDate
-        end_date = (crop_obj.endDate if crop_obj.endDate is not None
-                                     else datetime.date.today())
-        graph_filename = 'cropGraph.png'
-        gp = setupGnuPlot(graph_filename, start_date, end_date)
+    debug = ""
+    crop_obj = get_object_or_404(Crop, pk = crop_id)
+    start_date = crop_obj.startDate
+    end_date = (crop_obj.endDate if crop_obj.endDate is not None
+                                 else datetime.date.today())
+    graph_filename = 'cropGraph.png'
+    gp = setupGnuPlot(graph_filename, start_date, end_date)
 
-        daily_totals = {}
-        for d in date_range(start_date, end_date):    
-            daily_totals[d.strftime("%Y-%m-%d")] = crop_obj.getTotalPickedOn(d)
+    daily_totals = {}
+    for d in date_range(start_date, end_date):    
+        daily_totals[d.strftime("%Y-%m-%d")] = crop_obj.getTotalPickedOn(d)
 
-        data_filename = 'crop.data'
-        data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
-        for idx, key in enumerate(sorted(daily_totals.keys())):
-            data_file.write('{0} "{1}"\n'.format(
-                str(daily_totals[key]), str(idx)
-            ))
-        data_file.close()
-        gp("plot '{directory}{filename}' with histogram".format(
-            directory = GRAPHS_OUTPUT_DIRECTORY,
-            filename = data_filename
+    data_filename = 'crop.data'
+    data_file = open(GRAPHS_OUTPUT_DIRECTORY + data_filename, "w")
+    for idx, key in enumerate(sorted(daily_totals.keys())):
+        data_file.write('{0} "{1}"\n'.format(
+            str(daily_totals[key]), str(idx)
         ))
+    data_file.close()
+    gp("plot '{directory}{filename}' with histogram".format(
+        directory = GRAPHS_OUTPUT_DIRECTORY,
+        filename = data_filename
+    ))
 
-        return render_to_response( 'report.html', {
-            'data' : [(key, daily_totals[key])
-                      for key in sorted(daily_totals.keys())],
-            'total' : sum([(daily_totals[key])
-                           for key in daily_totals.keys()]),
-            'crop' : crop_obj,
-            'graph_filename' : graph_filename,
-            'report_type_crop' : 'True',
-            'user' : request.user
-        })
-    except Exception as e:
-        return render_to_response('error.html', {
-            'error_list' : e,
-            'debug' : debug
-        })
+    return render_to_response( 'report.html', {
+        'data' : [(key, daily_totals[key])
+                  for key in sorted(daily_totals.keys())],
+        'total' : sum([(daily_totals[key])
+                       for key in daily_totals.keys()]),
+        'crop' : crop_obj,
+        'graph_filename' : graph_filename,
+        'report_type_crop' : 'True',
+        'user' : request.user
+    })
 
 @login_required
 def generateReport(request):
