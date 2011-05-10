@@ -99,8 +99,8 @@ class Picker(models.Model):
         """
         bundies = Bundy.objects.filter(
             picker = self,
-            timeIn__gte = startDate,
-            timeIn__lte = endDate + datetime.timedelta(days=1),
+            timeIn__gte = start_date,
+            timeIn__lte = end_date + datetime.timedelta(days=1),
             timeOut__isnull = False
         )
         if bundies is not None:

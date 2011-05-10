@@ -280,9 +280,9 @@ def generateReportPicker(request, picker_id):
     try:
         debug = ""
         picker_obj = get_object_or_404(Picker, pk = picker_id)
-        graph_file = 'pickerGraph.png'
+        graph_filename = 'pickerGraph.png'
         start_date, end_date = getDateFromRequest(request)
-        gp = setupGnuPlot(graph_file, start_date, end_date)
+        gp = setupGnuPlot(graph_filename, start_date, end_date)
 
         # Rolling monthly total picking
         daily_totals = {}
@@ -318,7 +318,7 @@ def generateReportPicker(request, picker_id):
         return render_to_response('report.html', {
                 'data' : outputTable,
                 'picker' : picker_obj,
-                'graph_filename' : graph_file,
+                'graph_filename' : graph_filename,
                 'report_type_picker' : 'True',
                 'debug' : debug,
                 'user' : request.user
@@ -341,9 +341,9 @@ def generateReportRoom(request, room_id):
     try:
         debug = ""
         room_obj = get_object_or_404(Room, pk = room_id)
-        graph_file = 'roomGraph.png'
+        graph_filename = 'roomGraph.png'
         start_date, end_date = getDateFromRequest(request)
-        gp = setupGnuPlot(graph_file, start_date, end_date)
+        gp = setupGnuPlot(graph_filename, start_date, end_date)
 
         daily_totals = {}
         for d in date_range(start_date, end_date): 
@@ -365,7 +365,7 @@ def generateReportRoom(request, room_id):
             'data' : [(k, daily_totals[k])
                       for k in sorted(daily_totals.keys())],
             'room' : room_obj,
-            'graph_filename' : graph_file,
+            'graph_filename' : graph_filename,
             'report_type_room' : 'True',
             'debug':debug,
             'user' : request.user
@@ -392,8 +392,8 @@ def generateReportFlush(request, flush_id):
         end_date = (flushObj.endDate if flushObj.endDate is not None
                                      else datetime.date.today())
 
-        graph_file = 'flushGraph.png'
-        gp = setupGnuPlot(graph_file, start_date, end_date)
+        graph_filename = 'flushGraph.png'
+        gp = setupGnuPlot(graph_filename, start_date, end_date)
 
         daily_totals = {}
         for d in date_range(start_date, end_date):    
@@ -418,7 +418,7 @@ def generateReportFlush(request, flush_id):
                 'total' : sum([(daily_totals[key])
                               for key in daily_totals.keys()]),
 		        'flush' : flushObj,
-                'graph_filename' : graph_file,
+                'graph_filename' : graph_filename,
                 'report_type_flush' : 'True',
                 'user' : request.user
             }
@@ -444,8 +444,8 @@ def generateReportCrop(request, crop_id):
         start_date = crop_obj.startDate
         end_date = (crop_obj.endDate if crop_obj.endDate is not None
                                      else datetime.date.today())
-        graph_file = 'cropGraph.png'
-        gp = setupGnuPlot(graph_file, start_date, end_date)
+        graph_filename = 'cropGraph.png'
+        gp = setupGnuPlot(graph_filename, start_date, end_date)
 
         daily_totals = {}
         for d in date_range(start_date, end_date):    
@@ -469,7 +469,7 @@ def generateReportCrop(request, crop_id):
             'total' : sum([(daily_totals[key])
                            for key in daily_totals.keys()]),
             'crop' : crop_obj,
-            'graph_filename' : graph_file,
+            'graph_filename' : graph_filename,
             'report_type_crop' : 'True',
             'user' : request.user
         })

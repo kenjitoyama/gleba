@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 
-{% if default_page %}
-  {% block extrahead %}
+{%if default_page%}
+  {%block extrahead%}
   <script type="text/javascript" src="/static/js/jquery.min.js"></script>
   <script type="text/javascript" src="/static/js/jquery-ui/js/jquery-ui-1.8.12.custom.min.js"></script>
   <link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui-1.8.12.custom.css" type="text/css" media="screen" title="Base"/>
+  <link rel="stylesheet" href="/static/css/report.css"/>
   <script type="text/javascript">
     function submitForm(report_type) {
         var form = $("#"+report_type+"report_form");
@@ -29,178 +30,125 @@
         $(".dateField").datepicker({dateFormat: 'dd-mm-yy'});
     });
   </script>
-  {% endblock %}
-{% endif %} 
+  {%endblock%}
+{%endif%} 
 
-{% block content %}
-    {% if report_type_picker %}
-    <h1>Picker Report :: {{ picker.firstName }} {{ picker.lastName }}</h1> 
+{%block content%}
+    {%if report_type_picker%}
+    <h1>Picker Report :: {{picker.fullName}}</h1> 
+    <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
     <table>
       <tr>
-        <td>
-          <img src="/static/media/graphs/{{ graph_filename }}"/>
-        </td>
-        <td>
-          <div>	
-            <table>
-              <tr>
-                <td><h4>Date</h4></td>
-                <td><h4>Mushrooms Picked (kg)</h4></td>
-                <td><h4>Daily Average</h4></td>
-              </tr>
-              {% for date,weight,dailyAverage in data %}
-              <tr>
-                <td>{{date}}</td>
-                <td>{{weight}}</td>
-                <td>{{dailyAverage}}</td>
-              </tr>
-              {% endfor %}
-            </table>
-          </div>
-        </td>
+        <th>Date</th>
+        <th>Mushrooms Picked (kg)</th>
+        <th>Daily Average</th>
+      </tr>
+      {%for date,weight,dailyAverage in data%}
+      <tr>
+        <td>{{date}}</td>
+        <td>{{weight}}</td>
+        <td>{{dailyAverage}}</td>
+      </tr>
+      {%endfor%}
     </table>
-    {% endif %}
-
-    {% if report_type_room %}
-        <h1>Room Report :: {{ room.number }}</h1>  
-        <table>
-          <tr>
-            <td>
-              <img src="/static/media/graphs/{{ graph_filename }}"/>
-            </td>
-            <td>
-              <div>	
-                <table>
-                  <tr>
-                    <td><h4>Date</h4>
-                    </td><td><h4>Mushrooms Picked (kg)</h4></td>
-                  </tr>
-                  {% for date,weight in data %}
-                  <tr>
-                    <td>{{date}}</td>
-                    <td>{{weight}}</td>
-                  </tr>
-                  {% endfor %}
-                </table>
-              </div>
-            </td>
-        </table>
-    {% endif %}
-
-    {% if report_type_flush %}
-        <h1>Flush Report :: {{ flush }}</h1> 
-        <table>
-          <tr>
-            <td>
-              <img src="/static/media/graphs/{{ graph_filename }}"/>
-            </td>
-          <td>
-            <div>	
-              <table>
-                <tr>
-                  <td><h4>Date</h4></td>
-                  <td><h4>Mushrooms Picked (kg)</h4></td>
-                </tr>
-                {% for date,weight in data %}
-                <tr>
-                  <td>{{date}}</td>
-                  <td>{{weight}}</td>
-                </tr>
-                {% endfor %}
-              </table>
-            </div>
-          </td>
-        </table>
-        <div id="total_paragraph">
-          Total: {{total}}
-        </div>
-    {% endif %}
-
-    {% if report_type_crop %}
-    <h1>Crop Report :: {{ crop }}</h1> 
-    <table><tr><td>	<img src="/static/media/graphs/{{ graph_filename }}"/></td>
-      <td>
-        <div>	
-          <table>
-            <tr>
-              <td><h4>Date</h4></td>
-              <td><h4>Mushrooms Picked (kg)</h4></td>
-            </tr>
-            {% for date,weight in data %}
-            <tr>
-              <td>{{date}}</td>
-              <td>{{weight}}</td>
-            </tr>
-            {% endfor %}
-          </table>
-        </div>
-      </td>
-    </table>
-    <div id="total_paragraph">
-        Total: {{total}}
-    </div>
-    {% endif %}
-
-    {%if report_type_all_pickers%}
-    <h1>Overall Picking ({{ startDate }} ~ {{endDate}})</h1> 
-    <div>	
-      <table>
-        <thead>
-          <tr>
-            <td>
-              <h4>
-                <a href="?sort=fName&startDate={{startDate}}&endDate={{endDate}}">First Name</a>
-              </h4>
-            </td>
-            <td>
-              <h4>
-                <a href="?sort=lName&startDate={{startDate}}&endDate={{endDate}}">Last Name</a>
-              </h4>
-            </td>
-            <td>
-              <h4>
-                <a href="?sort=total_picked&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked (kg)</a>
-              </h4>
-            </td>
-            <td>
-              <h4>
-                <a href="?sort=kpi&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked/Hour Worked (kg/hr)</a>
-              </h4>
-            </td>
-            <td>
-              <h4>
-                <a href="?sort=avgBox&startDate={{startDate}}&endDate={{endDate}}">Average Initial Box Weight (kg)</a>
-              </h4>
-            </td>
-          </tr>
-        </thead>
-{% comment %}
-    data is a list of lists containing [p.firstName,p.lastName,p.total_picked, p.kpi, p.avgBoxWeight]
-    for each picker p
-{% endcomment %}
-        <tbody>
-          {%for picker in data %}
-          <tr>
-            <td>{{picker.0}}</td>
-            <td>{{picker.1}}</td>
-            <td>{{picker.2}}</td>
-            <td>{{picker.3}}</td>
-            <td>{{picker.4}}</td>
-          </tr>
-          {%endfor%}
-        </tbody>
-      </table>
-    </div>
     {%endif%}
 
-    {% if default_page %}
+    {%if report_type_room%}
+    <h1>Room Report :: {{room.number}}</h1>  
+    <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Mushrooms Picked (kg)</th>
+      </tr>
+      {%for date, weight in data%}
+      <tr>
+        <td>{{date}}</td>
+        <td>{{weight}}</td>
+      </tr>
+      {%endfor%}
+    </table>
+    {%endif%}
+
+    {%if report_type_flush%}
+    <h1>Flush Report :: {{flush}}</h1> 
+    <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Mushrooms Picked (kg)</th>
+      </tr>
+      {%for date, weight in data%}
+      <tr>
+        <td>{{date}}</td>
+        <td>{{weight}}</td>
+      </tr>
+      {%endfor%}
+      <tr class="total_row">
+        <td>Total: {{total}}</td>
+      </tr>
+    </table>
+    {%endif%}
+
+    {%if report_type_crop%}
+    <h1>Crop Report :: {{crop}}</h1> 
+    <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Mushrooms Picked (kg)</th>
+      </tr>
+      {%for date, weight in data%}
+      <tr>
+        <td>{{date}}</td>
+        <td>{{weight}}</td>
+      </tr>
+      {%endfor%}
+      <tr>
+        <td>Total: {{total}}</td>
+      </tr>
+    </table>
+    {%endif%}
+
+    {%if report_type_all_pickers%}
+    <h1>Overall Picking ({{startDate}} ~ {{endDate}})</h1> 
+    <table>
+      <tr>
+        <th>
+          <a href="?sort=fName&startDate={{startDate}}&endDate={{endDate}}">First Name</a>
+        </th>
+        <th>
+          <a href="?sort=lName&startDate={{startDate}}&endDate={{endDate}}">Last Name</a>
+        </th>
+        <th>
+          <a href="?sort=total_picked&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked (kg)</a>
+        </th>  
+        <th>
+          <a href="?sort=kpi&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked/Hour Worked (kg/hr)</a>
+        </th>
+        <th>
+          <a href="?sort=avgBox&startDate={{startDate}}&endDate={{endDate}}">Average Initial Box Weight (kg)</a>
+        </th>
+        {%for picker in data%}
+        <tr>
+          <td>{{picker.0}}</td>{%comment%}firstName{%endcomment%}
+          <td>{{picker.1}}</td>{%comment%}lastName{%endcomment%}
+          <td>{{picker.2}}</td>{%comment%}total_picked{%endcomment%}
+          <td>{{picker.3}}</td>{%comment%}kpi{%endcomment%}
+          <td>{{picker.4}}</td>{%comment%}avgBoxWeight{%endcomment%}
+        </tr>
+        {%endfor%}
+    </table>
+    {%endif%}
+
+    {%if default_page%}
     <div>
       <h2>Picker</h2>
       <form name="picker_report_form" action="picker/" method="post" id="picker_report_form">
         <select name="picker" id="picker_menu">
-          {% for picker in picker_list %}
-          <option value={{ picker.id }}>{{ picker.id }} - {{ picker.firstName }} {{ picker.lastName }}</option>
-          {% endfor %}
+          {%for picker in picker_list%}
+          <option value={{picker.id}}>{{picker.id}} - {{picker.fullName}}</option>
+          {%endfor%}
         </select><br/>
         <label for="startDate">Start Date</label>
         <input name="startDate" class="dateField" type="text"/><br/>
