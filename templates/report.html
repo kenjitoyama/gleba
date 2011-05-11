@@ -80,13 +80,14 @@
 
   {%if report_type_room%}
   <h1>Room Report :: {{room.number}}</h1>  
-  <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
+  <div id="room_report_graph" class="report_graph"></div>
+  <script>$(function(){plot_report_graph('room_report_graph', {{jqplot_data|safe}})});</script>
   <table>
     <tr>
       <th>Date</th>
       <th>Mushrooms Picked (kg)</th>
     </tr>
-    {%for date, weight in data%}
+    {%for date, weight in jqplot_data%}
     <tr>
       <td>{{date}}</td>
       <td>{{weight}}</td>

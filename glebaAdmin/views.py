@@ -266,7 +266,7 @@ def generate_report_picker(request, picker_id):
     """
     Renders the report page for a particular picker.
 
-    Builds a dictionary, dates are the keys and total picked will be value.
+    Builds a list of dates, total picked and average per day.
     It expects jqPlot to properly build the graph.
     """
     picker_obj = get_object_or_404(Picker, pk = picker_id)
@@ -338,6 +338,27 @@ def generateReportPicker(request, picker_id):
             'report_type_picker' : 'True',
             'debug' : debug,
             'user' : request.user
+    })
+
+@login_required
+def generate_report_room(request, room_id):
+    """
+    Renders the report page for a particular room.
+
+    Builds a list of dates and total picked.
+    It expects jqPlot to properly build the graph.
+    """
+    room_obj = get_object_or_404(Room, pk = room_id)
+    start_date, end_date = getDateFromRequest(request)
+    daily_totals = []
+    for date in date_range(start_date, end_date):
+        tmp = [date.strftime("%Y-%m-%d"),]
+        tmp.append(room_obj.getTotalPickedOn(date))
+        daily_totals.append(tmp)
+    return render_to_response('report.html', {
+        'picker' : room_obj,
+        'report_type_room' : 'True',
+        'jqplot_data': daily_totals,
     })
 
 @login_required
