@@ -262,6 +262,31 @@ def generateReportAllPicker(request):
     })
 
 @login_required
+def generate_report_picker(request, picker_id):
+    """
+    Renders the report page for a particular picker.
+
+    Builds a dictionary, dates are the keys and total picked will be value.
+    It expects jqPlot to properly build the graph.
+    """
+    picker_obj = get_object_or_404(Picker, pk = picker_id)
+    start_date, end_date = getDateFromRequest(request)
+    daily_totals = []
+    for date in date_range(start_date, end_date):
+        tmp = [date.strftime("%Y-%m-%d"),]
+        tmp.append(picker_obj.getTotalPickedOn(date))
+        hours_worked = picker_obj.getTimeWorkedOn(date).seconds / 3600.0
+        avg = (tmp[1]/hours_worked) if hours_worked != 0 else 0.0
+        tmp.append(avg)
+        daily_totals.append(tmp)
+    return render_to_response('report.html', {
+        'picker' : picker_obj,
+        'report_type_picker' : 'True',
+        'jqplot_data': daily_totals,
+    })
+
+
+@login_required
 def generateReportPicker(request, picker_id):
     """ 
     Renders a report on picking for a particular picker.

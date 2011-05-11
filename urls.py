@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     
     # Reports
     (r'^report/$', 'gleba.glebaAdmin.views.generateReport'),
-    (r'^report/picker/(\d+)/$', 'gleba.glebaAdmin.views.generateReportPicker'),
+    (r'^report/picker/(\d+)/$', 'gleba.glebaAdmin.views.generate_report_picker'),
     (r'^report/picker/$', 'gleba.glebaAdmin.views.generateReportAllPicker'),
     (r'^report/flush/(\d+)/$', 'gleba.glebaAdmin.views.generateReportFlush'),
     (r'^report/crop/(\d+)/$', 'gleba.glebaAdmin.views.generateReportCrop'),
