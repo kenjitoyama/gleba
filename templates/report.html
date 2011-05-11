@@ -90,20 +90,21 @@
 
   {%ifequal report_type "crop"%}
   <h1>Crop Report :: {{crop}}</h1> 
-  <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
+  <div id="crop_report_graph" class="report_graph"></div>
   <table>
     <tr>
       <th>Date</th>
       <th>Mushrooms Picked (kg)</th>
     </tr>
-    {%for date, weight in data%}
+    {%for date, weight in jqplot_data%}
     <tr>
       <td>{{date}}</td>
       <td>{{weight}}</td>
     </tr>
     {%endfor%}
-    <tr>
-      <td>Total: {{total}}</td>
+    <tr class="total_row">
+      <td>Total:</td>
+      <td class="total_value"></td>
     </tr>
   </table>
   {%endifequal%}

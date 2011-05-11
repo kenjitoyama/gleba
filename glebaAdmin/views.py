@@ -478,6 +478,29 @@ def generateReportFlush(request, flush_id):
     )
 
 @login_required
+def generate_report_crop(request, crop_id):
+    """
+    Renders the report page for a particular crop.
+
+    Builds a list of dates and total picked.
+    It expects jqPlot to properly build the graph.
+    """
+    crop_obj = get_object_or_404(Crop, pk = crop_id)
+    start_date = crop_obj.startDate
+    end_date = (crop_obj.endDate if crop_obj.endDate is not None
+                                 else datetime.date.today())
+    daily_totals = []
+    for date in date_range(start_date, end_date):
+        tmp = [date.strftime("%Y-%m-%d"),]
+        tmp.append(crop_obj.getTotalPickedOn(date))
+        daily_totals.append(tmp)
+    return render_to_response('report.html', {
+        'crop' : crop_obj,
+        'report_type' : 'crop',
+        'jqplot_data': daily_totals,
+    })
+
+@login_required
 def generateReportCrop(request, crop_id):
     """ 
     Renders a report

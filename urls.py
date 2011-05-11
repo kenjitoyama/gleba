@@ -21,7 +21,7 @@ urlpatterns = patterns('',
     (r'^report/picker/(\d+)/$', 'gleba.glebaAdmin.views.generate_report_picker'),
     (r'^report/picker/$', 'gleba.glebaAdmin.views.generateReportAllPicker'),
     (r'^report/flush/(\d+)/$', 'gleba.glebaAdmin.views.generate_report_flush'),
-    (r'^report/crop/(\d+)/$', 'gleba.glebaAdmin.views.generateReportCrop'),
+    (r'^report/crop/(\d+)/$', 'gleba.glebaAdmin.views.generate_report_crop'),
     (r'^report/room/(\d+)/$', 'gleba.glebaAdmin.views.generate_report_room'),
 
     # Bundies
