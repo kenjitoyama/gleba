@@ -554,7 +554,7 @@ def generateReport(request):
                                         discharged = False).order_by('id')
     room_list = Room.objects.all().order_by('number')
     return render_to_response('report.html', {
-        'default_page': 'True',
+        'report_type': 'default_page',
         'picker_list':  picker_list,
         'room_list':    room_list,
         'user' :        request.user
