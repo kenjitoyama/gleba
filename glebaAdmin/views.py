@@ -177,18 +177,23 @@ def getDateFromRequest(request):
     today is used.
     If request does not contain a valid endDate, today is used.
     """
-    try: 
-        if 'startDate' in request.POST and 'endDate' in request.POST:
-            start_date = datetime.datetime.strptime(
-                request.POST['startDate'], "%d-%m-%Y").date()
-            end_date = datetime.datetime.strptime(
-                request.POST['endDate'], "%d-%m-%Y").date()
-        elif 'startDate' in request.GET and 'endDate' in request.GET:  
-            start_date = datetime.datetime.strptime(
-                request.GET['startDate'], "%d-%m-%Y").date()
-            end_date = datetime.datetime.strptime(
-                request.GET['endDate'], "%d-%m-%Y").date()
-    except: 
+    if ('startDate' in request.POST and
+        'endDate' in request.POST and
+        request.POST['startDate'] != '' and
+        request.POST['endDate'] != ''):
+        start_date = datetime.datetime.strptime(
+            request.POST['startDate'], "%d-%m-%Y").date()
+        end_date = datetime.datetime.strptime(
+            request.POST['endDate'], "%d-%m-%Y").date()
+    elif ('startDate' in request.GET and
+          'endDate' in request.GET and
+          request.GET['startDate'] != '' and
+          request.GET['endDate'] != ''):  
+        start_date = datetime.datetime.strptime(
+            request.GET['startDate'], "%d-%m-%Y").date()
+        end_date = datetime.datetime.strptime(
+            request.GET['endDate'], "%d-%m-%Y").date()
+    else:
         end_date = datetime.date.today()
         start_date = end_date - datetime.timedelta(days = 31)
             
@@ -253,12 +258,12 @@ def generateReportAllPicker(request):
         data.sort(key = lambda x: x[4])
 
     return render_to_response('report.html', {
-        'user' :                    request.user,
-        'data' :                    data,
-        'startDate' :               start_date.strftime("%d-%m-%Y"),
-        'endDate' :                 end_date.strftime("%d-%m-%Y"),
-        'report_type_all_pickers' : 'True',
-        'debug' :                   debug,
+        'user' :        request.user,
+        'data' :        data,
+        'startDate' :   start_date.strftime("%d-%m-%Y"),
+        'endDate' :     end_date.strftime("%d-%m-%Y"),
+        'report_type' : 'all_pickers',
+        'debug' :       debug,
     })
 
 @login_required
@@ -281,7 +286,7 @@ def generate_report_picker(request, picker_id):
         daily_totals.append(tmp)
     return render_to_response('report.html', {
         'picker' : picker_obj,
-        'report_type_picker' : 'True',
+        'report_type' : 'picker',
         'jqplot_data': daily_totals,
     })
 
@@ -335,7 +340,7 @@ def generateReportPicker(request, picker_id):
             'data' : outputTable,
             'picker' : picker_obj,
             'graph_filename' : graph_filename,
-            'report_type_picker' : 'True',
+            'report_type' : 'picker',
             'debug' : debug,
             'user' : request.user
     })
@@ -356,8 +361,8 @@ def generate_report_room(request, room_id):
         tmp.append(room_obj.getTotalPickedOn(date))
         daily_totals.append(tmp)
     return render_to_response('report.html', {
-        'picker' : room_obj,
-        'report_type_room' : 'True',
+        'room' : room_obj,
+        'report_type' : 'room',
         'jqplot_data': daily_totals,
     })
 
@@ -392,14 +397,37 @@ def generateReportRoom(request, room_id):
         filename = data_filename
     ))
 
-    return render_to_response( 'report.html', {
+    return render_to_response('report.html', {
         'data' : [(k, daily_totals[k])
                   for k in sorted(daily_totals.keys())],
         'room' : room_obj,
         'graph_filename' : graph_filename,
-        'report_type_room' : 'True',
+        'report_type' : 'room',
         'debug':debug,
         'user' : request.user
+    })
+
+@login_required
+def generate_report_flush(request, flush_id):
+    """
+    Renders the report page for a particular flush.
+
+    Builds a list of dates and total picked.
+    It expects jqPlot to properly build the graph.
+    """
+    flush_obj = get_object_or_404(Flush, pk = flush_id)
+    start_date = flush_obj.startDate
+    end_date = (flush_obj.endDate if flush_obj.endDate is not None
+                                 else datetime.date.today())
+    daily_totals = []
+    for date in date_range(start_date, end_date):
+        tmp = [date.strftime("%Y-%m-%d"),]
+        tmp.append(flush_obj.getTotalPickedOn(date))
+        daily_totals.append(tmp)
+    return render_to_response('report.html', {
+        'flush' : flush_obj,
+        'report_type' : 'flush',
+        'jqplot_data': daily_totals,
     })
 
 @login_required
@@ -444,7 +472,7 @@ def generateReportFlush(request, flush_id):
                           for key in daily_totals.keys()]),
 	        'flush' : flushObj,
             'graph_filename' : graph_filename,
-            'report_type_flush' : 'True',
+            'report_type' : 'flush',
             'user' : request.user
         }
     )
@@ -482,14 +510,14 @@ def generateReportCrop(request, crop_id):
         filename = data_filename
     ))
 
-    return render_to_response( 'report.html', {
+    return render_to_response('report.html', {
         'data' : [(key, daily_totals[key])
                   for key in sorted(daily_totals.keys())],
         'total' : sum([(daily_totals[key])
                        for key in daily_totals.keys()]),
         'crop' : crop_obj,
         'graph_filename' : graph_filename,
-        'report_type_crop' : 'True',
+        'report_type' : 'crop',
         'user' : request.user
     })
 

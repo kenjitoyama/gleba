@@ -1,67 +1,35 @@
 {%extends "gleba_base.html"%}
 
-{%if default_page%}
-  {%block extrahead%}
-  <title>Gleba report</title>
-  <script src="/static/js/jquery.min.js"></script>
-  <script src="/static/js/jquery-ui/js/jquery-ui.min.js"></script>
-  <link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui.css" media="screen" title="Base"/>
-  <link rel="stylesheet" href="/static/css/report.css"/>
-  <!--[if IE]><script src="/static/js/jqplot/excanvas.js"></script><![endif]-->
-  <script src="/static/js/jqplot/jquery.jqplot.min.js"></script>
-  <link rel="stylesheet" href="/static/js/jqplot/jquery.jqplot.css"/>
-  <script src="/static/js/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
-  <script src="/static/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
-  <script src="/static/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
-  <script src="/static/js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>
-  <script>
-    function submitForm(report_type) {
-        var form = $('#'+report_type+'report_form');
-        var form_url = form.attr('action');
-        var selected_value = $('#'+report_type+'menu').val();
-        form_url = report_type.substring(0, report_type.length-1)+'/' + selected_value + '/';
-        form.attr('action', form_url);
-        form.append($('#startDate'));
-        form.append($('#endDate'));
-        form.submit();
-    }
-
-    function submitAllPickerForm() {
-        var form = $("#all_picker_report_form")    
-        form.append($("#startDate"));
-        form.append($("#endDate"));
-        form.submit();
-    }
-
-    Date.format = 'dd/mm/yyyy';
+{%block extrahead%}
+<title>Gleba report</title>
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/jquery-ui/js/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui.css" media="screen" title="Base"/>
+<link rel="stylesheet" href="/static/css/report.css"/>
+<!--[if IE]><script src="/static/js/jqplot/excanvas.js"></script><![endif]-->
+<script src="/static/js/jqplot/jquery.jqplot.min.js"></script>
+<link rel="stylesheet" href="/static/js/jqplot/jquery.jqplot.css"/>
+<script src="/static/js/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
+<script src="/static/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+<script src="/static/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+<script src="/static/js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>
+<script src="/static/js/custom/report.js"></script>
+<script>
     $(function() {
-        $(".dateField").datepicker({dateFormat: 'dd-mm-yy'});
+        Date.format = 'dd/mm/yyyy';
+        $('.dateField').datepicker({dateFormat: 'dd-mm-yy'});
+        var plot_data = {{jqplot_data|safe}};
+        var graph_target = '{{report_type}}' + '_report_graph';
+        plot_report_graph(graph_target, plot_data)
+        $('.total_value').html(calculate_total(plot_data));
     });
-
-    function plot_report_graph(elem_id, data) {
-        $.jqplot.config.enablePlugins = true;
-        $.jqplot(elem_id, [data], {
-            axes: {
-                xaxis: {
-                    renderer: $.jqplot.DateAxisRenderer,
-                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                    tickOptions: {
-                        formatString: '%Y-%m-%d',
-                        angle: -60,
-                    }
-                }
-            }
-        });
-    }
-  </script>
-  {%endblock%}
-{%endif%} 
+</script>
+{%endblock%}
 
 {%block content%}
-  {%if report_type_picker%}
+  {%ifequal report_type "picker"%}
   <h1>Picker Report :: {{picker.fullName}}</h1> 
   <div id="picker_report_graph" class="report_graph"></div>
-  <script>$(function(){plot_report_graph('picker_report_graph', {{jqplot_data|safe}})});</script>
   <table>
     <tr>
       <th>Date</th>
@@ -76,12 +44,11 @@
     </tr>
     {%endfor%}
   </table>
-  {%endif%}
+  {%endifequal%}
 
-  {%if report_type_room%}
+  {%ifequal report_type "room"%}
   <h1>Room Report :: {{room.number}}</h1>  
   <div id="room_report_graph" class="report_graph"></div>
-  <script>$(function(){plot_report_graph('room_report_graph', {{jqplot_data|safe}})});</script>
   <table>
     <tr>
       <th>Date</th>
@@ -93,30 +60,35 @@
       <td>{{weight}}</td>
     </tr>
     {%endfor%}
+    <tr class="total_row">
+      <td>Total:</td>
+      <td class="total_value"></td>
+    </tr>
   </table>
-  {%endif%}
+  {%endifequal%}
 
-  {%if report_type_flush%}
+  {%ifequal report_type "flush"%}
   <h1>Flush Report :: {{flush}}</h1> 
-  <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
+  <div id="flush_report_graph" class="report_graph"></div>
   <table>
     <tr>
       <th>Date</th>
       <th>Mushrooms Picked (kg)</th>
     </tr>
-    {%for date, weight in data%}
+    {%for date, weight in jqplot_data%}
     <tr>
       <td>{{date}}</td>
       <td>{{weight}}</td>
     </tr>
     {%endfor%}
     <tr class="total_row">
-      <td>Total: {{total}}</td>
+      <td>Total:</td>
+      <td class="total_value"></td>
     </tr>
   </table>
-  {%endif%}
+  {%endifequal%}
 
-  {%if report_type_crop%}
+  {%ifequal report_type "crop"%}
   <h1>Crop Report :: {{crop}}</h1> 
   <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
   <table>
@@ -134,9 +106,9 @@
       <td>Total: {{total}}</td>
     </tr>
   </table>
-  {%endif%}
+  {%endifequal%}
 
-  {%if report_type_all_pickers%}
+  {%ifequal report_type "all_pickers"%}
   <h1>Overall Picking ({{startDate}} ~ {{endDate}})</h1> 
   <table>
     <tr>
@@ -165,9 +137,9 @@
       </tr>
       {%endfor%}
   </table>
-  {%endif%}
+  {%endifequal%}
 
-  {%if default_page%}
+  {%ifequal report_type "default_page"%}
   <div>
     <h2>Picker</h2>
     <form name="picker_report_form" action="picker/" method="post" id="picker_report_form">
@@ -229,6 +201,6 @@
       <input type="submit" onClick="submitForm('room_')" value="Submit"/>
     </form>
   </div>
-  {%endif%}
+  {%endifequal%}
   {{debug}}
 {%endblock%}
