@@ -1,6 +1,6 @@
 {%extends "gleba_base.html"%}
 
-{% block extrahead %}
+{%block extrahead%}
     <style type="text/css">
     #keypad tr td div {
         background: #f9f9f9;
@@ -9,52 +9,51 @@
         border: 1px solid black;
     }
     </style>
-    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
-    <script type="text/javascript">
+    <script src="/static/js/jquery.min.js"></script>
+    <script>
         function submitForm() {
-            var selected_value = document.getElementById("picker_id").value;
-            // var selected_value = $("#picker_id").val();
-            $("#bundy_picker_form").attr("action",
-                "{%url gleba.glebaAdmin.views.bundy%}confirm/"+selected_value+"/");
-            $("#bundy_picker_form").submit();
+            var selected_value = document.getElementById('picker_id').value;
+            $('#bundy_picker_form').attr('action',
+                '{%url gleba.glebaAdmin.views.bundy%}confirm/'+selected_value+'/');
+            $('#bundy_picker_form').submit();
         }
 
         function appendNumber(x) {
-            var pickerIDInput = document.getElementById("picker_id");
+            var pickerIDInput = document.getElementById('picker_id');
             pickerIDInput.value+=x;
         }
 
         function backspace() {
-            var pickerIDInput = document.getElementById("picker_id");
+            var pickerIDInput = document.getElementById('picker_id');
             pickerIDInput.value=pickerIDInput.value.substring(0, pickerIDInput.value.length-1);
         }
          
-        {% if show_confirmation %}
+        {%if show_confirmation%}
         function signOn() {
-            $("#bundy_confirmation").attr("action", "{% url gleba.glebaAdmin.views.bundy %}signon/"+{{picker.id}}+"/");
-            $("#bundy_confirmation").submit();
+            $('#bundy_confirmation').attr('action', '{% url gleba.glebaAdmin.views.bundy %}signon/'+{{picker.id}}+'/');
+            $('#bundy_confirmation').submit();
         }
 
         function signOff(lunch) {
-            alert("In signOff");
+            alert('In signOff');
             if (lunch=='true') {
-                alert("had lunch trying to append it to the end of url");
-                $("#bundy_confirmation").attr("action", "{% url gleba.glebaAdmin.views.bundy %}signoff/"+{{picker.id}}+"?lunch=True");
-                alert("appended {% url gleba.glebaAdmin.views.bundy %}signoff/"+{{picker.id}}+"?lunch=True");
+                alert('had lunch trying to append it to the end of url');
+                $('#bundy_confirmation').attr('action', '{% url gleba.glebaAdmin.views.bundy %}signoff/'+{{picker.id}}+'?lunch=True');
+                alert('appended {% url gleba.glebaAdmin.views.bundy %}signoff/'+{{picker.id}}+'?lunch=True');
             } else {
-                alert("had  no lunch trying to append it to the end of url");
-                $("#bundy_confirmation").attr("action", "{% url gleba.glebaAdmin.views.bundy %}signoff/"+{{picker.id}}+"?lunch=False");
-                alert("appended {% url gleba.glebaAdmin.views.bundy %}signoff/"+{{picker.id}}+"?lunch=False");
+                alert('had  no lunch trying to append it to the end of url');
+                $('#bundy_confirmation').attr('action', '{% url gleba.glebaAdmin.views.bundy %}signoff/'+{{picker.id}}+'?lunch=False');
+                alert('appended {% url gleba.glebaAdmin.views.bundy %}signoff/'+{{picker.id}}+'?lunch=False');
             }
-            alert("Now submitting");
-            $("#bundy_confirmation").submit();
+            alert('Now submitting');
+            $('#bundy_confirmation').submit();
         }
-        {% endif %}
+        {%endif%}
     </script>
-{% endblock %}
+{%endblock%}
 
-{% block content %}
-{% if not show_confirmation %}
+{%block content%}
+{%if not show_confirmation%}
     <h3>Picker ID:</h3><br/>
       <table id="keypad">
         <tr>
@@ -105,22 +104,22 @@
       <input id="picker_id" type="text" readonly="readonly"/> 
       <input type="submit" onClick="submitForm()" value="Submit"/>
     </form>
-{% endif %}
+{%endif%}
 
-{% if show_confirmation %}
+{%if show_confirmation%}
   <h3>Welcome, {{picker.firstName}}!<h3/><br/>
-  {% if signon_flag %}
+  {%if signon_flag%}
     <form name="bundy_confirmation" action="" method="GET" id="bundy_confirmation">
       <input type="submit" onClick="signOn()" value="Sign on" />
     </form>
-  {% else %}
-    <form action="{% url gleba.glebaAdmin.views.bundy %}signoff/{{ picker.id }}" method="GET" id="bundy_confirmation">
+  {%else%}
+    <form action="{%url gleba.glebaAdmin.views.bundy%}signoff/{{picker.id}}" method="GET" id="bundy_confirmation">
       <input type="radio" name="lunch" value="True" checked>Sign Off WITH Lunch Break</input>
       <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input>
       <input type="Submit" value="Sign Off">
     </form>
-  {% endif %}
-{% endif %}
+  {%endif%}
+{%endif%}
 
 {{error_message}}
 
@@ -128,4 +127,4 @@
 {{debug}}
 </div>
 
-{% endblock %}
+{%endblock%}

@@ -1,16 +1,16 @@
-{% extends "gleba_base.html" %}
+{%extends "gleba_base.html"%}
 
-{% block content %}
+{%block content%}
 
-{%if csvfile %}
+{%if csvfile%}
 <div id="exported_file">
-    <p>Click the file below to download</p>
-    <a href={{csvfile}}>{{csvfilename}}</a>
+  <p>Click the file below to download</p>
+  <a href={{csvfile}}>{{csvfilename}}</a>
 </div>
-{% else %}
-<script type="text/javascript" src="/static/media/js/jquery.min.js"></script>
-<script type="text/javascript" src="/static/media/js/jquery-ui/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="/static/media/jquery-ui/css/smoothness/jquery-ui.css" type="text/css" media="screen" title="Base"/>
+{%else%}
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/jquery-ui/js/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui.css" media="screen" title="Base"/>
 <script type="text/javascript">
     Date.format = 'dd/mm/yyyy';
     $(function() {
@@ -22,12 +22,12 @@
 </script>
 <p>Please select the range for which a timesheet report should be generated.</p>
 <form name="csv_form" action="" method="post" id="csv_form">
-    <label for="startDate">Start Date</label>
-    <input name="startDate" id="startDate" type="text">
-    <label for="endDate">End Date</label>
-    <input name="endDate" id="endDate" type="text">
-    <input type="submit" value="Submit"/>
+  <label for="startDate">Start Date</label>
+  <input name="startDate" id="startDate" type="text">
+  <label for="endDate">End Date</label>
+  <input name="endDate" id="endDate" type="text">
+  <input type="submit" value="Submit"/>
 </form>
-{% endif %}
+{%endif%}
 
-{% endblock %}
+{%endblock%}
