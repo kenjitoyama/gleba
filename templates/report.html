@@ -5,7 +5,7 @@
   <title>Gleba report</title>
   <script src="/static/js/jquery.min.js"></script>
   <script src="/static/js/jquery-ui/js/jquery-ui.min.js"></script>
-  <link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui-1.8.12.custom.css" media="screen" title="Base"/>
+  <link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui.css" media="screen" title="Base"/>
   <link rel="stylesheet" href="/static/css/report.css"/>
   <script>
     function submitForm(report_type) {
@@ -35,189 +35,175 @@
 {%endif%} 
 
 {%block content%}
-    {%if report_type_picker%}
-    <h1>Picker Report :: {{picker.fullName}}</h1> 
-    <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
-    <table>
+  {%if report_type_picker%}
+  <h1>Picker Report :: {{picker.fullName}}</h1> 
+  <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>Mushrooms Picked (kg)</th>
+      <th>Daily Average</th>
+    </tr>
+    {%for date,weight,dailyAverage in data%}
+    <tr>
+      <td>{{date}}</td>
+      <td>{{weight}}</td>
+      <td>{{dailyAverage}}</td>
+    </tr>
+    {%endfor%}
+  </table>
+  {%endif%}
+
+  {%if report_type_room%}
+  <h1>Room Report :: {{room.number}}</h1>  
+  <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>Mushrooms Picked (kg)</th>
+    </tr>
+    {%for date, weight in data%}
+    <tr>
+      <td>{{date}}</td>
+      <td>{{weight}}</td>
+    </tr>
+    {%endfor%}
+  </table>
+  {%endif%}
+
+  {%if report_type_flush%}
+  <h1>Flush Report :: {{flush}}</h1> 
+  <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>Mushrooms Picked (kg)</th>
+    </tr>
+    {%for date, weight in data%}
+    <tr>
+      <td>{{date}}</td>
+      <td>{{weight}}</td>
+    </tr>
+    {%endfor%}
+    <tr class="total_row">
+      <td>Total: {{total}}</td>
+    </tr>
+  </table>
+  {%endif%}
+
+  {%if report_type_crop%}
+  <h1>Crop Report :: {{crop}}</h1> 
+  <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>Mushrooms Picked (kg)</th>
+    </tr>
+    {%for date, weight in data%}
+    <tr>
+      <td>{{date}}</td>
+      <td>{{weight}}</td>
+    </tr>
+    {%endfor%}
+    <tr>
+      <td>Total: {{total}}</td>
+    </tr>
+  </table>
+  {%endif%}
+
+  {%if report_type_all_pickers%}
+  <h1>Overall Picking ({{startDate}} ~ {{endDate}})</h1> 
+  <table>
+    <tr>
+      <th>
+        <a href="?sort=fName&startDate={{startDate}}&endDate={{endDate}}">First Name</a>
+      </th>
+      <th>
+        <a href="?sort=lName&startDate={{startDate}}&endDate={{endDate}}">Last Name</a>
+      </th>
+      <th>
+        <a href="?sort=total_picked&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked (kg)</a>
+      </th>  
+      <th>
+        <a href="?sort=kpi&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked/Hour Worked (kg/hr)</a>
+      </th>
+      <th>
+        <a href="?sort=avgBox&startDate={{startDate}}&endDate={{endDate}}">Average Initial Box Weight (kg)</a>
+      </th>
+      {%for picker in data%}
       <tr>
-        <th>Date</th>
-        <th>Mushrooms Picked (kg)</th>
-        <th>Daily Average</th>
-      </tr>
-      {%for date,weight,dailyAverage in data%}
-      <tr>
-        <td>{{date}}</td>
-        <td>{{weight}}</td>
-        <td>{{dailyAverage}}</td>
+        <td>{{picker.0}}</td>{%comment%}firstName{%endcomment%}
+        <td>{{picker.1}}</td>{%comment%}lastName{%endcomment%}
+        <td>{{picker.2}}</td>{%comment%}total_picked{%endcomment%}
+        <td>{{picker.3}}</td>{%comment%}kpi{%endcomment%}
+        <td>{{picker.4}}</td>{%comment%}avgBoxWeight{%endcomment%}
       </tr>
       {%endfor%}
-    </table>
-    {%endif%}
+  </table>
+  {%endif%}
 
-    {%if report_type_room%}
-    <h1>Room Report :: {{room.number}}</h1>  
-    <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
-    <table>
-      <tr>
-        <th>Date</th>
-        <th>Mushrooms Picked (kg)</th>
-      </tr>
-      {%for date, weight in data%}
-      <tr>
-        <td>{{date}}</td>
-        <td>{{weight}}</td>
-      </tr>
-      {%endfor%}
-    </table>
-    {%endif%}
-
-    {%if report_type_flush%}
-    <h1>Flush Report :: {{flush}}</h1> 
-    <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
-    <table>
-      <tr>
-        <th>Date</th>
-        <th>Mushrooms Picked (kg)</th>
-      </tr>
-      {%for date, weight in data%}
-      <tr>
-        <td>{{date}}</td>
-        <td>{{weight}}</td>
-      </tr>
-      {%endfor%}
-      <tr class="total_row">
-        <td>Total: {{total}}</td>
-      </tr>
-    </table>
-    {%endif%}
-
-    {%if report_type_crop%}
-    <h1>Crop Report :: {{crop}}</h1> 
-    <img class="report_graph" src="/static/media/graphs/{{graph_filename}}"/>
-    <table>
-      <tr>
-        <th>Date</th>
-        <th>Mushrooms Picked (kg)</th>
-      </tr>
-      {%for date, weight in data%}
-      <tr>
-        <td>{{date}}</td>
-        <td>{{weight}}</td>
-      </tr>
-      {%endfor%}
-      <tr>
-        <td>Total: {{total}}</td>
-      </tr>
-    </table>
-    {%endif%}
-
-    {%if report_type_all_pickers%}
-    <h1>Overall Picking ({{startDate}} ~ {{endDate}})</h1> 
-    <table>
-      <tr>
-        <th>
-          <a href="?sort=fName&startDate={{startDate}}&endDate={{endDate}}">First Name</a>
-        </th>
-        <th>
-          <a href="?sort=lName&startDate={{startDate}}&endDate={{endDate}}">Last Name</a>
-        </th>
-        <th>
-          <a href="?sort=total_picked&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked (kg)</a>
-        </th>  
-        <th>
-          <a href="?sort=kpi&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked/Hour Worked (kg/hr)</a>
-        </th>
-        <th>
-          <a href="?sort=avgBox&startDate={{startDate}}&endDate={{endDate}}">Average Initial Box Weight (kg)</a>
-        </th>
-        {%for picker in data%}
-        <tr>
-          <td>{{picker.0}}</td>{%comment%}firstName{%endcomment%}
-          <td>{{picker.1}}</td>{%comment%}lastName{%endcomment%}
-          <td>{{picker.2}}</td>{%comment%}total_picked{%endcomment%}
-          <td>{{picker.3}}</td>{%comment%}kpi{%endcomment%}
-          <td>{{picker.4}}</td>{%comment%}avgBoxWeight{%endcomment%}
-        </tr>
+  {%if default_page%}
+  <div>
+    <h2>Picker</h2>
+    <form name="picker_report_form" action="picker/" method="post" id="picker_report_form">
+      <select name="picker" id="picker_menu">
+        {%for picker in picker_list%}
+        <option value={{picker.id}}>{{picker.id}} - {{picker.fullName}}</option>
         {%endfor%}
-    </table>
-    {%endif%}
+      </select><br/>
+      <label for="picker_start_date">Start Date</label>
+      <input name="startDate" class="dateField" id="picker_start_date" type="text"/><br/>
+      <label for="picker_end_date">End Date</label>
+      <input name="endDate" class="dateField" id="picker_end_date" type="text"/><br/>
+      <input type="submit" onClick="submitForm('picker_')" value="Submit"/><br/>
+    </form>
+  </div>
+  
+  <div>
+    <h2>All Pickers</h2>
+    <form name="all_picker_report_form" action="picker/" method="post" id="all_picker_report_form">
+      <label for="all_pickers_start_date">Start Date</label>
+      <input name="startDate" class="dateField" id="all_pickers_start_date" type="text"/><br/>
+      <label for="all_pickers_end_date">End Date</label>
+      <input name="endDate" class="dateField" id="all_pickers_end_date" type="text"/><br/>
+      <input type="submit" onClick="submitAllPickerForm()" value="Submit"/><br/>
+    </form>
+  </div>
+      
+  <div>
+    <h2>Flush</h2>
+    <form name="flush_report_form" action="flush/" method="post" id="flush_report_form">
+      <label for="flush_menu">Flush ID</label>
+      <input type="text" name="flush" id="flush_menu"/><br/>
+      <input type="submit" onClick="submitForm('flush_')" value="Submit"/><br/>
+    </form>
+  </div>
 
-    {%if default_page%}
-    <div>
-      <h2>Picker</h2>
-      <form name="picker_report_form" action="picker/" method="post" id="picker_report_form">
-        <select name="picker" id="picker_menu">
-          {%for picker in picker_list%}
-          <option value={{picker.id}}>{{picker.id}} - {{picker.fullName}}</option>
-          {%endfor%}
-        </select><br/>
-        <label for="startDate">Start Date</label>
-        <input name="startDate" class="dateField" type="text"/><br/>
-        <label for="endDate">End Date</label>
-        <input name="endDate" class="dateField" type="text"/><br/>
-        <input type="submit" onClick="submitForm('picker_')" value="Submit"/><br/>
-      </form>
-    </div>
-    
-    <div>
-      <h2>All Pickers</h2>
-      <form name="all_picker_report_form" action="picker/" method="post" id="all_picker_report_form">
-        <label for="startDate">Start Date</label>
-        <input name="startDate" class="dateField" type="text"/><br/>
-        <label for="endDate">End Date</label>
-        <input name="endDate" class="dateField" type="text"/><br/>
-        <input type="submit" onClick="submitAllPickerForm()" value="Submit"/><br/>
-      </form>
-    </div>
-        
-    <div>
-      <h2>Flush</h2>
-      <form name="flush_report_form" action="flush/" method="post" id="flush_report_form">
-        <label for="flush">Flush ID</label>
-        <input type="text" name="flush" id="flush_menu"/><br/>
-        <!--Kenji: Do we need to provide a date range? We could just show the dates from the Flush anyway.!-->
-        <!--
-        <label for="startDate">Start Date</label>
-        <input name="startDate" class="dateField" type="text"/><br/>
-        <label for="endDate">End Date</label>
-        <input name="endDate" class="dateField" type="text"/><br/>
-        --!>
-        <input type="submit" onClick="submitForm('flush_')" value="Submit"/><br/>
-      </form>
-    </div>
+  <div>
+    <h2>Crop</h2>
+    <form name="crop_report_form" action="crop/" method="post" id="crop_report_form">
+      <label for="crop_menu">Crop ID</label>
+      <input type="text" name="crop" id="crop_menu"/><br/>
+      <input type="submit" onClick="submitForm('crop_')" value="Submit"/>
+    </form>
+  </div>
 
-    <div>
-      <h2>Crop</h2>
-      <form name="crop_report_form" action="crop/" method="post" id="crop_report_form">
-        <label for="crop">Crop ID</label>
-        <input type="text" name="crop" id="crop_menu"/><br/>
-        <!--Kenji: Do we need to provide a date range? We could just show the dates from the Flush anyway.!-->
-        <!--
-        <label for="startDate">Start Date</label>
-        <input name="startDate" class="dateField" type="text"/><br/>
-        <label for="endDate">End Date</label>
-        <input name="endDate" class="dateField" type="text"/><br/>
-        -->
-        <input type="submit" onClick="submitForm('crop_')" value="Submit"/>
-      </form>
-    </div>
-
-    <div>
-      <h2>Room</h2>
-      <form name="room_report_form" action="room/" method="post" id="room_report_form">
-        <label for="room">Room Number</label>
-        <select name="room" id="room_menu">
-          {%for room in room_list%}
-          <option value={{room.number}}>{{room.number}}</option>
-          {%endfor%}
-        </select><br/>
-        <label for="startDate">Start Date</label>
-        <input name="startDate" class="dateField" type="text"/><br/>
-        <label for="endDate">End Date</label>
-        <input name="endDate" class="dateField" type="text"/><br/>
-        <input type="submit" onClick="submitForm('room_')" value="Submit"/>
-      </form>
-    </div>
-    {%endif%}
-    {{debug}}
+  <div>
+    <h2>Room</h2>
+    <form name="room_report_form" action="room/" method="post" id="room_report_form">
+      <label for="room_menu">Room Number</label>
+      <select name="room" id="room_menu">
+        {%for room in room_list%}
+        <option value={{room.number}}>{{room.number}}</option>
+        {%endfor%}
+      </select><br/>
+      <label for="room_start_date">Start Date</label>
+      <input name="startDate" class="dateField" id="room_start_date" type="text"/><br/>
+      <label for="room_end_date">End Date</label>
+      <input name="endDate" class="dateField" id="room_end_date" type="text"/><br/>
+      <input type="submit" onClick="submitForm('room_')" value="Submit"/>
+    </form>
+  </div>
+  {%endif%}
+  {{debug}}
 {%endblock%}

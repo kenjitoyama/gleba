@@ -1,27 +1,30 @@
 {%extends "gleba_base.html"%}
 
-{%block content%}
+{%block extrahead%}
+  <title>Export to CSV file</title>
+  <script src="/static/js/jquery.min.js"></script>
+  <script src="/static/js/jquery-ui/js/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui.css" media="screen" title="Base"/>
+  <script type="text/javascript">
+      Date.format = 'dd/mm/yyyy';
+      $(function() {
+          $("#startDate").datepicker({dateFormat: 'dd-mm-yy'});
+      });
+      $(function() {
+          $("#endDate").datepicker({dateFormat: 'dd-mm-yy'});
+      });
+  </script>
+{%endblock%}
 
+{%block content%}
 {%if csvfile%}
 <div id="exported_file">
   <p>Click the file below to download</p>
   <a href={{csvfile}}>{{csvfilename}}</a>
 </div>
 {%else%}
-<script src="/static/js/jquery.min.js"></script>
-<script src="/static/js/jquery-ui/js/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui.css" media="screen" title="Base"/>
-<script type="text/javascript">
-    Date.format = 'dd/mm/yyyy';
-    $(function() {
-        $("#startDate").datepicker({dateFormat: 'dd-mm-yy'});
-    });
-    $(function() {
-        $("#endDate").datepicker({dateFormat: 'dd-mm-yy'});
-    });
-</script>
 <p>Please select the range for which a timesheet report should be generated.</p>
-<form name="csv_form" action="" method="post" id="csv_form">
+<form name="csv_form" method="post" id="csv_form">
   <label for="startDate">Start Date</label>
   <input name="startDate" id="startDate" type="text">
   <label for="endDate">End Date</label>

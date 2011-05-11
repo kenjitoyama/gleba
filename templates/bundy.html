@@ -1,14 +1,8 @@
 {%extends "gleba_base.html"%}
 
 {%block extrahead%}
-    <style type="text/css">
-    #keypad tr td div {
-        background: #f9f9f9;
-        font-size: 2em;
-        padding: 1em;
-        border: 1px solid black;
-    }
-    </style>
+    <title>Bundy clock</title>
+    <link rel="stylesheet" href="/static/css/bundy.css"/>
     <script src="/static/js/jquery.min.js"></script>
     <script>
         function submitForm() {
@@ -100,7 +94,7 @@
           </td>
         </tr>
       </table>
-    <form name="bundy_picker_form" action="" method="post" id="bundy_picker_form">
+    <form name="bundy_picker_form" method="post" id="bundy_picker_form">
       <input id="picker_id" type="text" readonly="readonly"/> 
       <input type="submit" onClick="submitForm()" value="Submit"/>
     </form>
