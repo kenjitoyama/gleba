@@ -1,0 +1,15 @@
+{%load i18n%}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    {%block extrahead%}{%endblock%}
+  </head>
+  <body>
+    <a href="/admin/">Admin page</a>
+    <a href="/report/">Reports</a>
+    <a href="/bundy/">Bundy Clock</a>
+    <a href="/csv/">CSV</a>
+    {%block content%}{%endblock%}
+  </body>
+</html>

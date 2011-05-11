@@ -1,20 +1,21 @@
-{% extends "base.html" %}
+{%extends "gleba_base.html"%}
 
 {%if default_page%}
   {%block extrahead%}
-  <script type="text/javascript" src="/static/js/jquery.min.js"></script>
-  <script type="text/javascript" src="/static/js/jquery-ui/js/jquery-ui-1.8.12.custom.min.js"></script>
-  <link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui-1.8.12.custom.css" type="text/css" media="screen" title="Base"/>
+  <title>Gleba report</title>
+  <script src="/static/js/jquery.min.js"></script>
+  <script src="/static/js/jquery-ui/js/jquery-ui-1.8.12.custom.min.js"></script>
+  <link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui-1.8.12.custom.css" media="screen" title="Base"/>
   <link rel="stylesheet" href="/static/css/report.css"/>
-  <script type="text/javascript">
+  <script>
     function submitForm(report_type) {
-        var form = $("#"+report_type+"report_form");
-        var form_url = form.attr("action");
-        var selected_value = $("#"+report_type+"menu").val();
-        form_url = report_type.substring(0, report_type.length-1)+"/" + selected_value + "/";
-        form.attr("action", form_url);
-        form.append($("#startDate"));
-        form.append($("#endDate"));
+        var form = $('#'+report_type+'report_form');
+        var form_url = form.attr('action');
+        var selected_value = $('#'+report_type+'menu').val();
+        form_url = report_type.substring(0, report_type.length-1)+'/' + selected_value + '/';
+        form.attr('action', form_url);
+        form.append($('#startDate'));
+        form.append($('#endDate'));
         form.submit();
     }
 
@@ -217,6 +218,6 @@
         <input type="submit" onClick="submitForm('room_')" value="Submit"/>
       </form>
     </div>
-    {% endif %}
-    {{ debug }}
-{% endblock %}
+    {%endif%}
+    {{debug}}
+{%endblock%}
