@@ -21,12 +21,12 @@
     $(function() {
         Date.format = 'dd/mm/yyyy';
         $('.dateField').datepicker({dateFormat: 'dd-mm-yy'});
-        {%ifnotequal report_type "all_pickers"%}
-        var plot_data = {{jqplot_data|safe}};
+        {%if jqplot_data%}
         var graph_target = '{{report_type}}' + '_report_graph';
+        var plot_data = {{jqplot_data|safe}};
         plot_report_graph(graph_target, plot_data)
         $('.total_value').html(calculate_total(plot_data));
-        {%endifnotequal%}
+        {%endif%}
     });
 </script>
 {%endblock%}
