@@ -277,6 +277,8 @@ def generate_report_picker(request, picker_id):
         'picker' : picker_obj,
         'report_type' : 'picker',
         'jqplot_data': daily_totals,
+        'start_date': start_date,
+        'end_date': end_date,
     })
 
 

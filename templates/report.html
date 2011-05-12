@@ -33,22 +33,31 @@
 
 {%block content%}
   {%ifequal report_type "picker"%}
-  <h1>Picker Report :: {{picker.fullName}}</h1> 
+  <table id="picker_table" class="report_table"></table>
+  <script>
+    $('#picker_table').jqGrid({
+        caption: 'Picker Report :: {{picker.fullName}} ({{start_date}} ~ {{end_date}})',
+        height: 200,
+        datatype: 'local',
+        colNames:['Date', 'Total Picked', 'kg/hr'],
+        colModel:[
+            {name:'date',index:'date', width:160, align:'left'},
+            {name:'total_picked',index:'total_picked', width:160, align:'right',sorttype:'float'},
+            {name:'kghr',index:'kghr', width:160, align:'right',sorttype:'float'},
+        ],
+        shrinkToFit: true,
+    });
+    var mydata = {{jqplot_data|safe}};
+    var plot_data = new Array();
+    for(i=0; i<mydata.length; i++)
+        plot_data.push({'date': mydata[i][0],
+                        'total_picked': mydata[i][1],
+                        'kghr': mydata[i][2]
+        });
+    for(var i=0;i<=plot_data.length;i++)
+        $('#picker_table').jqGrid('addRowData',i+1,plot_data[i]);
+  </script>
   <div id="picker_report_graph" class="report_graph"></div>
-  <table>
-    <tr>
-      <th>Date</th>
-      <th>Mushrooms Picked (kg)</th>
-      <th>Daily Average</th>
-    </tr>
-    {%for date, weight, dailyAverage in jqplot_data%}
-    <tr>
-      <td>{{date}}</td>
-      <td>{{weight}}</td>
-      <td>{{dailyAverage}}</td>
-    </tr>
-    {%endfor%}
-  </table>
   {%endifequal%}
 
   {%ifequal report_type "room"%}
