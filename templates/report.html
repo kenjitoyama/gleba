@@ -9,10 +9,13 @@
 <!--[if IE]><script src="/static/js/jqplot/excanvas.js"></script><![endif]-->
 <script src="/static/js/jqplot/jquery.jqplot.min.js"></script>
 <link rel="stylesheet" href="/static/js/jqplot/jquery.jqplot.css"/>
+<link rel="stylesheet" href="/static/js/jqgrid/css/ui.jqgrid.css"/>
 <script src="/static/js/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
 <script src="/static/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
 <script src="/static/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
 <script src="/static/js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>
+<script src="/static/js/jqgrid/js/i18n/grid.locale-en.js"></script>
+<script src="/static/js/jqgrid/js/jquery.jqGrid.min.js"></script>
 <script src="/static/js/custom/report.js"></script>
 <script>
     $(function() {
@@ -112,34 +115,26 @@
   {%endifequal%}
 
   {%ifequal report_type "all_pickers"%}
-  <h1>Overall Picking ({{startDate}} ~ {{endDate}})</h1> 
-  <table>
-    <tr>
-      <th>
-        <a href="?sort=fName&startDate={{startDate}}&endDate={{endDate}}">First Name</a>
-      </th>
-      <th>
-        <a href="?sort=lName&startDate={{startDate}}&endDate={{endDate}}">Last Name</a>
-      </th>
-      <th>
-        <a href="?sort=total_picked&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked (kg)</a>
-      </th>  
-      <th>
-        <a href="?sort=kpi&startDate={{startDate}}&endDate={{endDate}}">Mushrooms Picked/Hour Worked (kg/hr)</a>
-      </th>
-      <th>
-        <a href="?sort=avgBox&startDate={{startDate}}&endDate={{endDate}}">Average Initial Box Weight (kg)</a>
-      </th>
-      {%for picker in data%}
-      <tr>
-        <td>{{picker.0}}</td>{%comment%}firstName{%endcomment%}
-        <td>{{picker.1}}</td>{%comment%}lastName{%endcomment%}
-        <td>{{picker.2}}</td>{%comment%}total_picked{%endcomment%}
-        <td>{{picker.3}}</td>{%comment%}kpi{%endcomment%}
-        <td>{{picker.4}}</td>{%comment%}avgBoxWeight{%endcomment%}
-      </tr>
-      {%endfor%}
-  </table>
+  <table id="all_pickers_table"></table>
+  <script>
+    $('#all_pickers_table').jqGrid({
+        caption: 'Overall Picking ({{startDate}} ~ {{endDate}})',
+        datatype: 'local',
+        colNames:['ID', 'First Name','Last Name', 'Total Picked', 'kg/hr','Avg Initial Weight'],
+        colModel:[
+            {name:'picker_id',index:'picker_id', width:30, align:'center'},
+            {name:'first_name',index:'first_name', width:100},
+            {name:'last_name',index:'last_name', width:100},
+            {name:'total_picked',index:'total_picked', width:80, align:'right',sorttype:'float'},
+            {name:'kghr',index:'kghr', width:80, align:'right',sorttype:'float'},
+            {name:'avg',index:'avg', width:110, align:'right',sorttype:'float'},
+        ],
+        shrinkToFit: false,
+    });
+    var mydata = {{data|safe}};
+    for(var i=0;i<=mydata.length;i++)
+        $('#all_pickers_table').jqGrid('addRowData',i+1,mydata[i]);
+  </script>
   {%endifequal%}
 
   {%ifequal report_type "default_page"%}

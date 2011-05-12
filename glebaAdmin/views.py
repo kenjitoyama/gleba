@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 import csv
 import datetime
 import Gnuplot
+import json
 
 # Kenji TODO: Move this 'constant' to another file for easier customization
 GRAPHS_OUTPUT_DIRECTORY = ('/home/kenji/django-projects/gleba/glebaAdmin/' +
@@ -218,7 +219,6 @@ def getDateFromRequest(request):
     class Meta:  
         model = Picker"""
 
-
 @login_required
 def generateReportAllPicker(request): 
     """ 
@@ -229,11 +229,8 @@ def generateReportAllPicker(request):
     It uses two dates from the http POST, if they don't make sense the
     last 31 days are used.
     """
-    debug = ""
-    sort_by = request.GET.get('sort') 
     start_date, end_date = getDateFromRequest(request)
-    data = [] # List: [Picker Firstname, Picker Lastname,
-              #        total picked, kpi] will be value
+    data = [] # [{id, first name, last name, total picked, kpi}]
 
     for picker in Picker.objects.all():
         total_time = picker.getTimeWorkedBetween(start_date, end_date)
@@ -241,29 +238,21 @@ def generateReportAllPicker(request):
         total_picked = picker.getTotalPickedBetween(start_date, end_date)
         avg_init_weight = picker.getAvgInitWeightBetween(start_date,
                                                          end_date)
-        total_picked_per_hour = (total_picked/time_worked
-                                 if (time_worked>0) else 0)
-        data.append([picker.firstName, picker.lastName, total_picked,
-                     total_picked_per_hour, avg_init_weight])
-
-    if sort_by == "fName":
-        data.sort(key = lambda x: x[0])
-    elif sort_by == "lName":
-        data.sort(key = lambda x: x[1])
-    elif sort_by == "total_picked":
-        data.sort(key = lambda x: x[2])
-    elif sort_by == "kpi":
-        data.sort(key = lambda x: x[3])
-    elif sort_by == "avgBox": 
-        data.sort(key = lambda x: x[4])
+        total_kg_per_hour = (total_picked/time_worked
+                             if (time_worked>0) else 0)
+        data.append({'picker_id':    picker.id,
+                     'first_name':   picker.firstName,
+                     'last_name':    picker.lastName,
+                     'total_picked': '{:.6f}'.format(total_picked),
+                     'kghr':         '{:.6f}'.format(total_kg_per_hour),
+                     'avg':          '{:.6f}'.format(avg_init_weight)})
 
     return render_to_response('report.html', {
         'user' :        request.user,
-        'data' :        data,
+        'data' :        json.dumps(data),
         'startDate' :   start_date.strftime("%d-%m-%Y"),
         'endDate' :     end_date.strftime("%d-%m-%Y"),
         'report_type' : 'all_pickers',
-        'debug' :       debug,
     })
 
 @login_required
