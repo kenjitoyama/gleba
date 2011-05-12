@@ -220,7 +220,7 @@ def getDateFromRequest(request):
         model = Picker"""
 
 @login_required
-def generateReportAllPicker(request): 
+def generate_report_all_picker(request): 
     """ 
     Renders a report detailing all picking
     
