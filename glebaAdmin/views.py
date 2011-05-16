@@ -1,12 +1,5 @@
 from django.shortcuts import render_to_response, get_object_or_404
-from glebaAdmin.models import Box
-from glebaAdmin.models import Batch
-from glebaAdmin.models import Bundy 
-from glebaAdmin.models import Crop 
-from glebaAdmin.models import Flush
-from glebaAdmin.models import Mushroom
-from glebaAdmin.models import Picker
-from glebaAdmin.models import Room
+from glebaAdmin.models import *
 from django.contrib.auth.decorators import login_required
 import csv
 import datetime
@@ -342,7 +335,7 @@ def bundy(request):
     """
     The default bundy page. Renders the keypad for emp_ID input.
     """
-    return render_to_response('bundy.html', {'user' : request.user})
+    return render_to_response('bundy.html')
 
 def bundyOnOff(request, bundy_action, picker_id):
     picker = get_object_or_404(Picker, pk = picker_id)
@@ -358,7 +351,6 @@ def bundyOnOff(request, bundy_action, picker_id):
             'picker_list':       picker_list,
             'signon_flag':       False,
             'show_confirmation': False,
-            'user' :             request.user
         })
     elif bundy_action == "signoff":
         session = Bundy.objects.get(picker = picker_id,
@@ -371,7 +363,6 @@ def bundyOnOff(request, bundy_action, picker_id):
         except Exception as e:
             return render_to_response('bundy.html', {
                 'error_message' : e,
-                'user' : request.user
             })
         session.timeOut = datetime.datetime.now()
         session.hadLunch = hadLunch_
@@ -380,7 +371,6 @@ def bundyOnOff(request, bundy_action, picker_id):
             'picker_list':picker_list,
             'signon_flag':False,
             'show_confirmation': False,
-            'user' : request.user
         })
     else: # display the confirmation
         if(len(picker_entry) == 0): # picker is trying to sign on
@@ -389,7 +379,6 @@ def bundyOnOff(request, bundy_action, picker_id):
                 'picker':            picker,
                 'signon_flag':       True,
                 'show_confirmation': True,
-                'user' :             request.user
             })
         else: # just display the numpad
             return render_to_response('bundy.html', {
@@ -397,7 +386,6 @@ def bundyOnOff(request, bundy_action, picker_id):
                 'picker':            picker,
                 'signon_flag':       False,
                 'show_confirmation': True,
-                'user' :             request.user
             })
 
 ##### CSV export handling #####
