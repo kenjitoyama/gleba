@@ -28,63 +28,39 @@
   {%if show_confirmation%}
     <h3>Welcome, {{picker.firstName}}!<h3/><br/>
     {%if signon_flag%}
-      <form name="bundy_confirmation" action="{%url gleba.glebaAdmin.views.bundy%}signon/{{picker.id}}/" method="get">
-        <input type="submit" value="Sign on" />
-      </form>
+    <form name="bundy_confirmation" action="{%url gleba.glebaAdmin.views.bundy%}signon/{{picker.id}}/" method="get">
+      <input type="submit" value="Sign on" />
+    </form>
     {%else%}
-      <form action="{%url gleba.glebaAdmin.views.bundy%}signoff/{{picker.id}}" method="get">
-        <input type="radio" name="lunch" value="True" checked>Sign Off WITH Lunch Break</input>
-        <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input>
-        <input type="Submit" value="Sign Off">
-      </form>
+    <form action="{%url gleba.glebaAdmin.views.bundy%}signoff/{{picker.id}}" method="get">
+      <input type="radio" name="lunch" value="True" checked>Sign Off WITH Lunch Break</input>
+      <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input>
+      <input type="Submit" value="Sign Off">
+    </form>
     {%endif%}
   {%else%}
-    <h3>Picker ID:</h3><br/>
-      <table id="keypad">
-        <tr>
-          <td>
-            <div onClick="appendNumber(1)">1</div>
-          </td>
-          <td>
-            <div onClick="appendNumber(2)">2</div>
-          </td>
-          <td>
-            <div onClick="appendNumber(3)">3</div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div onClick="appendNumber(4)">4</div>
-          </td>
-          <td>
-            <div onClick="appendNumber(5)">5</div>
-          </td>
-          <td>
-            <div onClick="appendNumber(6)">6</div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div onClick="appendNumber(7)">7</div>
-          </td>
-          <td>
-            <div onClick="appendNumber(8)">8</div>
-          </td>
-          <td>
-            <div onClick="appendNumber(9)">9</div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div onClick="appendNumber(0)">0</div>
-          </td>
-          <td>
-            <div onClick="backspace()">&lt;-</div>
-          </td>
-          <td>
-          </td>
-        </tr>
-      </table>
+    <h3>Picker ID:</h3>
+    <table id="keypad">
+      <tr>
+        <td onClick="appendNumber(1)">1</td>
+        <td onClick="appendNumber(2)">2</td>
+        <td onClick="appendNumber(3)">3</td>
+      </tr>
+      <tr>
+        <td onClick="appendNumber(4)">4</td>
+        <td onClick="appendNumber(5)">5</td>
+        <td onClick="appendNumber(6)">6</td>
+      </tr>
+      <tr>
+        <td onClick="appendNumber(7)">7</td>
+        <td onClick="appendNumber(8)">8</td>
+        <td onClick="appendNumber(9)">9</td>
+      </tr>
+      <tr>
+        <td onClick="appendNumber(0)">0</td>
+        <td onClick="backspace()">&lt;-</td>
+      </tr>
+    </table>
     <form name="bundy_picker_form" method="post" id="bundy_picker_form">
       <input id="picker_id" type="text" readonly="readonly"/> 
       <input type="submit" onClick="submitForm()" value="Submit"/>

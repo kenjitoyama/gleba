@@ -1,6 +1,12 @@
-#keypad tr td div {
-    background: #f9f9f9;
-    font-size: 2em;
-    padding: 1em;
+h3 {
+    margin-bottom: 0px;
+}
+
+#keypad td {
+    width: 2em;
+    height: 2.5em;
     border: 1px solid black;
+    background: #f9f9f9;
+    text-align: center;
+    font-size: 2em;
 }
