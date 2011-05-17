@@ -46,7 +46,7 @@ class MainWindow(Gtk.Window):
     current_variety = None
     current_picker_weight = 0
     current_weight = 0
-    current_state = 0
+    current_state = AWAITING_BATCH
     stable_weight = 0
     show_weight = False
     min_weight = 0.0
