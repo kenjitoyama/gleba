@@ -260,7 +260,7 @@ class MainWindow(Gtk.Window):
             edit_frame.set_size_request(0, 60)
             index_list = self.history_entries[row][6]
             # get batches
-            edit_batch_combo = Gtk.ComboBox().new_text()
+            edit_batch_combo = Gtk.ComboBoxText()
             for batch in self.batches:
                 edit_batch_combo.append_text(
                     'Batch No. {} ({}) Room {}'.format(
@@ -268,14 +268,14 @@ class MainWindow(Gtk.Window):
                 ))
             edit_batch_combo.set_active(index_list[0])
             # get pickers
-            edit_picker_combo = Gtk.ComboBox().new_text()
+            edit_picker_combo = Gtk.ComboBoxText()
             for picker in self.pickers:
                 edit_picker_combo.append_text('{}. {} {}'.format(
                     picker[0], picker[1], picker[2]
                 ))
             edit_picker_combo.set_active(index_list[2])
             # get varieties
-            edit_varieties_combo = Gtk.ComboBox().new_text()
+            edit_varieties_combo = Gtk.ComboBoxText()
             for variety in self.varieties:
                 edit_varieties_combo.append_text('{}. {}'.format(
                     variety[0], variety[1]
