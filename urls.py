@@ -25,8 +25,8 @@ urlpatterns = patterns('',
     (r'^report/room/(\d+)/$', 'gleba.glebaAdmin.views.generate_report_room'),
 
     # Bundies
+    (r'^bundy/(\d+)/$', 'gleba.glebaAdmin.views.bundy'),
     (r'^bundy/$', 'gleba.glebaAdmin.views.bundy'),
-    (r'^bundy/(signon|signoff|confirm)/(\d+)/$', 'gleba.glebaAdmin.views.bundyOnOff'),
     (r'^csv/$', 'gleba.glebaAdmin.views.generate_csv_range'),
 
     # Logins
