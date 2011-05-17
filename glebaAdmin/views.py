@@ -1,4 +1,5 @@
 from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import redirect
 from glebaAdmin.models import *
 from django.contrib.auth.decorators import login_required
 import csv
@@ -331,62 +332,38 @@ def generateReport(request):
 # NOTE: Working from here downward refactoring
 
 ##### Bundy Clock handling #####
-def bundy(request):
-    """
-    The default bundy page. Renders the keypad for emp_ID input.
-    """
-    return render_to_response('bundy.html')
-
-def bundyOnOff(request, bundy_action, picker_id):
-    picker = get_object_or_404(Picker, pk = picker_id)
-    bundy_action = bundy_action.lower()
-    picker_list = Picker.objects.filter(active = True,
-                                        discharged = False).order_by('id')
-    picker_entry = Bundy.objects.filter(picker__id = picker_id,
+def bundy(request, picker_id = None):
+    bundy_action = 'default_page'
+    if picker_id == None: # display the keypad
+        return render_to_response('bundy.html', {
+            'bundy_action': bundy_action,
+        })
+    else: # signing in/off
+        picker = get_object_or_404(Picker, pk = picker_id)
+        flag = Bundy.objects.filter(picker = picker,
+                                    timeOut__isnull = True).count()
+        bundy_action = 'signoff' if flag else 'signin'
+        if bundy_action == 'signin':
+            if 'confirmed' in request.GET: # create a Bundy
+                session = Bundy(picker = picker,
+                                timeIn = datetime.datetime.now())
+                session.save()
+                return redirect(bundy)
+        else: # signoff
+            session = Bundy.objects.get(picker = picker_id,
                                         timeOut__isnull = True)
-    if bundy_action == "signon":
-        session = Bundy(picker = picker, timeIn = datetime.datetime.now())
-        session.save()
+            if ('lunch' in request.GET and
+                len(request.GET['lunch']) > 1):
+                hadLunch = (str(request.GET['lunch']) == "True")
+                session.timeOut = datetime.datetime.now()
+                session.hadLunch = hadLunch
+                session.save()
+                return redirect(bundy)
+        # display the confirmation request or lunch prompt
         return render_to_response('bundy.html', {
-            'picker_list':       picker_list,
-            'signon_flag':       False,
-            'show_confirmation': False,
+            'picker':       picker,
+            'bundy_action': bundy_action,
         })
-    elif bundy_action == "signoff":
-        session = Bundy.objects.get(picker = picker_id,
-                                    timeOut__isnull = True)
-        try: 
-            if 'lunch' in request.GET and len(request.GET['lunch']) > 1:
-                hadLunch_ = (str(request.GET['lunch']) == "True")
-            else:
-                raise NameError("Lunch parameter in HTTP request not found.")
-        except Exception as e:
-            return render_to_response('bundy.html', {
-                'error_message' : e,
-            })
-        session.timeOut = datetime.datetime.now()
-        session.hadLunch = hadLunch_
-        session.save()
-        return render_to_response('bundy.html', {
-            'picker_list':picker_list,
-            'signon_flag':False,
-            'show_confirmation': False,
-        })
-    else: # display the confirmation
-        if(len(picker_entry) == 0): # picker is trying to sign on
-            return render_to_response('bundy.html', {
-                'picker_list':       picker_list,
-                'picker':            picker,
-                'signon_flag':       True,
-                'show_confirmation': True,
-            })
-        else: # just display the numpad
-            return render_to_response('bundy.html', {
-                'picker_list':       picker_list,
-                'picker':            picker,
-                'signon_flag':       False,
-                'show_confirmation': True,
-            })
 
 ##### CSV export handling #####
 def write_list_to_file(filename, export_list):

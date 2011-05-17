@@ -8,7 +8,7 @@
         function submitForm() {
             var selected_value = document.getElementById('picker_id').value;
             $('#bundy_picker_form').attr('action',
-                '{%url gleba.glebaAdmin.views.bundy%}confirm/'+selected_value+'/');
+                '{%url gleba.glebaAdmin.views.bundy%}'+selected_value+'/');
             $('#bundy_picker_form').submit();
         }
 
@@ -25,21 +25,7 @@
 {%endblock%}
 
 {%block content%}
-  {%if show_confirmation%}
-    <h3>Welcome, {{picker.firstName}}!<h3/><br/>
-    {%if signon_flag%}
-    <form name="bundy_confirmation" action="{%url gleba.glebaAdmin.views.bundy%}signon/{{picker.id}}/" method="get">
-      <input type="submit" value="Sign on" />
-    </form>
-    {%else%}
-    <form action="{%url gleba.glebaAdmin.views.bundy%}signoff/{{picker.id}}" method="get">
-      <input type="radio" name="lunch" value="True" checked>Sign Off WITH Lunch Break</input>
-      <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input>
-      <input type="Submit" value="Sign Off">
-    </form>
-    {%endif%}
-  {%else%}
-    <h3>Picker ID:</h3>
+  {%ifequal bundy_action "default_page"%}
     <table id="keypad">
       <tr>
         <td onClick="appendNumber(1)">1</td>
@@ -65,11 +51,19 @@
       <input id="picker_id" type="text" readonly="readonly"/> 
       <input type="submit" onClick="submitForm()" value="Submit"/>
     </form>
-  {%endif%}
-
-{{error_message}}
-<div id="debug_div">
-{{debug}}
-</div>
-
+  {%endifequal%}
+  {%ifequal bundy_action "signin"%}
+    <h3>Welcome, {{picker.firstName}}!</h3>
+    <form name="bundy_confirmation" action="{%url gleba.glebaAdmin.views.bundy%}{{picker.id}}" method="get">
+      <input type="submit" value="Sign in"/>
+      <input type="checkbox" name="confirmed" checked="true" hidden="true"/>
+    </form>
+  {%endifequal%}
+  {%ifequal bundy_action "signoff"%}
+    <form action="{%url gleba.glebaAdmin.views.bundy%}{{picker.id}}" method="get">
+      <input type="radio" name="lunch" value="True" checked="true">Sign Off WITH Lunch Break</input>
+      <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input>
+      <input type="Submit" value="Sign Off">
+    </form>
+  {%endifequal%}
 {%endblock%}
