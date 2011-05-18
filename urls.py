@@ -4,35 +4,34 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
-    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
-    # to INSTALLED_APPS to enable admin documentation:
-    (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    (r'^addBox/$', 'gleba.glebaAdmin.views.addBox'),
-    (r'^pickerList/$', 'gleba.glebaAdmin.views.getPickerList'),
-    (r'^pickerList.xml$', 'gleba.glebaAdmin.views.getPickerListXML'),
-    (r'^batchList/$', 'gleba.glebaAdmin.views.getBatchList'),
-    (r'^batchList.xml$', 'gleba.glebaAdmin.views.getBatchListXML'),
-    (r'^varietyList/$', 'gleba.glebaAdmin.views.getVarietyList'),
-    (r'^varietyList.xml$', 'gleba.glebaAdmin.views.getVarietyListXML'),
+urlpatterns = patterns('gleba.glebaAdmin.views',
+    # DB related
+    (r'^addBox/$', 'addBox'),
+    (r'^pickerList/$', 'getPickerList'),
+    (r'^pickerList.xml$', 'getPickerListXML'),
+    (r'^batchList/$', 'getBatchList'),
+    (r'^batchList.xml$', 'getBatchListXML'),
+    (r'^varietyList/$', 'getVarietyList'),
+    (r'^varietyList.xml$', 'getVarietyListXML'),
     
     # Reports
-    (r'^report/$', 'gleba.glebaAdmin.views.generateReport'),
-    (r'^report/picker/(\d+)/$', 'gleba.glebaAdmin.views.generate_report_picker'),
-    (r'^report/picker/$', 'gleba.glebaAdmin.views.generate_report_all_picker'),
-    (r'^report/flush/(\d+)/$', 'gleba.glebaAdmin.views.generate_report_flush'),
-    (r'^report/crop/(\d+)/$', 'gleba.glebaAdmin.views.generate_report_crop'),
-    (r'^report/room/(\d+)/$', 'gleba.glebaAdmin.views.generate_report_room'),
+    (r'^report/$', 'generateReport'),
+    (r'^report/picker/(\d+)/$', 'generate_report_picker'),
+    (r'^report/picker/$', 'generate_report_all_picker'),
+    (r'^report/flush/(\d+)/$', 'generate_report_flush'),
+    (r'^report/crop/(\d+)/$', 'generate_report_crop'),
+    (r'^report/room/(\d+)/$', 'generate_report_room'),
 
     # Bundies
-    (r'^bundy/(\d+)/$', 'gleba.glebaAdmin.views.bundy'),
-    (r'^bundy/$', 'gleba.glebaAdmin.views.bundy'),
-    (r'^csv/$', 'gleba.glebaAdmin.views.generate_csv_range'),
+    (r'^bundy/(\d+)/$', 'bundy'),
+    (r'^bundy/$', 'bundy'),
 
-    # Logins
+    # csv
+    (r'^csv/$', 'generate_csv_range'),
+)
+
+urlpatterns += patterns('',
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
-
-    # Uncomment the next line to enable the admin:
     (r'^admin/', include(admin.site.urls)),
-    (r'', include(admin.site.urls)),
+    (r'^$', include(admin.site.urls)),
 )
