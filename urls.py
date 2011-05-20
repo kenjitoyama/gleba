@@ -15,7 +15,7 @@ urlpatterns = patterns('gleba.glebaAdmin.views',
     (r'^varietyList.xml$', 'getVarietyListXML'),
     
     # Reports
-    (r'^report/$', 'generateReport'),
+    (r'^report/$', 'generate_report'),
     (r'^report/picker/(\d+)/$', 'generate_report_picker'),
     (r'^report/picker/$', 'generate_report_all_picker'),
     (r'^report/flush/(\d+)/$', 'generate_report_flush'),
