@@ -56,7 +56,7 @@ def addBox(request):
                   batch = batch_obj,
         )
         box.save()
-        return render_to_response('index.html')
+        return render_to_response('success.html')
     else:
         error_list = ['Not enough parameters']
         return render_to_response('error.html', {'error_list' : error_list})
