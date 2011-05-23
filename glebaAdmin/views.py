@@ -166,24 +166,6 @@ def getDateFromRequest(request):
     return ((start_date, end_date) if start_date < end_date
                                   else (end_date, start_date))
     
-#=== Reporting on pickers with a sortable table ===
-# NOTE working on this
-"""class PickingRateTable(tables.ModelTable):  
-    "
-    http://blog.elsdoerfer.name/2008/07/09/django-tables-a-queryset-renderer/
-
-    Attempting to create a table for the pickers that is sortable by names
-    or rates.
-
-    This is work in progress.
-    "
-    cFirstName = tables.Column(name='First Name' data='firstName')  
-    cLastName = tables.Column(name='Last Name' data='Last Name')  
-    cTotalPicked = tables.Column(name='Total Picked')  
-    cTotalPickedPerTime = tables.Column(name='Total Picked per Hour')  
-    class Meta:  
-        model = Picker"""
-
 @login_required
 def generate_report_all_picker(request): 
     """ 
