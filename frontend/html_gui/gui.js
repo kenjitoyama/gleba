@@ -17,7 +17,10 @@ function get_picker_name(picker_id) {
     button = document.querySelector(query_string);
     if(button === null)
         return show_error('No picker with id ' + picker_id);
-    return button.dataset.name;
+    if(button.dataset) /* if browser supports dataset */
+        return button.dataset.name;
+    else
+        return button.getAttribute('data-name');
 }
 
 function get_variety_name(variety_id) {
@@ -25,10 +28,14 @@ function get_variety_name(variety_id) {
     button = document.querySelector(query_string);
     if(button === null)
         return show_error('No variety with id ' + variety_id);
-    return button.dataset.name;
+    if(button.dataset)
+        return button.dataset.name;
+    else
+        return button.getAttribute('data-name');
 }
 
 function batch_callback(select_box) {
+    document.getElementById('button_audio').play();
     selected_index = select_box.selectedIndex;
     selected_item = select_box[selected_index];
     if(selected_item.value === "-1")
@@ -38,11 +45,19 @@ function batch_callback(select_box) {
 }
 
 function variety_callback(button) {
-    current_variety = parseInt(button.dataset.id, 10);
+    document.getElementById('button_audio').play();
+    if(button.dataset) /* if browser supports dataset */
+        current_variety = parseInt(button.dataset.id, 10);
+    else
+        current_variety = parseInt(button.getAttribute('data-id'), 10);
 }
 
 function picker_callback(button) {
-    current_picker = parseInt(button.dataset.id, 10);
+    document.getElementById('button_audio').play();
+    if(button.dataset) /* if browser supports dataset */
+        current_picker = parseInt(button.dataset.id, 10);
+    else
+        current_picker = parseInt(button.getAttribute('data-id'), 10);
 }
 
 function add_box() {
@@ -69,14 +84,22 @@ function add_box() {
     batch_cell.appendChild(document.createTextNode(batch));
     variety_cell = new_row.insertCell(0);
     variety_cell.appendChild(document.createTextNode(get_variety_name(variety)));
-    variety_cell.dataset.id = variety;
+    if(variety_cell.dataset)
+        variety_cell.dataset.id = variety;
+    else
+        variety_cell.setAttribute('data-id', variety);
     final_weight_cell = new_row.insertCell(0);
     final_weight_cell.appendChild(document.createTextNode(final_weight));
     weight_cell = new_row.insertCell(0);
     weight_cell.appendChild(document.createTextNode(weight));
     picker_cell = new_row.insertCell(0);
     picker_cell.appendChild(document.createTextNode(get_picker_name(picker)));
-    picker_cell.dataset.id = picker;
+    if(picker_cell.dataset)
+        picker_cell.dataset.id = picker;
+    else
+        picker_cell.setAttribute('data-id', picker);
+    /* play sound */
+    document.getElementById('success_audio').play();
 }
 
 function edit_callback() {
