@@ -1,0 +1,53 @@
+#left_div {
+    float: left;
+    width: 30em;
+}
+
+#right_div {
+}
+
+#batch_div {
+    float: left;
+}
+
+#status_div {
+}
+
+#weight_div {
+    clear: both;
+    float: left;
+    padding: 1em 2em 1em 2em;
+    background-color: #0000ff;
+}
+
+#weight_div > span {
+    color: #ffffff;
+}
+
+#offset_div {
+    float: left;
+    padding: 1em 2em 1em 2em;
+    background-color: #ff0000;
+}
+
+#offset_div > span {
+    color: #ffffff;
+}
+
+#variety_div {
+    clear: both;
+    width: 30em;
+}
+
+#picker_div {
+    width: 30em;
+}
+
+#picker_div > input, #variety_div > input {
+    min-width: 8em;
+    min-height: 8em;
+}
+
+#history_table {
+    border: 1px dashed black;
+}
