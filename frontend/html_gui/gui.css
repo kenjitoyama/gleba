@@ -51,3 +51,8 @@
 #history_table {
     border: 1px dashed black;
 }
+
+#history_table tr[data-selected] {
+    background-color: #000000;
+    color: #ffffff;
+}

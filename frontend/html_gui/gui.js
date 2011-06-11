@@ -76,6 +76,7 @@ function add_box() {
     // add row to history_table
     var hist_table = document.getElementById('history_table');
     var new_row = hist_table.insertRow(-1); /* insert at the end */
+    new_row.setAttribute('onclick', 'toggle_selected(this)');
     /* add cells in the beginning in opposite order */
     var timestamp_cell = new_row.insertCell(0);
     timestamp_cell.appendChild(document.createTextNode(timestamp));
@@ -107,4 +108,15 @@ function edit_callback() {
 
 function commit_callback() {
     console.log('commit_callback() fired');
+}
+
+function toggle_selected(row) {
+    if(row.hasAttribute('data-selected')) /* removing selection */
+        row.removeAttribute('data-selected');
+    else { /* adding/changing selection */
+        old_row = document.querySelector('#history_table tr[data-selected]');
+        if(old_row != null) /* if there was a previously selected row */
+            old_row.removeAttribute('data-selected');
+        row.setAttribute('data-selected', 'true');
+    }
 }
