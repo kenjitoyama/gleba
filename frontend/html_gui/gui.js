@@ -126,16 +126,16 @@ function edit_callback() {
         /* change status text */
         change_status('Please make your changes and then press Apply');
         mark_history_rows(false);
+        /* mark all currents to be null */
+        current_picker = current_variety = current_batch = null;
     }
 }
 
-function cancel_edit() {
-    var edit_row = document.querySelector('#history_table tr.editable');
-    edit_row.classList.remove('editable');
+function restore_edit() {
+    /* insert back edit button */
     var right_div = document.getElementById('right_div');
     var cancel = document.getElementById('cancel_edit');
     var apply = document.getElementById('apply_edit');
-    /* insert back edit button */
     var edit_button = document.createElement('input');
     edit_button.setAttribute('id', 'edit_button');
     edit_button.setAttribute('type', 'button');
@@ -146,7 +146,29 @@ function cancel_edit() {
     right_div.removeChild(cancel);
     right_div.removeChild(apply);
     mark_history_rows(true);
+}
+
+function cancel_edit() {
+    var edit_row = document.querySelector('#history_table tr.editable');
+    edit_row.classList.remove('editable');
+    restore_edit();
     change_status('Edit cancelled');
+}
+
+function apply_edit() {
+    var row = document.querySelector('#history_table tr.editable');
+    row.classList.remove('editable');
+    if(current_picker != null)
+        row.cells[0].firstChild.nodeValue = get_picker_name(current_picker);
+    /* Note: We do not change the weights */
+    if(current_variety != null)
+        row.cells[3].firstChild.nodeValue = get_variety_name(current_variety);
+    if(current_batch != null)
+        row.cells[4].firstChild.nodeValue = current_batch;
+    /* assign new timestamp */
+    row.cells[5].firstChild.nodeValue = '2011-05-05 12:13:14';
+    restore_edit();
+    change_status('Changes successfully applied');
 }
 
 function mark_history_rows(selectable) {
