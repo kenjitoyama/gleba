@@ -60,7 +60,7 @@ function picker_callback(button) {
 }
 
 function add_box() {
-    // get data from the context
+    /* get data from the context */
     if(current_batch === null)
         return show_error('No batch selected. Please select a batch.');
     else if(current_picker === null)
@@ -73,7 +73,7 @@ function add_box() {
     var variety = current_variety;
     var batch = current_batch;
     var timestamp = '2011-05-20 19:31:30';
-    // add row to history_table
+    /* add row to history_table */
     var hist_table = document.getElementById('history_table');
     var new_row = hist_table.insertRow(-1); /* insert at the end */
     new_row.setAttribute('onclick', 'toggle_selected(this)');
@@ -103,7 +103,60 @@ function add_box() {
 }
 
 function edit_callback() {
-    console.log('edit_callback() fired');
+    var selec_row = document.querySelector('#history_table tr.selected');
+    if(selec_row != null) {
+        selec_row.classList.remove('selected'); /* remove selection */
+        selec_row.classList.add('editable'); /* mark as editable */
+        /* create Cancel/OK buttons */
+        var cancel = document.createElement('input');
+        var apply = document.createElement('input');
+        cancel.setAttribute('id', 'cancel_edit');
+        cancel.setAttribute('type', 'button');
+        cancel.setAttribute('value', 'Cancel');
+        cancel.setAttribute('onclick', 'cancel_edit()');
+        apply.setAttribute('id', 'apply_edit');
+        apply.setAttribute('type', 'button');
+        apply.setAttribute('value', 'Apply');
+        apply.setAttribute('onclick', 'apply_edit()');
+        var par_div = document.getElementById('right_div');
+        var edit_button = document.getElementById('edit_button');
+        cancel = par_div.insertBefore(cancel, edit_button);
+        apply = par_div.insertBefore(apply, edit_button);
+        par_div.removeChild(edit_button);
+        /* change status text */
+        change_status('Please make your changes and then press Apply');
+        mark_history_rows(false);
+    }
+}
+
+function cancel_edit() {
+    var edit_row = document.querySelector('#history_table tr.editable');
+    edit_row.classList.remove('editable');
+    var right_div = document.getElementById('right_div');
+    var cancel = document.getElementById('cancel_edit');
+    var apply = document.getElementById('apply_edit');
+    /* insert back edit button */
+    var edit_button = document.createElement('input');
+    edit_button.setAttribute('id', 'edit_button');
+    edit_button.setAttribute('type', 'button');
+    edit_button.setAttribute('value', 'Edit');
+    edit_button.setAttribute('onclick', 'edit_callback()');
+    edit_button = right_div.insertBefore(edit_button, cancel);
+    /* remove cancel/apply */
+    right_div.removeChild(cancel);
+    right_div.removeChild(apply);
+    mark_history_rows(true);
+    change_status('Edit cancelled');
+}
+
+function mark_history_rows(selectable) {
+    var table = document.getElementById('history_table');
+    if(selectable) /* restore selection in all entries */
+        for(var i = 0; i < table.rows.length; i++)
+            table.rows[i].setAttribute('onclick', 'toggle_selected(this)');
+    else /* disallow selection in all entries when editing */
+        for(var i = 0; i < table.rows.length; i++)
+            table.rows[i].removeAttribute('onclick');
 }
 
 function commit_callback() {
@@ -111,12 +164,12 @@ function commit_callback() {
 }
 
 function toggle_selected(row) {
-    if(row.hasAttribute('data-selected')) /* removing selection */
-        row.removeAttribute('data-selected');
+    if(row.classList.contains('selected')) /* removing selection */
+        row.classList.remove('selected');
     else { /* adding/changing selection */
-        old_row = document.querySelector('#history_table tr[data-selected]');
+        var old_row = document.querySelector('#history_table tr.selected');
         if(old_row != null) /* if there was a previously selected row */
-            old_row.removeAttribute('data-selected');
-        row.setAttribute('data-selected', 'true');
+            old_row.classList.remove('selected');
+        row.classList.add('selected');
     }
 }
