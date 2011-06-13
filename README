@@ -3,7 +3,10 @@ Gleba is an open source automated weighing system.
 Gleba was originally written by Simon Dawson, Meryl Baquiran, Chris Ellis
 and Daniel Kenji Toyama for Barrett's Mushrooms.
 
-Dependencies:
+============
+Dependencies
+============
+
 Python 2.7 (http://www.python.org/)
 Django 1.3+ (http://www.djangoproject.com/)
 Gnuplot.py 1.8+ (http://gnuplot-py.sourceforge.net/)
@@ -14,9 +17,24 @@ PyGObject with GTK+ 2.22+ in the GI repository (http://http://live.gnome.org/PyG
 The testing suite is written only for POSIX (because of its dependency
 on socat), but there are plans to support it in Windows too.
 
-TODO:
+============
+Installation
+============
 
-There's a bunch of things to do at the moment, I'm in the process of
-cleaning up the code. Patches are welcome though.
+For the backend:
 
-Kenji
+1) Clone the git repository ('git clone git://github.com/kenjitoyama/gleba.git') into some directory (the default will be simply 'gleba').
+2) Create a copy of settings (e.g. 'cp settings-local.py settings-mysettings.py') and adjust to your own folder structure and/or deployment settings.
+3) Run './manage.py syncdb --settings=settings-mysettings' to create your own database.
+4) Make a symlink to the Django admin files from the glebaAdmin media folder. My Django distribution in Arch Linux is on /usr/lib/python2.7/site-packages/django/contrib/admin/media/, but yours might be in another location. The command to be run is something like:
+    4a) 'cd glebaAdmin/static/media/'
+    4b) 'ln -s /usr/lib/python2.7/site-packages/django/contrib/admin/media/ admin'
+5) run the server: './manage.py runserver --settings=settings-mysettings'
+
+For the frontend you would ideally use a physical scale, but I've created a small simulation app to write to a serial port which you can then read.
+
+1) Run the scale app: './scale.py'
+2) Adjust frontend/config.py to use the serial port given by the scale.py (it'll probably be /dev/pts/3 or some other number if running on a Linux machine). You also need to change the server address, the default is localhost and will work if you run the backend with 'runserver'.
+3) Run the frontend GUI: './gui-gtk3.py'.
+
+If you've got Python3 as the default Python interpreter you might need to manually replace all the './pythonapp.py' commands with 'python2.7 pythonapp.py'.
