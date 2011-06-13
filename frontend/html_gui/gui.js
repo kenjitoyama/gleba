@@ -1,6 +1,7 @@
 var current_batch = null;
 var current_variety = null;
 var current_picker = null;
+var current_weight = null;
 
 function change_status(text) {
     var status_span = document.querySelector('#status_div > span');
@@ -183,6 +184,55 @@ function mark_history_rows(selectable) {
 
 function commit_callback() {
     console.log('commit_callback() fired');
+}
+
+function update_weight_offset_labels() {
+    var mushroom_ideal = 4; /* change this to mushroom's real ideal */
+    var mushroom_tolerance = 0.050; /* change this to mushroom's real tolerance */
+    var weight_div = document.getElementById('weight_div');
+    var offset_div = document.getElementById('offset_div');
+    var weight_text = weight_div.childNodes[1].firstChild;
+    var offset_text = offset_div.childNodes[1].firstChild;
+    /* update the text */
+    weight_text.nodeValue = current_weight.toFixed(5);
+    offset_text.nodeValue = (current_weight-mushroom_ideal).toFixed(5);
+    /* update the background */
+    if(current_weight < mushroom_ideal) { /* underweight */
+        weight_div.classList.add('underweight');
+        weight_div.classList.remove('within_range');
+        weight_div.classList.remove('overweight');
+        offset_div.classList.add('underweight');
+        offset_div.classList.remove('within_range');
+        offset_div.classList.remove('overweight');
+    } else if (current_weight < mushroom_ideal + mushroom_tolerance) { /*good*/
+        weight_div.classList.remove('underweight');
+        weight_div.classList.add('within_range');
+        weight_div.classList.remove('overweight');
+        offset_div.classList.remove('underweight');
+        offset_div.classList.add('within_range');
+        offset_div.classList.remove('overweight');
+    } else { /* overweight */
+        weight_div.classList.remove('underweight');
+        weight_div.classList.remove('within_range');
+        weight_div.classList.add('overweight');
+        offset_div.classList.remove('underweight');
+        offset_div.classList.remove('within_range');
+        offset_div.classList.add('overweight');
+    }
+
+}
+
+function get_weight_forever() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            current_weight = parseFloat(xhr.responseText, 10);
+            update_weight_offset_labels();
+        }
+    };
+    xhr.open('GET', 'weight', true);
+    xhr.send(null);
+    setTimeout('get_weight_forever()', 1000);
 }
 
 function toggle_selected(row) {
