@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, sep
+import sys
+sys.path.append('..')
+from utils import ThreadSerial
 
 HOSTNAME = 'localhost'
 PORT_NUMBER = 45322 # 'gleba' in numpad letters
@@ -8,15 +11,20 @@ PORT_NUMBER = 45322 # 'gleba' in numpad letters
 weight = 3.950; # just a placeholder for the real weight coming from the scale
 
 class GUIHandler(BaseHTTPRequestHandler):
+    serial_thread = ThreadSerial()
+    serial_thread.daemon = True
+    serial_thread.start()
+
+    def close_serial():
+        self.serial_thread.kill()
     def do_GET(self):
         if(self.path == '/weight'):
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
-            global weight # dummy
-            weight+=0.001 # dummy
-            print(weight)
-            self.wfile.write(str(weight))
+            self.wfile.write(str(self.serial_thread.get_weight()))
+            self.end_headers()
+            return
         elif(self.path == '/gui.html'):
             req_file = open(curdir + sep + self.path)
             self.send_response(200)

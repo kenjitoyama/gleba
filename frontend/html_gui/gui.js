@@ -69,8 +69,8 @@ function add_box() {
     else if(current_variety === null)
         return show_error('No variety selected. Please select a variety.');
     var picker = current_picker;
-    var weight = 4.045;
-    var final_weight = 4.025;
+    var weight = current_weight;
+    var final_weight = current_weight; /* FIXME: adjust this later */
     var variety = current_variety;
     var batch = current_batch;
     var timestamp = '2011-05-20 19:31:30';
@@ -232,7 +232,7 @@ function get_weight_forever() {
     };
     xhr.open('GET', 'weight', true);
     xhr.send(null);
-    setTimeout('get_weight_forever()', 1000);
+    setTimeout('get_weight_forever()', 100); /* every 100 ms */
 }
 
 function toggle_selected(row) {
