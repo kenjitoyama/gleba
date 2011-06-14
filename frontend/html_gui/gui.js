@@ -19,9 +19,9 @@ function get_picker_name(picker_id) {
     if(button === null)
         return show_error('No picker with id ' + picker_id);
     if(button.dataset) /* if browser supports dataset */
-        return button.dataset.name;
+        return button.dataset.fname;
     else
-        return button.getAttribute('data-name');
+        return button.getAttribute('data-fname');
 }
 
 function get_variety_name(variety_id) {
@@ -244,4 +244,113 @@ function toggle_selected(row) {
             old_row.classList.remove('selected');
         row.classList.add('selected');
     }
+}
+
+function add_batches(batch_list) {
+    var batch_select = document.getElementById('batch_div').childNodes[1];
+    var list = eval(batch_list);
+    for(var i in list) {
+        var batch_number = list[i][0];
+        var batch_date = list[i][1];
+        var batch_room = list[i][2];
+        var new_option = document.createElement('option');
+        new_option.classList.add('batch');
+        new_option.setAttribute('value', batch_number);
+        if(new_option.dataset) {
+            new_option.dataset.date = batch_date;
+            new_option.dataset.room = batch_room;
+        } else {
+            new_option.setAttribute('data-date', batch_date);
+            new_option.setAttribute('data-room', batch_room);
+        }
+        var batch_text = 'Batch '+batch_number+' '+batch_date+' room '+batch_room;
+        new_option.appendChild(document.createTextNode(batch_text));
+        batch_select.add(new_option, null);
+    }
+}
+
+function add_varieties(variety_list) {
+    var variety_div = document.getElementById('variety_div');
+    var list = eval(variety_list);
+    for(var i in list) {
+        var variety_id = list[i][0];
+        var variety_name = list[i][1];
+        var variety_idealweight = list[i][2];
+        var variety_tolerance = list[i][3];
+        var new_option = document.createElement('input');
+        new_option.setAttribute('type', 'button');
+        new_option.setAttribute('onclick', 'variety_callback(this)');
+        new_option.classList.add('variety');
+        if(new_option.dataset) {
+            new_option.dataset.id = variety_id;
+            new_option.dataset.name = variety_name;
+            new_option.dataset.idealweight = variety_idealweight;
+            new_option.dataset.tolerance = variety_tolerance;
+        } else {
+            new_option.setAttribute('data-id', variety_id);
+            new_option.setAttribute('data-name', variety_name);
+            new_option.setAttribute('data-idealweight', variety_idealweight);
+            new_option.setAttribute('data-tolerance', variety_tolerance);
+        }
+        new_option.setAttribute('value', variety_name);
+        variety_div.appendChild(new_option);
+    }
+}
+
+function add_pickers(picker_list) {
+    var picker_div = document.getElementById('picker_div');
+    var list = eval(picker_list);
+    for(var i in list) {
+        var picker_id = list[i][0];
+        var picker_fname = list[i][1];
+        var picker_lname = list[i][2];
+        var new_option = document.createElement('input');
+        new_option.setAttribute('type', 'button');
+        new_option.setAttribute('onclick', 'picker_callback(this)');
+        new_option.classList.add('picker');
+        if(new_option.dataset) {
+            new_option.dataset.id = picker_id;
+            new_option.dataset.fname = picker_fname;
+            new_option.dataset.lname = picker_lname;
+        } else {
+            new_option.setAttribute('data-id', picker_id);
+            new_option.setAttribute('data-fname', picker_fname);
+            new_option.setAttribute('data-lname', picker_lname);
+        }
+        new_option.setAttribute('value', picker_id + '. ' + picker_fname);
+        picker_div.appendChild(new_option);
+    }
+}
+
+function get_active_batches() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            add_batches(xhr.responseText);
+        }
+    };
+    xhr.open('GET', 'active_batches', true);
+    xhr.send(null);
+}
+
+function get_active_varieties() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            add_varieties(xhr.responseText);
+        }
+    };
+    xhr.open('GET', 'active_varieties', true);
+    xhr.send(null);
+}
+
+function get_active_pickers() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            add_pickers(xhr.responseText);
+        }
+    };
+    xhr.open('GET', 'active_pickers', true);
+    xhr.send(null);
 }

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, sep
+from json import dumps
 import sys
 sys.path.append('..')
-from utils import ThreadSerial
+from utils import ThreadSerial, DBAPI
 
 HOSTNAME = 'localhost'
 PORT_NUMBER = 45322 # 'gleba' in numpad letters
@@ -14,6 +15,7 @@ class GUIHandler(BaseHTTPRequestHandler):
     serial_thread = ThreadSerial()
     serial_thread.daemon = True
     serial_thread.start()
+    db_connection = DBAPI()
 
     def close_serial():
         self.serial_thread.kill()
@@ -23,7 +25,24 @@ class GUIHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
             self.wfile.write(str(self.serial_thread.get_weight()))
+            return
+        elif(self.path == '/active_batches'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
             self.end_headers()
+            self.wfile.write(dumps(self.db_connection.get_active_batches()))
+            return
+        elif(self.path == '/active_varieties'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(dumps(self.db_connection.get_active_varieties()))
+            return
+        elif(self.path == '/active_pickers'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(dumps(self.db_connection.get_active_pickers()))
             return
         elif(self.path == '/gui.html'):
             req_file = open(curdir + sep + self.path)
