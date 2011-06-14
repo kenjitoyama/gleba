@@ -354,3 +354,12 @@ function get_active_pickers() {
     xhr.open('GET', 'active_pickers', true);
     xhr.send(null);
 }
+
+function init_data() {
+    get_active_batches();
+    get_active_varieties();
+    get_active_pickers();
+    get_weight_forever();
+}
+
+window.onload = init_data;
