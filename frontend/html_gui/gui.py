@@ -6,10 +6,8 @@ import sys
 sys.path.append('..')
 from utils import ThreadSerial, DBAPI
 
-HOSTNAME = 'localhost'
+HOSTNAME = '0.0.0.0'
 PORT_NUMBER = 45322 # 'gleba' in numpad letters
-
-weight = 3.950; # just a placeholder for the real weight coming from the scale
 
 class GUIHandler(BaseHTTPRequestHandler):
     serial_thread = ThreadSerial()
@@ -73,7 +71,7 @@ class GUIHandler(BaseHTTPRequestHandler):
 
 if __name__=='__main__':
     try:
-        http_server = HTTPServer(('', PORT_NUMBER), GUIHandler)
+        http_server = HTTPServer((HOSTNAME, PORT_NUMBER), GUIHandler)
         print('GUI server started. Open http://{}:{}/ in your browser'.
               format(HOSTNAME, PORT_NUMBER))
         http_server.serve_forever()
