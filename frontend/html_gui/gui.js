@@ -199,15 +199,50 @@ function apply_edit() {
 function mark_history_rows(selectable) {
     var table = document.getElementById('history_table');
     if(selectable) /* restore selection in all entries */
-        for(var i = 0; i < table.rows.length; i++)
+        for(var i = 1; i < table.rows.length; i++)
             table.rows[i].setAttribute('onclick', 'toggle_selected(this)');
     else /* disallow selection in all entries when editing */
-        for(var i = 0; i < table.rows.length; i++)
+        for(var i = 1; i < table.rows.length; i++)
             table.rows[i].removeAttribute('onclick');
 }
 
 function commit_callback() {
-    console.log('commit_callback() fired');
+    var hist_table = document.getElementById('history_table');
+    if(hist_table.rows.length < 2) /* remember rows also includes th */
+        return show_error('Nothing to commit');
+    while(hist_table.rows.length > 1) { /* always process the first row */
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if(xhr.readyState == 4 && xhr.status == 200) {
+                if(xhr.responseText != 'true')
+                    show_error(xhr.responseText);
+            }
+        };
+        /* get data from each row */
+        if(hist_table.rows[1].childNodes[0].dataset) {
+            var picker_id = hist_table.rows[1].childNodes[0].getAttribute('data-id');
+            var variety_id = hist_table.rows[1].childNodes[3].getAttribute('data-id');
+        } else {
+            var picker_id = hist_table.rows[1].childNodes[0].dataset.id;
+            var variety_id = hist_table.rows[1].childNodes[3].dataset.id;
+        }
+        var initial_weight = hist_table.rows[1].childNodes[1].firstChild.nodeValue;
+        var final_weight = hist_table.rows[1].childNodes[2].firstChild.nodeValue;
+        var batch_id = hist_table.rows[1].childNodes[4].firstChild.nodeValue;
+        var timestamp = hist_table.rows[1].childNodes[5].firstChild.nodeValue;
+        /* compile data into POST parameters */
+        var params = 'picker_id=' + picker_id +
+                     '&initial_weight=' + initial_weight +
+                     '&final_weight=' + final_weight +
+                     '&variety_id=' + variety_id +
+                     '&batch_id=' + batch_id +
+                     '&timestamp=' + timestamp;
+        xhr.open('POST', 'add_box', true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhr.send(params);
+        /* remove this row */
+        hist_table.deleteRow(1);
+    }
 }
 
 function update_weight_offset_labels() {

@@ -2,6 +2,7 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, sep
 from json import dumps
+from cgi import parse_qs
 import sys
 sys.path.append('..')
 from utils import ThreadSerial, DBAPI
@@ -67,7 +68,21 @@ class GUIHandler(BaseHTTPRequestHandler):
         self.wfile.write(req_file.read())
         req_file.close()
     def do_POST(self):
-        print(self)
+        if(self.path == '/add_box'):
+            length = int(self.headers.getheader('content-length'))
+            post_vars = parse_qs(self.rfile.read(length), keep_blank_values = 1)
+            picker_id = post_vars['picker_id'][0]
+            initial_weight = post_vars['initial_weight'][0]
+            final_weight = post_vars['final_weight'][0]
+            variety_id = post_vars['variety_id'][0]
+            batch_id = post_vars['batch_id'][0]
+            timestamp = post_vars['timestamp'][0]
+            response = self.db_connection.add_box(picker_id, batch_id, variety_id,
+                                       initial_weight, final_weight, timestamp)
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write('true')
 
 if __name__=='__main__':
     try:
