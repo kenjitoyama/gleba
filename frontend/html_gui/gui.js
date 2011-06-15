@@ -31,7 +31,7 @@ function get_picker_name(picker_id) {
     var query_string = '#picker_div > input[data-id="' + picker_id + '"]';
     var button = document.querySelector(query_string);
     if(button === null)
-        return show_error('No picker with id ' + picker_id);
+        return '';
     if(button.dataset) /* if browser supports dataset */
         return button.dataset.fname;
     else
@@ -49,6 +49,15 @@ function get_variety_name(variety_id) {
         return button.getAttribute('data-name');
 }
 
+function update_current_info_div() {
+    var curr = document.getElementById('current_info_div');
+    var curr_text = curr.childNodes[1].firstChild;
+    curr_text.nodeValue = 'Current (batch, variety, picker): (' +
+                          current_batch + ', ' +
+                          get_variety_name(current_variety) + ', ' +
+                          get_picker_name(current_picker) + ')';
+}
+
 function batch_callback(select_box) {
     document.getElementById('button_audio').play();
     var selected_item = select_box[select_box.selectedIndex];
@@ -56,6 +65,7 @@ function batch_callback(select_box) {
         current_batch = null;
     else
         current_batch = parseInt(selected_item.value, 10);
+    update_current_info_div();
 }
 
 function variety_callback(button) {
@@ -64,6 +74,7 @@ function variety_callback(button) {
         current_variety = parseInt(button.dataset.id, 10);
     else
         current_variety = parseInt(button.getAttribute('data-id'), 10);
+    update_current_info_div();
 }
 
 function picker_callback(button) {
@@ -72,6 +83,7 @@ function picker_callback(button) {
         current_picker = parseInt(button.dataset.id, 10);
     else
         current_picker = parseInt(button.getAttribute('data-id'), 10);
+    update_current_info_div();
 }
 
 function add_box() {
