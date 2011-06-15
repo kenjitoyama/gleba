@@ -13,6 +13,20 @@ function show_error(error_msg) {
     return null;
 }
 
+/* Function 'inspired' by the MDC docs.
+ * Please see: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date */
+function format_date(date) {
+    function pad(n) {
+        return n < 10 ? '0' + n : n;
+    }
+    return date.getFullYear() + '-' +
+           pad(date.getMonth()) + '-' +
+           pad(date.getDate()) + ' ' +
+           pad(date.getHours()) + ':' +
+           pad(date.getMinutes()) + ':' +
+           pad(date.getSeconds());
+}
+
 function get_picker_name(picker_id) {
     var query_string = '#picker_div > input[data-id="' + picker_id + '"]';
     var button = document.querySelector(query_string);
@@ -73,7 +87,7 @@ function add_box() {
     var final_weight = current_weight; /* FIXME: adjust this later */
     var variety = current_variety;
     var batch = current_batch;
-    var timestamp = '2011-05-20 19:31:30';
+    var timestamp = format_date(new Date());
     /* add row to history_table */
     var hist_table = document.getElementById('history_table');
     var new_row = hist_table.insertRow(-1); /* insert at the end */
@@ -166,8 +180,6 @@ function apply_edit() {
         row.cells[3].firstChild.nodeValue = get_variety_name(current_variety);
     if(current_batch != null)
         row.cells[4].firstChild.nodeValue = current_batch;
-    /* assign new timestamp */
-    row.cells[5].firstChild.nodeValue = '2011-05-05 12:13:14';
     restore_edit();
     change_status('Changes successfully applied');
 }
