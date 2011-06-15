@@ -42,7 +42,7 @@ function get_variety_name(variety_id) {
     var query_string = '#variety_div > input[data-id="'+variety_id+'"]';
     var button = document.querySelector(query_string);
     if(button === null)
-        return show_error('No variety with id ' + variety_id);
+        return '';
     if(button.dataset)
         return button.dataset.name;
     else
@@ -211,24 +211,31 @@ function commit_callback() {
 }
 
 function update_weight_offset_labels() {
-    var mushroom_ideal = 4; /* change this to mushroom's real ideal */
-    var mushroom_tolerance = 0.050; /* change this to mushroom's real tolerance */
     var weight_div = document.getElementById('weight_div');
     var offset_div = document.getElementById('offset_div');
     var weight_text = weight_div.childNodes[1].firstChild;
     var offset_text = offset_div.childNodes[1].firstChild;
+    if(current_variety == null) {
+        weight_text.nodeValue = '0.0000';
+        offset_text.nodeValue = '0.0000';
+        return;
+    }
+    var query_string = '#variety_div > input[data-id="' + current_variety + '"]';
+    var curr_variety = document.querySelector(query_string)
+    var variety_ideal = parseFloat(curr_variety.getAttribute('data-idealweight'));
+    var variety_tolerance = parseFloat(curr_variety.getAttribute('data-tolerance'));
     /* update the text */
     weight_text.nodeValue = current_weight.toFixed(5);
-    offset_text.nodeValue = (current_weight-mushroom_ideal).toFixed(5);
+    offset_text.nodeValue = (current_weight-variety_ideal).toFixed(5);
     /* update the background */
-    if(current_weight < mushroom_ideal) { /* underweight */
+    if(current_weight < variety_ideal) { /* underweight */
         weight_div.classList.add('underweight');
         weight_div.classList.remove('within_range');
         weight_div.classList.remove('overweight');
         offset_div.classList.add('underweight');
         offset_div.classList.remove('within_range');
         offset_div.classList.remove('overweight');
-    } else if (current_weight < mushroom_ideal + mushroom_tolerance) { /*good*/
+    } else if (current_weight < variety_ideal + variety_tolerance) { /*good*/
         weight_div.classList.remove('underweight');
         weight_div.classList.add('within_range');
         weight_div.classList.remove('overweight');
