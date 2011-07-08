@@ -43,6 +43,10 @@ USE_I18N = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = (
+    os.path.join(BASE_PATH, 'site_media', 'static'),
+)
+
 # Main URL for the project
 BASE_URL = 'http://localhost:8000'
 
