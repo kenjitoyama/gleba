@@ -24,8 +24,8 @@
         {%if jqplot_data%}
         var graph_target = '{{report_type}}' + '_report_graph';
         var plot_data = {{jqplot_data|safe}};
-        plot_report_graph(graph_target, plot_data)
-        $('.total_value').html(calculate_total(plot_data));
+        Report.plot_report_graph(graph_target, plot_data)
+        $('.total_value').html(Report.calculate_total(plot_data));
         {%endif%}
     });
 </script>
@@ -159,7 +159,7 @@
       <input name="startDate" class="dateField" id="picker_start_date" type="text"/><br/>
       <label for="picker_end_date">End Date</label>
       <input name="endDate" class="dateField" id="picker_end_date" type="text"/><br/>
-      <input type="submit" onClick="submitForm('picker_')" value="Submit"/><br/>
+      <input type="submit" onClick="Report.submitForm('picker_')" value="Submit"/><br/>
     </form>
   </div>
   
@@ -170,7 +170,7 @@
       <input name="startDate" class="dateField" id="all_pickers_start_date" type="text"/><br/>
       <label for="all_pickers_end_date">End Date</label>
       <input name="endDate" class="dateField" id="all_pickers_end_date" type="text"/><br/>
-      <input type="submit" onClick="submitAllPickerForm()" value="Submit"/><br/>
+      <input type="submit" onClick="Report.submitAllPickerForm()" value="Submit"/><br/>
     </form>
   </div>
       
@@ -179,7 +179,7 @@
     <form name="flush_report_form" action="flush/" method="post" id="flush_report_form">
       <label for="flush_menu">Flush ID</label>
       <input type="text" name="flush" id="flush_menu"/><br/>
-      <input type="submit" onClick="submitForm('flush_')" value="Submit"/><br/>
+      <input type="submit" onClick="Report.submitForm('flush_')" value="Submit"/><br/>
     </form>
   </div>
 
@@ -188,7 +188,7 @@
     <form name="crop_report_form" action="crop/" method="post" id="crop_report_form">
       <label for="crop_menu">Crop ID</label>
       <input type="text" name="crop" id="crop_menu"/><br/>
-      <input type="submit" onClick="submitForm('crop_')" value="Submit"/>
+      <input type="submit" onClick="Report.submitForm('crop_')" value="Submit"/>
     </form>
   </div>
 
@@ -205,7 +205,7 @@
       <input name="startDate" class="dateField" id="room_start_date" type="text"/><br/>
       <label for="room_end_date">End Date</label>
       <input name="endDate" class="dateField" id="room_end_date" type="text"/><br/>
-      <input type="submit" onClick="submitForm('room_')" value="Submit"/>
+      <input type="submit" onClick="Report.submitForm('room_')" value="Submit"/>
     </form>
   </div>
   {%endifequal%}

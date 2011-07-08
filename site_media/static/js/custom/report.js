@@ -1,4 +1,6 @@
-function submitForm(report_type) {
+var Report = {};
+
+Report.submitForm = function(report_type) {
     var form = $('#'+report_type+'report_form');
     var form_url = form.attr('action');
     var selected_value = $('#'+report_type+'menu').val();
@@ -9,14 +11,14 @@ function submitForm(report_type) {
     form.submit();
 }
 
-function submitAllPickerForm() {
+Report.submitAllPickerForm = function() {
     var form = $("#all_picker_report_form")    
     form.append($("#startDate"));
     form.append($("#endDate"));
     form.submit();
 }
 
-function plot_report_graph(elem_id, data) {
+Report.plot_report_graph = function(elem_id, data) {
     $.jqplot.config.enablePlugins = true;
     $.jqplot(elem_id, [data], {
         axes: {
@@ -37,7 +39,7 @@ calculates the total in a jqplot_data given by the server.
 This functions returns the sum of all the second element in
 the internal lists of data.
 */
-function calculate_total(data) {
+Report.calculate_total = function(data) {
     var total = 0;
     for(i=0; i<data.length; i++)
         total += data[i][1];
