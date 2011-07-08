@@ -4,63 +4,46 @@
     <title>Bundy clock</title>
     <link rel="stylesheet" href="/static/css/bundy.css"/>
     <script src="/static/js/jquery.min.js"></script>
-    <script>
-        function submitForm() {
-            var selected_value = document.getElementById('picker_id').value;
-            $('#bundy_picker_form').attr('action',
-                '{%url gleba.apps.bundy.views.bundy%}'+selected_value+'/');
-            $('#bundy_picker_form').submit();
-        }
-
-        function appendNumber(x) {
-            var pickerIDInput = document.getElementById('picker_id');
-            pickerIDInput.value+=x;
-        }
-
-        function backspace() {
-            var pickerIDInput = document.getElementById('picker_id');
-            pickerIDInput.value=pickerIDInput.value.substring(0, pickerIDInput.value.length-1);
-        }
-    </script>
+    <script src="/static/js/custom/bundy.js"></script>
 {%endblock%}
 
 {%block content%}
   {%ifequal bundy_action "default_page"%}
     <table id="keypad">
       <tr>
-        <td onClick="appendNumber(1)">1</td>
-        <td onClick="appendNumber(2)">2</td>
-        <td onClick="appendNumber(3)">3</td>
+        <td onClick="Bundy.appendNumber(1)">1</td>
+        <td onClick="Bundy.appendNumber(2)">2</td>
+        <td onClick="Bundy.appendNumber(3)">3</td>
       </tr>
       <tr>
-        <td onClick="appendNumber(4)">4</td>
-        <td onClick="appendNumber(5)">5</td>
-        <td onClick="appendNumber(6)">6</td>
+        <td onClick="Bundy.appendNumber(4)">4</td>
+        <td onClick="Bundy.appendNumber(5)">5</td>
+        <td onClick="Bundy.appendNumber(6)">6</td>
       </tr>
       <tr>
-        <td onClick="appendNumber(7)">7</td>
-        <td onClick="appendNumber(8)">8</td>
-        <td onClick="appendNumber(9)">9</td>
+        <td onClick="Bundy.appendNumber(7)">7</td>
+        <td onClick="Bundy.appendNumber(8)">8</td>
+        <td onClick="Bundy.appendNumber(9)">9</td>
       </tr>
       <tr>
-        <td onClick="appendNumber(0)">0</td>
-        <td onClick="backspace()">&lt;-</td>
+        <td onClick="Bundy.appendNumber(0)">0</td>
+        <td onClick="Bundy.backspace()">&lt;-</td>
       </tr>
     </table>
     <form name="bundy_picker_form" method="post" id="bundy_picker_form">
       <input id="picker_id" type="text" readonly="readonly"/> 
-      <input type="submit" onClick="submitForm()" value="Submit"/>
+      <input type="submit" onClick="Bundy.submitForm('{%url gleba.apps.bundy.views.bundy%}')" value="Submit"/>
     </form>
   {%endifequal%}
   {%ifequal bundy_action "signin"%}
     <h3>Welcome, {{picker.firstName}}!</h3>
-    <form name="bundy_confirmation" action="{%url gleba.glebaAdmin.views.bundy%}{{picker.id}}" method="get">
+    <form name="bundy_confirmation" action="{%url gleba.apps.bundy.views.bundy%}{{picker.id}}" method="get">
       <input type="submit" value="Sign in"/>
       <input type="checkbox" name="confirmed" checked="true" hidden="true"/>
     </form>
   {%endifequal%}
   {%ifequal bundy_action "signoff"%}
-    <form action="{%url gleba.glebaAdmin.views.bundy%}{{picker.id}}" method="get">
+    <form action="{%url gleba.apps.bundy.views.bundy%}{{picker.id}}" method="get">
       <input type="radio" name="lunch" value="True" checked="true">Sign Off WITH Lunch Break</input>
       <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input>
       <input type="Submit" value="Sign Off">

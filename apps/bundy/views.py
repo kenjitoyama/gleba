@@ -4,6 +4,7 @@ from glebaAdmin.models import *
 
 ##### Bundy Clock handling #####
 def bundy(request, picker_id = None):
+    print(picker_id)
     bundy_action = 'default_page'
     if picker_id == None: # display the keypad
         return render_to_response('bundy.html', {
