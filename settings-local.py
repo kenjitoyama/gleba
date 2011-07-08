@@ -100,6 +100,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.staticfiles',
+    'glebaAdmin',
     'apps.report',
     'apps.bundy',
     'apps.weigh'
