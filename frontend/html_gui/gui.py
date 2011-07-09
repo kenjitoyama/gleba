@@ -87,7 +87,7 @@ class GUIHandler(BaseHTTPRequestHandler):
 if __name__=='__main__':
     try:
         http_server = HTTPServer((HOSTNAME, PORT_NUMBER), GUIHandler)
-        print('GUI server started. Open http://{}:{}/ in your browser'.
+        print('GUI server started. Open http://{}:{}/gui.html in your browser'.
               format(HOSTNAME, PORT_NUMBER))
         http_server.serve_forever()
     except KeyboardInterrupt:
