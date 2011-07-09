@@ -10,10 +10,13 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# Absolute path to the project directory
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '/home/kenji/django-projects/gleba/gleba.db', # Or path to database file if using sqlite3.
+        'NAME': os.path.join(BASE_PATH,'db','gleba.db'), # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -38,10 +41,7 @@ SITE_ID = 1
 # to load the internationalization machinery.
 USE_I18N = True
 
-STATIC_URL = '/site_media/static/'
-
-# Absolute path to the project directory
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+STATIC_URL = '/static/'
 
 # Main URL for the project
 BASE_URL = 'http://localhost:8000'
@@ -82,7 +82,9 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "/home/kenji/django-projects/gleba/templates/",
+    os.path.join(BASE_PATH,'templates','report'),
+    os.path.join(BASE_PATH,'templates','bundy'),
+    os.path.join(BASE_PATH,'templates','weigh')
 )
 
 INSTALLED_APPS = (
@@ -93,9 +95,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.staticfiles',
-
-    'gleba.report',
-    'gleba.bundy',
-    'gleba.weigh'
+    'apps.report',
+    'apps.bundy',
+    'apps.weigh'
 )
 
