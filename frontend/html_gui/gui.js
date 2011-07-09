@@ -1,21 +1,23 @@
-var current_batch = null;
-var current_variety = null;
-var current_picker = null;
-var current_weight = null;
+var WebGUI = {};
 
-function change_status(text) {
+WebGUI.current_batch = null;
+WebGUI.current_variety = null;
+WebGUI.current_picker = null;
+WebGUI.current_weight = null;
+
+WebGUI.change_status = function(text) {
     var status_span = document.querySelector('#status_div > span');
     status_span.innerHTML = text;
 }
 
-function show_error(error_msg) {
-    change_status(error_msg);
+WebGUI.show_error = function(error_msg) {
+    WebGUI.change_status(error_msg);
     return null;
 }
 
 /* Function 'inspired' by the MDC docs.
  * Please see: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date */
-function format_date(date) {
+WebGUI.format_date = function(date) {
     function pad(n) {
         return n < 10 ? '0' + n : n;
     }
@@ -27,7 +29,7 @@ function format_date(date) {
            pad(date.getSeconds());
 }
 
-function get_picker_name(picker_id) {
+WebGUI.get_picker_name = function(picker_id) {
     var query_string = '#picker_div > input[data-id="' + picker_id + '"]';
     var button = document.querySelector(query_string);
     if(button === null)
@@ -38,7 +40,7 @@ function get_picker_name(picker_id) {
         return button.getAttribute('data-fname');
 }
 
-function get_variety_name(variety_id) {
+WebGUI.get_variety_name = function(variety_id) {
     var query_string = '#variety_div > input[data-id="'+variety_id+'"]';
     var button = document.querySelector(query_string);
     if(button === null)
@@ -49,68 +51,68 @@ function get_variety_name(variety_id) {
         return button.getAttribute('data-name');
 }
 
-function update_current_info_div() {
+WebGUI.update_current_info_div = function() {
     var curr = document.getElementById('current_info_div');
     var curr_text = curr.childNodes[1].firstChild;
     curr_text.nodeValue = 'Current (batch, variety, picker): (' +
-                          current_batch + ', ' +
-                          get_variety_name(current_variety) + ', ' +
-                          get_picker_name(current_picker) + ')';
+                          WebGUI.current_batch + ', ' +
+                          WebGUI.get_variety_name(WebGUI.current_variety) + ', ' +
+                          WebGUI.get_picker_name(WebGUI.current_picker) + ')';
 }
 
-function batch_callback(select_box) {
+WebGUI.batch_callback = function(select_box) {
     document.getElementById('button_audio').play();
     var selected_item = select_box[select_box.selectedIndex];
     if(selected_item.value === "-1")
-        current_batch = null;
+        WebGUI.current_batch = null;
     else
-        current_batch = parseInt(selected_item.value, 10);
-    update_current_info_div();
+        WebGUI.current_batch = parseInt(selected_item.value, 10);
+    WebGUI.update_current_info_div();
 }
 
-function variety_callback(button) {
+WebGUI.variety_callback = function(button) {
     document.getElementById('button_audio').play();
     if(button.dataset) /* if browser supports dataset */
-        current_variety = parseInt(button.dataset.id, 10);
+        WebGUI.current_variety = parseInt(button.dataset.id, 10);
     else
-        current_variety = parseInt(button.getAttribute('data-id'), 10);
-    update_current_info_div();
+        WebGUI.current_variety = parseInt(button.getAttribute('data-id'), 10);
+    WebGUI.update_current_info_div();
 }
 
-function picker_callback(button) {
+WebGUI.picker_callback = function(button) {
     document.getElementById('button_audio').play();
     if(button.dataset) /* if browser supports dataset */
-        current_picker = parseInt(button.dataset.id, 10);
+        WebGUI.current_picker = parseInt(button.dataset.id, 10);
     else
-        current_picker = parseInt(button.getAttribute('data-id'), 10);
-    update_current_info_div();
+        WebGUI.current_picker = parseInt(button.getAttribute('data-id'), 10);
+    WebGUI.update_current_info_div();
 }
 
-function add_box() {
+WebGUI.add_box = function() {
     /* get data from the context */
-    if(current_batch === null)
-        return show_error('No batch selected. Please select a batch.');
-    else if(current_picker === null)
-        return show_error('No picker selected. Please select a picker.');
-    else if(current_variety === null)
-        return show_error('No variety selected. Please select a variety.');
-    var picker = current_picker;
-    var weight = current_weight;
-    var final_weight = current_weight; /* FIXME: adjust this later */
-    var variety = current_variety;
-    var batch = current_batch;
-    var timestamp = format_date(new Date());
+    if(WebGUI.current_batch === null)
+        return WebGUI.show_error('No batch selected. Please select a batch.');
+    else if(WebGUI.current_picker === null)
+        return WebGUI.show_error('No picker selected. Please select a picker.');
+    else if(WebGUI.current_variety === null)
+        return WebGUI.show_error('No variety selected. Please select a variety.');
+    var picker = WebGUI.current_picker;
+    var weight = WebGUI.current_weight;
+    var final_weight = WebGUI.current_weight; /* FIXME: adjust this later */
+    var variety = WebGUI.current_variety;
+    var batch = WebGUI.current_batch;
+    var timestamp = WebGUI.format_date(new Date());
     /* add row to history_table */
     var hist_table = document.getElementById('history_table');
     var new_row = hist_table.insertRow(-1); /* insert at the end */
-    new_row.setAttribute('onclick', 'toggle_selected(this)');
+    new_row.setAttribute('onclick', 'WebGUI.toggle_selected(this)');
     /* add cells in the beginning in opposite order */
     var timestamp_cell = new_row.insertCell(0);
     timestamp_cell.appendChild(document.createTextNode(timestamp));
     var batch_cell = new_row.insertCell(0);
     batch_cell.appendChild(document.createTextNode(batch));
     var variety_cell = new_row.insertCell(0);
-    variety_cell.appendChild(document.createTextNode(get_variety_name(variety)));
+    variety_cell.appendChild(document.createTextNode(WebGUI.get_variety_name(variety)));
     if(variety_cell.dataset)
         variety_cell.dataset.id = variety;
     else
@@ -120,7 +122,7 @@ function add_box() {
     var weight_cell = new_row.insertCell(0);
     weight_cell.appendChild(document.createTextNode(weight));
     var picker_cell = new_row.insertCell(0);
-    picker_cell.appendChild(document.createTextNode(get_picker_name(picker)));
+    picker_cell.appendChild(document.createTextNode(WebGUI.get_picker_name(picker)));
     if(picker_cell.dataset)
         picker_cell.dataset.id = picker;
     else
@@ -129,7 +131,7 @@ function add_box() {
     document.getElementById('success_audio').play();
 }
 
-function edit_callback() {
+WebGUI.edit_callback = function() {
     var selec_row = document.querySelector('#history_table tr.selected');
     if(selec_row != null) {
         selec_row.classList.remove('selected'); /* remove selection */
@@ -140,25 +142,25 @@ function edit_callback() {
         cancel.setAttribute('id', 'cancel_edit');
         cancel.setAttribute('type', 'button');
         cancel.setAttribute('value', 'Cancel');
-        cancel.setAttribute('onclick', 'cancel_edit()');
+        cancel.setAttribute('onclick', 'WebGUI.cancel_edit()');
         apply.setAttribute('id', 'apply_edit');
         apply.setAttribute('type', 'button');
         apply.setAttribute('value', 'Apply');
-        apply.setAttribute('onclick', 'apply_edit()');
+        apply.setAttribute('onclick', 'WebGUI.apply_edit()');
         var par_div = document.getElementById('right_div');
         var edit_button = document.getElementById('edit_button');
         cancel = par_div.insertBefore(cancel, edit_button);
         apply = par_div.insertBefore(apply, edit_button);
         par_div.removeChild(edit_button);
         /* change status text */
-        change_status('Please make your changes and then press Apply');
-        mark_history_rows(false);
+        WebGUI.change_status('Please make your changes and then press Apply');
+        WebGUI.mark_history_rows(false);
         /* mark all currents to be null */
-        current_picker = current_variety = current_batch = null;
+        WebGUI.current_picker = WebGUI.current_variety = WebGUI.current_batch = null;
     }
 }
 
-function restore_edit() {
+WebGUI.restore_edit = function() {
     /* insert back edit button */
     var right_div = document.getElementById('right_div');
     var cancel = document.getElementById('cancel_edit');
@@ -167,55 +169,55 @@ function restore_edit() {
     edit_button.setAttribute('id', 'edit_button');
     edit_button.setAttribute('type', 'button');
     edit_button.setAttribute('value', 'Edit');
-    edit_button.setAttribute('onclick', 'edit_callback()');
+    edit_button.setAttribute('onclick', 'WebGUI.edit_callback()');
     edit_button = right_div.insertBefore(edit_button, cancel);
     /* remove cancel/apply */
     right_div.removeChild(cancel);
     right_div.removeChild(apply);
-    mark_history_rows(true);
+    WebGUI.mark_history_rows(true);
 }
 
-function cancel_edit() {
+WebGUI.cancel_edit = function() {
     var edit_row = document.querySelector('#history_table tr.editable');
     edit_row.classList.remove('editable');
-    restore_edit();
-    change_status('Edit cancelled');
+    WebGUI.restore_edit();
+    WebGUI.change_status('Edit cancelled');
 }
 
-function apply_edit() {
+WebGUI.apply_edit = function() {
     var row = document.querySelector('#history_table tr.editable');
     row.classList.remove('editable');
-    if(current_picker != null)
-        row.cells[0].firstChild.nodeValue = get_picker_name(current_picker);
+    if(WebGUI.current_picker != null)
+        row.cells[0].firstChild.nodeValue = WebGUI.get_picker_name(WebGUI.current_picker);
     /* Note: We do not change the weights */
-    if(current_variety != null)
-        row.cells[3].firstChild.nodeValue = get_variety_name(current_variety);
-    if(current_batch != null)
-        row.cells[4].firstChild.nodeValue = current_batch;
-    restore_edit();
-    change_status('Changes successfully applied');
+    if(WebGUI.current_variety != null)
+        row.cells[3].firstChild.nodeValue = WebGUI.get_variety_name(WebGUI.current_variety);
+    if(WebGUI.current_batch != null)
+        row.cells[4].firstChild.nodeValue = WebGUI.current_batch;
+    WebGUI.restore_edit();
+    WebGUI.change_status('Changes successfully applied');
 }
 
-function mark_history_rows(selectable) {
+WebGUI.mark_history_rows = function(selectable) {
     var table = document.getElementById('history_table');
     if(selectable) /* restore selection in all entries */
         for(var i = 1; i < table.rows.length; i++)
-            table.rows[i].setAttribute('onclick', 'toggle_selected(this)');
+            table.rows[i].setAttribute('onclick', 'WebGUI.toggle_selected(this)');
     else /* disallow selection in all entries when editing */
         for(var i = 1; i < table.rows.length; i++)
             table.rows[i].removeAttribute('onclick');
 }
 
-function commit_callback() {
+WebGUI.commit_callback = function() {
     var hist_table = document.getElementById('history_table');
     if(hist_table.rows.length < 2) /* remember rows also includes th */
-        return show_error('Nothing to commit');
+        return WebGUI.show_error('Nothing to commit');
     while(hist_table.rows.length > 1) { /* always process the first row */
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
             if(xhr.readyState == 4 && xhr.status == 200) {
                 if(xhr.responseText != 'true')
-                    show_error(xhr.responseText);
+                    WebGUI.show_error(xhr.responseText);
             }
         };
         /* get data from each row */
@@ -245,32 +247,32 @@ function commit_callback() {
     }
 }
 
-function update_weight_offset_labels() {
+WebGUI.update_weight_offset_labels = function() {
     var weight_div = document.getElementById('weight_div');
     var offset_div = document.getElementById('offset_div');
     var weight_text = weight_div.childNodes[1].firstChild;
     var offset_text = offset_div.childNodes[1].firstChild;
-    if(current_variety == null) {
+    if(WebGUI.current_variety == null) {
         weight_text.nodeValue = '0.0000';
         offset_text.nodeValue = '0.0000';
         return;
     }
-    var query_string = '#variety_div > input[data-id="' + current_variety + '"]';
+    var query_string = '#variety_div > input[data-id="' + WebGUI.current_variety + '"]';
     var curr_variety = document.querySelector(query_string)
     var variety_ideal = parseFloat(curr_variety.getAttribute('data-idealweight'));
     var variety_tolerance = parseFloat(curr_variety.getAttribute('data-tolerance'));
     /* update the text */
-    weight_text.nodeValue = current_weight.toFixed(5);
-    offset_text.nodeValue = (current_weight-variety_ideal).toFixed(5);
+    weight_text.nodeValue = WebGUI.current_weight.toFixed(5);
+    offset_text.nodeValue = (WebGUI.current_weight-variety_ideal).toFixed(5);
     /* update the background */
-    if(current_weight < variety_ideal) { /* underweight */
+    if(WebGUI.current_weight < variety_ideal) { /* underweight */
         weight_div.classList.add('underweight');
         weight_div.classList.remove('within_range');
         weight_div.classList.remove('overweight');
         offset_div.classList.add('underweight');
         offset_div.classList.remove('within_range');
         offset_div.classList.remove('overweight');
-    } else if (current_weight < variety_ideal + variety_tolerance) { /*good*/
+    } else if (WebGUI.current_weight < variety_ideal + variety_tolerance) { /*good*/
         weight_div.classList.remove('underweight');
         weight_div.classList.add('within_range');
         weight_div.classList.remove('overweight');
@@ -288,20 +290,20 @@ function update_weight_offset_labels() {
 
 }
 
-function get_weight_forever() {
+WebGUI.get_weight_forever = function() {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if(xhr.readyState == 4 && xhr.status == 200) {
-            current_weight = parseFloat(xhr.responseText, 10);
-            update_weight_offset_labels();
+            WebGUI.current_weight = parseFloat(xhr.responseText, 10);
+            WebGUI.update_weight_offset_labels();
         }
     };
     xhr.open('GET', 'weight', true);
     xhr.send(null);
-    setTimeout('get_weight_forever()', 100); /* every 100 ms */
+    setTimeout('WebGUI.get_weight_forever()', 100); /* every 100 ms */
 }
 
-function toggle_selected(row) {
+WebGUI.toggle_selected = function(row) {
     if(row.classList.contains('selected')) /* removing selection */
         row.classList.remove('selected');
     else { /* adding/changing selection */
@@ -312,7 +314,7 @@ function toggle_selected(row) {
     }
 }
 
-function add_batches(batch_list) {
+WebGUI.add_batches = function(batch_list) {
     var batch_select = document.getElementById('batch_div').childNodes[1];
     var list = eval(batch_list);
     for(var i in list) {
@@ -335,7 +337,7 @@ function add_batches(batch_list) {
     }
 }
 
-function add_varieties(variety_list) {
+WebGUI.add_varieties = function(variety_list) {
     var variety_div = document.getElementById('variety_div');
     var list = eval(variety_list);
     for(var i in list) {
@@ -345,7 +347,7 @@ function add_varieties(variety_list) {
         var variety_tolerance = list[i][3];
         var new_option = document.createElement('input');
         new_option.setAttribute('type', 'button');
-        new_option.setAttribute('onclick', 'variety_callback(this)');
+        new_option.setAttribute('onclick', 'WebGUI.variety_callback(this)');
         new_option.classList.add('variety');
         if(new_option.dataset) {
             new_option.dataset.id = variety_id;
@@ -363,7 +365,7 @@ function add_varieties(variety_list) {
     }
 }
 
-function add_pickers(picker_list) {
+WebGUI.add_pickers = function(picker_list) {
     var picker_div = document.getElementById('picker_div');
     var list = eval(picker_list);
     for(var i in list) {
@@ -372,7 +374,7 @@ function add_pickers(picker_list) {
         var picker_lname = list[i][2];
         var new_option = document.createElement('input');
         new_option.setAttribute('type', 'button');
-        new_option.setAttribute('onclick', 'picker_callback(this)');
+        new_option.setAttribute('onclick', 'WebGUI.picker_callback(this)');
         new_option.classList.add('picker');
         if(new_option.dataset) {
             new_option.dataset.id = picker_id;
@@ -388,44 +390,44 @@ function add_pickers(picker_list) {
     }
 }
 
-function get_active_batches() {
+WebGUI.get_active_batches = function() {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if(xhr.readyState == 4 && xhr.status == 200) {
-            add_batches(xhr.responseText);
+            WebGUI.add_batches(xhr.responseText);
         }
     };
     xhr.open('GET', 'active_batches', true);
     xhr.send(null);
 }
 
-function get_active_varieties() {
+WebGUI.get_active_varieties = function() {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if(xhr.readyState == 4 && xhr.status == 200) {
-            add_varieties(xhr.responseText);
+            WebGUI.add_varieties(xhr.responseText);
         }
     };
     xhr.open('GET', 'active_varieties', true);
     xhr.send(null);
 }
 
-function get_active_pickers() {
+WebGUI.get_active_pickers = function() {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if(xhr.readyState == 4 && xhr.status == 200) {
-            add_pickers(xhr.responseText);
+            WebGUI.add_pickers(xhr.responseText);
         }
     };
     xhr.open('GET', 'active_pickers', true);
     xhr.send(null);
 }
 
-function init_data() {
-    get_active_batches();
-    get_active_varieties();
-    get_active_pickers();
-    get_weight_forever();
+WebGUI.init_data = function() {
+    WebGUI.get_active_batches();
+    WebGUI.get_active_varieties();
+    WebGUI.get_active_pickers();
+    WebGUI.get_weight_forever();
 }
 
-window.onload = init_data;
+window.onload = WebGUI.init_data;

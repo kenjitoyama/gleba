@@ -12,7 +12,7 @@
       <audio id="green_audio" src="../green.ogg" preload="auto" type="audio/ogg"></audio>
       <audio id="success_audio" src="../success.ogg" preload="auto" type="audio/ogg"></audio>
       <div id="batch_div">
-        <select onchange="batch_callback(this)">
+        <select onchange="WebGUI.batch_callback(this)">
           <option value="-1">Batches</option>
         </select>
       </div>
@@ -35,7 +35,7 @@
       <div id="picker_div">
       </div>
       <hr/>
-      <input type="button" value="Add box" onclick="add_box()"/>
+      <input type="button" value="Add box" onclick="WebGUI.add_box()"/>
     </div>
     <div id="right_div">
       <table id="history_table">
@@ -48,8 +48,8 @@
           <th>Timestamp</th>
         </tr>
       </table>
-      <input id="edit_button" type="button" value="Edit" onclick="edit_callback()"/>
-      <input id="commit_button" type="button" value="Commit" onclick="commit_callback()"/>
+      <input id="edit_button" type="button" value="Edit" onclick="WebGUI.edit_callback()"/>
+      <input id="commit_button" type="button" value="Commit" onclick="WebGUI.commit_callback()"/>
     </div>
   </body>
 </html>
