@@ -14,16 +14,18 @@ urlpatterns = patterns('gleba.glebaAdmin.views',
     (r'^varietyList/$', 'getVarietyList'),
     (r'^varietyList.xml$', 'getVarietyListXML'),
     
-    # Reports
+    # csv
+    (r'^csv/$', 'generate_csv_range')
+)
+
+# Reports
+urlpatterns += patterns('gleba.apps.report.views',
     (r'^report/$', 'generate_report'),
     (r'^report/picker/(\d+)/$', 'generate_report_picker'),
     (r'^report/picker/$', 'generate_report_all_picker'),
     (r'^report/flush/(\d+)/$', 'generate_report_flush'),
     (r'^report/crop/(\d+)/$', 'generate_report_crop'),
     (r'^report/room/(\d+)/$', 'generate_report_room'),
-
-    # csv
-    (r'^csv/$', 'generate_csv_range')
 )
 
 urlpatterns += patterns(
