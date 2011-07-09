@@ -1,6 +1,7 @@
 # Django settings for gleba project.
 import os
 
+# Runtime errors generate stack traces
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -15,8 +16,10 @@ BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(BASE_PATH,'db','gleba.db'), # Or path to database file if using sqlite3.
+        # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3', 
+        # Or path to database file if using sqlite3.
+        'NAME': os.path.join(BASE_PATH,'db','gleba.db'), 
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -52,7 +55,7 @@ BASE_URL = 'http://localhost:8000'
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '{0}{1}media/'.format(BASE_PATH[:-1], STATIC_URL)
+MEDIA_ROOT = os.path.join(BASE_PATH,STATIC_URL)
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).

@@ -8,7 +8,7 @@
         function submitForm() {
             var selected_value = document.getElementById('picker_id').value;
             $('#bundy_picker_form').attr('action',
-                '{%url gleba.glebaAdmin.views.bundy%}'+selected_value+'/');
+                '{%url gleba.apps.bundy.views.bundy%}'+selected_value+'/');
             $('#bundy_picker_form').submit();
         }
 

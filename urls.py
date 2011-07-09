@@ -22,12 +22,15 @@ urlpatterns = patterns('gleba.glebaAdmin.views',
     (r'^report/crop/(\d+)/$', 'generate_report_crop'),
     (r'^report/room/(\d+)/$', 'generate_report_room'),
 
-    # Bundies
-    (r'^bundy/(\d+)/$', 'bundy'),
-    (r'^bundy/$', 'bundy'),
-
     # csv
-    (r'^csv/$', 'generate_csv_range'),
+    (r'^csv/$', 'generate_csv_range')
+)
+
+urlpatterns += patterns(
+    # Bundies
+    'gleba.apps.bundy.views',
+    (r'^bundy/(\d+)/$', 'bundy'),
+    (r'^bundy/$', 'bundy')
 )
 
 urlpatterns += patterns('',
