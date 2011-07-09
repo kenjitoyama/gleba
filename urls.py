@@ -4,13 +4,8 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('gleba.glebaAdmin.views',
-    # csv
-    (r'^csv/$', 'generate_csv_range')
-)
-
 # DB related
-urlpatterns += patterns('gleba.apps.weigh.views',
+urlpatterns = patterns('gleba.apps.weigh.views',
     (r'^addBox/$', 'addBox'),
     (r'^pickerList/$', 'getPickerList'),
     (r'^pickerList.xml$', 'getPickerListXML'),
@@ -28,6 +23,11 @@ urlpatterns += patterns('gleba.apps.report.views',
     (r'^report/flush/(\d+)/$', 'generate_report_flush'),
     (r'^report/crop/(\d+)/$', 'generate_report_crop'),
     (r'^report/room/(\d+)/$', 'generate_report_room'),
+)
+
+# csv
+urlpatterns += patterns('gleba.apps.report.csv_views',
+    (r'^csv/$', 'generate_csv_range')
 )
 
 urlpatterns += patterns(

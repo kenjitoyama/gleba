@@ -17,12 +17,6 @@
 {%endblock%}
 
 {%block content%}
-{%if csvfile%}
-<div id="exported_file">
-  <p>Click the file below to download</p>
-  <a href={{csvfile}}>{{csvfilename}}</a>
-</div>
-{%else%}
 <p>Please select the range for which a timesheet report should be generated.</p>
 <form name="csv_form" method="post" id="csv_form">
   <label for="startDate">Start Date</label>
@@ -31,6 +25,4 @@
   <input name="endDate" id="endDate" type="text">
   <input type="submit" value="Submit"/>
 </form>
-{%endif%}
-
 {%endblock%}
