@@ -5,7 +5,12 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('gleba.glebaAdmin.views',
-    # DB related
+    # csv
+    (r'^csv/$', 'generate_csv_range')
+)
+
+# DB related
+urlpatterns += patterns('gleba.apps.weigh.views',
     (r'^addBox/$', 'addBox'),
     (r'^pickerList/$', 'getPickerList'),
     (r'^pickerList.xml$', 'getPickerListXML'),
@@ -13,9 +18,6 @@ urlpatterns = patterns('gleba.glebaAdmin.views',
     (r'^batchList.xml$', 'getBatchListXML'),
     (r'^varietyList/$', 'getVarietyList'),
     (r'^varietyList.xml$', 'getVarietyListXML'),
-    
-    # csv
-    (r'^csv/$', 'generate_csv_range')
 )
 
 # Reports
