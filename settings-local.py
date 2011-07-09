@@ -38,7 +38,7 @@ SITE_ID = 1
 # to load the internationalization machinery.
 USE_I18N = True
 
-STATIC_URL = '/static/'
+STATIC_URL = '/site_media/static/'
 
 # Absolute path to the project directory
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -93,6 +93,9 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.staticfiles',
-    'gleba.glebaAdmin',
+
+    'gleba.report',
+    'gleba.bundy',
+    'gleba.weigh'
 )
 
