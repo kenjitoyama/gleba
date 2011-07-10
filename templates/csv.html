@@ -2,27 +2,17 @@
 
 {%block extrahead%}
   <title>Export to CSV file</title>
-  <script src="/static/js/jquery.min.js"></script>
-  <script src="/static/js/jquery-ui/js/jquery-ui.min.js"></script>
-  <link rel="stylesheet" href="/static/js/jquery-ui/css/smoothness/jquery-ui.css" media="screen" title="Base"/>
-  <script type="text/javascript">
-      Date.format = 'dd/mm/yyyy';
-      $(function() {
-          $("#startDate").datepicker({dateFormat: 'dd-mm-yy'});
-      });
-      $(function() {
-          $("#endDate").datepicker({dateFormat: 'dd-mm-yy'});
-      });
-  </script>
 {%endblock%}
 
 {%block content%}
 <p>Please select the range for which a timesheet report should be generated.</p>
 <form name="csv_form" method="post" id="csv_form">
   <label for="startDate">Start Date</label>
-  <input name="startDate" id="startDate" type="text">
+  <input name="startDate" id="startDate" type="date">
+  <span>YYYY-MM-DD</span></br>
   <label for="endDate">End Date</label>
-  <input name="endDate" id="endDate" type="text">
+  <input name="endDate" id="endDate" type="date">
+  <span>YYYY-MM-DD</span></br>
   <input type="submit" value="Submit"/>
 </form>
 {%endblock%}

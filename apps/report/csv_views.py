@@ -109,13 +109,13 @@ def generate_csv_range(request):
     if 'endDate' in request.POST:
         try:
             end_date = datetime.datetime.strptime(
-                request.POST['endDate'], '%d-%m-%Y')
+                request.POST['endDate'], '%Y-%m-%d')
         except ValueError: # today by default
             end_date = datetime.date.today().isoformat()
     if 'startDate' in request.POST:
         try:
             start_date = datetime.datetime.strptime(
-                request.POST['startDate'], '%d-%m-%Y')
+                request.POST['startDate'], '%Y-%m-%d')
         except ValueError: # 31 days ago by default
             start_date = (datetime.date.today() -
                           datetime.timedelta(days = 31)).isoformat()
