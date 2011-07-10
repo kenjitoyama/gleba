@@ -3,7 +3,6 @@
 {%block extrahead%}
     <title>Bundy clock</title>
     <link rel="stylesheet" href="/static/css/bundy.css"/>
-    <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/custom/bundy.js"></script>
 {%endblock%}
 
@@ -46,8 +45,8 @@
   {%endifequal%}
   {%ifequal bundy_action "signoff"%}
     <form action="{%url gleba.apps.bundy.views.bundy%}{{picker.id}}" method="get">
-      <input type="radio" name="lunch" value="True" checked="true">Sign Off WITH Lunch Break</input>
-      <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input>
+      <input type="radio" name="lunch" value="True" checked="true">Sign Off WITH Lunch Break</input></br>
+      <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input></br>
       <input type="Submit" value="Sign Off">
     </form>
   {%endifequal%}

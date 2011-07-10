@@ -1,26 +1,29 @@
 var Bundy = {};
 
 Bundy.submitForm = function(view) {
-    var selected_value = document.getElementById('picker_id').value;
-    $('#bundy_picker_form').attr('action', view + selected_value + '/');
-    $('#bundy_picker_form').submit();
+    var selected_value = Bundy.picker_id_input.value;
+    var bundy_picker_form = document.getElementById('bundy_picker_form');
+    bundy_picker_form.setAttribute('action', view + selected_value + '/');
+    bundy_picker_form.submit();
 }
 
 Bundy.appendNumber = function(x) {
-    document.getElementById('button_audio').play();
-    var pickerIDInput = document.getElementById('picker_id');
-    pickerIDInput.value += x;
+    Bundy.audio_button.play();
+    Bundy.picker_id_input.value += x;
 }
 
 Bundy.backspace = function() {
-    document.getElementById('button_audio').play();
-    var pickerIDInput = document.getElementById('picker_id');
-    pickerIDInput.value =
-        pickerIDInput.value.substring(0, pickerIDInput.value.length - 1);
+    Bundy.audio_button.play();
+    Bundy.picker_id_input.value = Bundy.picker_id_input.value.substring(0,
+                                  Bundy.picker_id_input.value.length - 1);
 }
 
 Bundy.clear = function() {
-    document.getElementById('button_audio').play();
-    var pickerIDInput = document.getElementById('picker_id');
-    pickerIDInput.value = '';
+    Bundy.audio_button.play();
+    Bundy.picker_id_input.value = '';
+}
+
+window.onload = function() {
+    Bundy.audio_button = document.getElementById('button_audio');
+    Bundy.picker_id_input = document.getElementById('picker_id');
 }
