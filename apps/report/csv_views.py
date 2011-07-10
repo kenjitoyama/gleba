@@ -51,9 +51,9 @@ def build_export_list(period = 31): #period in days
     for picker in employed_pickers:
         days_worked = Bundy.objects.filter(
             timeIn__gte = (datetime.date.today() -
-                           datetime.timedelta(days=period)),
+                           datetime.timedelta(days = period)),
             picker = picker,
-            timeOut__isnull=False
+            timeOut__isnull = False
         )
         total_hours_worked = 0
         for bundy in days_worked:
@@ -69,13 +69,13 @@ def build_export_list_range(start_date, end_date = datetime.date.today()):
     """
     header = ("Name", "Hours worked")
     export_list = [header]
-    employed_pickers = Picker.objects.filter(discharged=False)
+    employed_pickers = Picker.objects.filter(discharged = False)
     for picker in employed_pickers:
         days_worked = Bundy.objects.filter(
             timeIn__gte = start_date,
             timeIn__lte = end_date,
             picker = picker,
-            timeOut__isnull=False
+            timeOut__isnull = False
         )
         total_hours_worked = 0
         for bundy in days_worked:
@@ -104,17 +104,21 @@ def generate_csv_range(request):
     Generates a CSV file for all employed Pickers over a date range.
 
     Returns a simple file with the name of each Picker and the total amount
-
-    Defect: If a end_date and start_date are not specified a Value Error is raised
-        Raised 11/07/2011
     """
     end_date = None
     if 'endDate' in request.POST:
-        end_date = datetime.datetime.strptime(
-            request.POST['endDate'], "%d-%m-%Y")
+        try:
+            end_date = datetime.datetime.strptime(
+                request.POST['endDate'], '%d-%m-%Y')
+        except ValueError: # today by default
+            end_date = datetime.date.today().isoformat()
     if 'startDate' in request.POST:
-        start_date = datetime.datetime.strptime(
-            request.POST['startDate'], "%d-%m-%Y")
+        try:
+            start_date = datetime.datetime.strptime(
+                request.POST['startDate'], '%d-%m-%Y')
+        except ValueError: # 31 days ago by default
+            start_date = (datetime.date.today() -
+                          datetime.timedelta(days = 31)).isoformat()
         fname = 'timesheet_{}.csv'.format(datetime.date.today().isoformat())
         response = HttpResponse(mimetype = 'text/csv')
         response['Content-Disposition'] = 'attachment; filename={0}'.format(fname)
