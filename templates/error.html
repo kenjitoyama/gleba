@@ -1,2 +1,9 @@
-{% for error in error_list %}{{ error }}{% endfor %}
-{% if debug %}{{ debug }}{% endif %}
+{%include "gleba_base.html"%}
+
+{%block content%}
+{%for error in error_list%}
+<p>{{error}}</p>
+{%endfor%}
+
+{%if debug%}{{debug}}{%endif%}
+{%endblock%}

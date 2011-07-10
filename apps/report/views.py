@@ -34,36 +34,25 @@ from glebaAdmin.models import *
 from glebaAdmin.views import date_range
 import json
 
-def getDateFromRequest(request):
+def get_date_from_request(request):
     """
     Retrieves and returns a tuple of dates from a http request.
 
-    If request does not contain a valid startDate, 31 days in the past from
-    today is used.
-    If request does not contain a valid endDate, today is used.
+    It raises an Exception or ValueError if an error occurs.
     """
-    if ('startDate' in request.POST and
-        'endDate' in request.POST and
-        request.POST['startDate'] != '' and
-        request.POST['endDate'] != ''):
-        start_date = datetime.datetime.strptime(
-            request.POST['startDate'], "%d-%m-%Y").date()
-        end_date = datetime.datetime.strptime(
-            request.POST['endDate'], "%d-%m-%Y").date()
-    elif ('startDate' in request.GET and
-          'endDate' in request.GET and
-          request.GET['startDate'] != '' and
-          request.GET['endDate'] != ''):
-        start_date = datetime.datetime.strptime(
-            request.GET['startDate'], "%d-%m-%Y").date()
-        end_date = datetime.datetime.strptime(
-            request.GET['endDate'], "%d-%m-%Y").date()
+    if ('startDate' in request.POST and 'endDate' in request.POST):
+        if(request.POST['startDate'] == '' or request.POST['endDate'] == ''):
+            raise Exception('empty date')
+        else:
+            start_date = datetime.datetime.strptime(
+                request.POST['startDate'], "%Y-%m-%d").date()
+            end_date = datetime.datetime.strptime(
+                request.POST['endDate'], "%Y-%m-%d").date()
+        if start_date > end_date:
+            raise Exception('start_date greater than end_date')
+        return (start_date, end_date)
     else:
-        end_date = datetime.date.today()
-        start_date = end_date - datetime.timedelta(days = 31)
-
-    return ((start_date, end_date) if start_date < end_date
-                                  else (end_date, start_date))
+        return Exception('no startDate and endDate in POST request')
 
 @login_required
 def generate_report_all_picker(request):
@@ -75,7 +64,13 @@ def generate_report_all_picker(request):
     It uses two dates from the http POST, if they don't make sense the
     last 31 days are used.
     """
-    start_date, end_date = getDateFromRequest(request)
+    try:
+        start_date, end_date = get_date_from_request(request)
+    except Exception as exc:
+        error_list = ['Got an exception: {}'.format(exc),]
+        return render_to_response('error.html', {
+            'error_list': error_list,
+        })
     data = [] # [{id, first name, last name, total picked, kpi}]
 
     for picker in Picker.objects.all():
@@ -110,7 +105,13 @@ def generate_report_picker(request, picker_id):
     It expects jqPlot to properly build the graph.
     """
     picker_obj = get_object_or_404(Picker, pk = picker_id)
-    start_date, end_date = getDateFromRequest(request)
+    try:
+        start_date, end_date = get_date_from_request(request)
+    except Exception as exc:
+        error_list = ['Got an exception: {}'.format(exc),]
+        return render_to_response('error.html', {
+            'error_list': error_list,
+        })
     daily_totals = []
     for date in date_range(start_date, end_date):
         tmp = [date.strftime("%Y-%m-%d"),]
@@ -136,7 +137,13 @@ def generate_report_room(request, room_id):
     It expects jqPlot to properly build the graph.
     """
     room_obj = get_object_or_404(Room, pk = room_id)
-    start_date, end_date = getDateFromRequest(request)
+    try:
+        start_date, end_date = get_date_from_request(request)
+    except Exception as exc:
+        error_list = ['Got an exception: {}'.format(exc),]
+        return render_to_response('error.html', {
+            'error_list': error_list,
+        })
     daily_totals = []
     for date in date_range(start_date, end_date):
         tmp = [date.strftime("%Y-%m-%d"),]
@@ -203,11 +210,10 @@ def generate_report(request):
     picker_list = Picker.objects.filter(active = True,
                                         discharged = False).order_by('id')
     room_list = Room.objects.all().order_by('number')
-    return render_to_response('report.html', {
+    context = {
         'report_type': 'default_page',
         'picker_list':  picker_list,
         'room_list':    room_list,
         'user' :        request.user
-    })
-
-
+    }
+    return render_to_response('report.html', context)
