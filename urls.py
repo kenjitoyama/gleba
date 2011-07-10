@@ -27,12 +27,11 @@ urlpatterns += patterns('gleba.apps.report.views',
 
 # CSV timesheet reporting
 urlpatterns += patterns('gleba.apps.report.csv_views',
-    (r'^csv/$', 'generate_csv_range')
+    (r'^report/csv/$', 'generate_csv_range')
 )
 
 # Bundies
-urlpatterns += patterns(
-    'gleba.apps.bundy.views',
+urlpatterns += patterns('gleba.apps.bundy.views',
     (r'^bundy/(\d+)/$', 'bundy'),
     (r'^bundy/$', 'bundy')
 )
