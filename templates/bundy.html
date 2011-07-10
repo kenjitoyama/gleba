@@ -9,6 +9,7 @@
 
 {%block content%}
   {%ifequal bundy_action "default_page"%}
+    <audio id="button_audio" src="/static/sounds/button.ogg" preload="auto" type="audio/ogg"></audio>
     <table id="keypad">
       <tr>
         <td onClick="Bundy.appendNumber(1)">1</td>
@@ -28,6 +29,7 @@
       <tr>
         <td onClick="Bundy.appendNumber(0)">0</td>
         <td onClick="Bundy.backspace()">&lt;-</td>
+        <td onClick="Bundy.clear()">Clear</td>
       </tr>
     </table>
     <form name="bundy_picker_form" method="post" id="bundy_picker_form">
