@@ -105,27 +105,34 @@ def generate_csv_range(request):
 
     Returns a simple file with the name of each Picker and the total amount
     """
-    end_date = None
-    if 'endDate' in request.POST:
-        try:
-            end_date = datetime.datetime.strptime(
-                request.POST['endDate'], '%Y-%m-%d')
-        except ValueError: # today by default
+    if 'endDate' in request.POST and 'startDate' in request.POST:
+        if request.POST['endDate'] == '': # blank endDate
             end_date = datetime.date.today().isoformat()
-    if 'startDate' in request.POST:
-        try:
-            start_date = datetime.datetime.strptime(
-                request.POST['startDate'], '%Y-%m-%d')
-        except ValueError: # 31 days ago by default
+        else:
+            try:
+                end_date = datetime.datetime.strptime(
+                    request.POST['endDate'], '%Y-%m-%d')
+            except ValueError:
+                return render_to_response('csv.html', {
+                    'date_error': 'Incorrect format for the end date .',
+                    'start_date': request.POST['startDate'],
+                    'end_date':   request.POST['endDate']
+                })
+        if request.POST['startDate'] == '': # blank startDate
             start_date = (datetime.date.today() -
                           datetime.timedelta(days = 31)).isoformat()
+        else:
+            try:
+                start_date = datetime.datetime.strptime(
+                    request.POST['startDate'], '%Y-%m-%d')
+            except ValueError:
+                return render_to_response('csv.html', {
+                    'date_error': 'Incorrect format for the start date .',
+                })
         fname = 'timesheet_{}.csv'.format(datetime.date.today().isoformat())
         response = HttpResponse(mimetype = 'text/csv')
         response['Content-Disposition'] = 'attachment; filename={0}'.format(fname)
-        if end_date is None:
-            write_list_to_file(response, build_export_list_range(start_date))
-        else:
-            write_list_to_file(response, build_export_list_range(start_date, end_date))
+        write_list_to_file(response, build_export_list_range(start_date, end_date))
         return response
     else:
         return render_to_response('csv.html', {})

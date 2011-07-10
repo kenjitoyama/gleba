@@ -6,12 +6,13 @@
 
 {%block content%}
 <p>Please select the range for which a timesheet report should be generated.</p>
+{{date_error}}
 <form name="csv_form" method="post" id="csv_form">
   <label for="startDate">Start Date</label>
-  <input name="startDate" id="startDate" type="date">
+  <input name="startDate" id="startDate" type="date" value="{{start_date}}"/>
   <span>YYYY-MM-DD</span></br>
   <label for="endDate">End Date</label>
-  <input name="endDate" id="endDate" type="date">
+  <input name="endDate" id="endDate" type="date" value="{{end_date}}"/>
   <span>YYYY-MM-DD</span></br>
   <input type="submit" value="Submit"/>
 </form>
