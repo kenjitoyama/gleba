@@ -1,7 +1,42 @@
+"""
+Copyright (C) 2010-2011 Simon Dawson, Meryl Baquiran, Chris Ellis
+and Daniel Kenji Toyama 
+
+ Path: 
+   gleba.weigh.views
+
+ Purpose:
+   This package is used to provide a web api to allow data creation and 
+   retrieval.
+
+    This file is part of Gleba 
+
+    This program file is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ Author:
+    Simon Dawson
+    Daniel Kenji Toyama
+"""
+
 from django.shortcuts import render_to_response, get_object_or_404
 from glebaAdmin.models import *
 
 def addBox(request):
+    """
+       Creates a box object. Requires picker, contentVariety, batch, initialWeight,
+       finalWeight and timestamp to be in the request header.
+    """
     if ('picker'         in request.GET and
         'contentVariety' in request.GET and
         'batch'          in request.GET and

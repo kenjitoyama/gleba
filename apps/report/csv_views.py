@@ -1,3 +1,33 @@
+"""
+Copyright (C) 2010-2011 Simon Dawson, Meryl Baquiran, Chris Ellis
+and Daniel Kenji Toyama 
+
+ Path: 
+   gleba.report.csv_views
+
+ Purpose:
+   This package is used to build and deliver reports on pickers time at work. 
+
+    This file is part of Gleba 
+
+    This program file is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ Author:
+    Simon Dawson
+    Daniel Kenji Toyama
+"""
+
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from glebaAdmin.models import *
@@ -74,6 +104,9 @@ def generate_csv_range(request):
     Generates a CSV file for all employed Pickers over a date range.
 
     Returns a simple file with the name of each Picker and the total amount
+
+    Defect: If a end_date and start_date are not specified a Value Error is raised
+        Raised 11/07/2011
     """
     end_date = None
     if 'endDate' in request.POST:

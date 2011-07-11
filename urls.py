@@ -4,7 +4,7 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 admin.autodiscover()
 
-# DB related
+# Database interaction
 urlpatterns = patterns('gleba.apps.weigh.views',
     (r'^addBox/$', 'addBox'),
     (r'^pickerList/$', 'getPickerList'),
@@ -15,7 +15,7 @@ urlpatterns = patterns('gleba.apps.weigh.views',
     (r'^varietyList.xml$', 'getVarietyListXML'),
 )
 
-# Reports
+# Production Reports
 urlpatterns += patterns('gleba.apps.report.views',
     (r'^report/$', 'generate_report'),
     (r'^report/picker/(\d+)/$', 'generate_report_picker'),
@@ -25,13 +25,13 @@ urlpatterns += patterns('gleba.apps.report.views',
     (r'^report/room/(\d+)/$', 'generate_report_room'),
 )
 
-# csv
+# CSV timesheet reporting
 urlpatterns += patterns('gleba.apps.report.csv_views',
     (r'^csv/$', 'generate_csv_range')
 )
 
+# Bundies
 urlpatterns += patterns(
-    # Bundies
     'gleba.apps.bundy.views',
     (r'^bundy/(\d+)/$', 'bundy'),
     (r'^bundy/$', 'bundy')

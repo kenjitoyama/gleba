@@ -1,9 +1,44 @@
+"""
+Copyright (C) 2010-2011 Simon Dawson, Meryl Baquiran, Chris Ellis
+and Daniel Kenji Toyama 
+
+ Path: 
+   gleba.bundy.views
+
+ Purpose:
+   This package is used to provide user interaction with the Bundy objects
+   allowing pickers to be sign in and out for the days work.
+
+
+    This file is part of Gleba 
+
+    This program file is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ Author:
+    Simon Dawson
+    Daniel Kenji Toyama
+"""
+
 from django.shortcuts import render_to_response, get_object_or_404
 from django.shortcuts import redirect
 from glebaAdmin.models import *
 
-##### Bundy Clock handling #####
 def bundy(request, picker_id = None):
+    """
+       Signs picker with id picker_id on or off if no picker_id the form
+       to enter a picker_id is rendered 
+    """
     print(picker_id)
     bundy_action = 'default_page'
     if picker_id == None: # display the keypad
