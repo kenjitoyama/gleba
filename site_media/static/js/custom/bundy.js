@@ -2,9 +2,11 @@ var Bundy = {};
 
 Bundy.submitForm = function(view) {
     var selected_value = Bundy.picker_id_input.value;
-    var bundy_picker_form = document.getElementById('bundy_picker_form');
-    bundy_picker_form.setAttribute('action', view + selected_value + '/');
-    bundy_picker_form.submit();
+    if (selected_value) {
+        var bundy_picker_form = document.getElementById('bundy_picker_form');
+	bundy_picker_form.setAttribute('action', view + selected_value + '/');
+	bundy_picker_form.submit();
+    }
 }
 
 Bundy.appendNumber = function(x) {
