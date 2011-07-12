@@ -180,3 +180,20 @@ def get_batch_list_json(request):
             }
         })
     return HttpResponse(json.dumps(data), mimetype = 'application/json')
+
+def get_variety_list_json(request):
+    """
+    Returns the list of Varieties that are still being used.
+
+    The result is given in an JSON format.
+    """
+    variety_list = Mushroom.objects.filter(active = True).order_by('variety')
+    data = []
+    for variety in variety_list:
+        data.append({
+            'id': variety.id,
+            'name': variety.variety, # this is retarded. TODO change table name to Variety.
+            'ideal_weight': variety.idealWeight,
+            'tolerance': variety.tolerance
+        })
+    return HttpResponse(json.dumps(data), mimetype = 'application/json')
