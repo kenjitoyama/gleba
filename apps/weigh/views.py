@@ -141,6 +141,23 @@ def getVarietyListXML(request):
         'variety_list' : variety_list,
     })
 
+def get_picker_list_json(request):
+    """
+    Returns the list of Pickers that are active and not discharged.
+
+    The result is given in an JSON format.
+    """
+    picker_list = Picker.objects.filter(active = True, discharged = False)\
+                                .order_by('id')
+    data = []
+    for picker in picker_list:
+        data.append({
+            'id': picker.id,
+            'first_name': picker.firstName,
+            'last_name': picker.lastName
+        })
+    return HttpResponse(json.dumps(data), mimetype = 'application/json')
+
 def get_batch_list_json(request):
     """
     Returns the list of Batches that are not finished yet
