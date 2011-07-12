@@ -30,7 +30,10 @@ and Daniel Kenji Toyama
 """
 
 from django.shortcuts import render_to_response, get_object_or_404
+from django.http import HttpResponse
 from glebaAdmin.models import *
+from django.core import serializers
+import json
 
 def addBox(request):
     """
@@ -137,3 +140,26 @@ def getVarietyListXML(request):
     return render_to_response('varietyList.xml', {
         'variety_list' : variety_list,
     })
+
+def get_batch_list_json(request):
+    """
+    Returns the list of Batches that are not finished yet
+    (i.e. endDate is null).
+
+    The result is given in an JSON format.
+    """
+    batch_list = Batch.objects.filter(flush__endDate__isnull = True)\
+                              .order_by('id')
+    data = []
+    for batch in batch_list:
+        data.append({
+            'id': batch.id,
+            'flush_number': batch.flush.flushNo,
+            'room_number': batch.flush.crop.room.number,
+            'date': {
+                'day': batch.date.day,
+                'month': batch.date.month,
+                'year': batch.date.year,
+            }
+        })
+    return HttpResponse(json.dumps(data), mimetype = 'application/json')
