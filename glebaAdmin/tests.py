@@ -27,7 +27,7 @@ class TestReportViews(TestCase):
         self.picker = get_object_or_404(Picker, pk = 1)
 
     def test_views_daily_totals(self):
-        variety = get_object_or_404(Mushroom, pk = 1)
+        variety = get_object_or_404(Variety, pk = 1)
         batch = get_object_or_404(Batch, pk = 1)
         # Create some boxes
         for i in range(20):

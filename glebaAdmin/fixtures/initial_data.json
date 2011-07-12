@@ -24,18 +24,18 @@
        "discharged": false
    }},
 
-  {"model": "glebaAdmin.mushroom",
+  {"model": "glebaAdmin.variety",
    "pk": 1,
    "fields": {
-       "variety":     "Champignon",
+       "name":     "Champignon",
        "idealWeight": 4.050,
        "tolerance":   0.020,
        "active":      true
    }},
-  {"model": "glebaAdmin.mushroom",
+  {"model": "glebaAdmin.variety",
    "pk": 2,
    "fields": {
-       "variety":     "Shitake",
+       "name":     "Shitake",
        "idealWeight": 4.030,
        "tolerance":   0.015,
        "active":      true

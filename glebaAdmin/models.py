@@ -296,25 +296,25 @@ class Batch(models.Model):
             year =  str(self.date.year)
         )
 
-class Mushroom(models.Model):
-    variety = models.CharField(max_length=50)
+class Variety(models.Model):
+    name = models.CharField(max_length=50)
     idealWeight = models.FloatField()
     tolerance = models.FloatField()
     active = models.BooleanField()
 
     class Meta:
-        verbose_name_plural = 'Mushrooms'
+        verbose_name_plural = 'Varieties'
 
     def __unicode__(self):
-        return 'Mushroom {variety}'.format(
-            variety = str(self.variety)
+        return 'Variety {name}'.format(
+            naem = str(self.name)
         )
 
 class Box(models.Model):
     initialWeight = models.FloatField()
     finalWeight = models.FloatField()
     timestamp = models.DateTimeField('time weighted')
-    contentVariety = models.ForeignKey(Mushroom)
+    contentVariety = models.ForeignKey(Variety)
     picker = models.ForeignKey(Picker)
     batch = models.ForeignKey(Batch)
 

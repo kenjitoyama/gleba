@@ -3,7 +3,7 @@ from gleba.glebaAdmin.models import Room
 from gleba.glebaAdmin.models import Crop
 from gleba.glebaAdmin.models import Flush
 from gleba.glebaAdmin.models import Batch
-from gleba.glebaAdmin.models import Mushroom
+from gleba.glebaAdmin.models import Variety
 from gleba.glebaAdmin.models import Box
 from gleba.glebaAdmin.models import Bundy
 from django.contrib import admin
@@ -60,14 +60,14 @@ class BatchAdmin(admin.ModelAdmin):
         ('Flush Number',  {'fields': ['flush']}),
     ]
 
-class MushroomAdmin(admin.ModelAdmin):
-    list_display = ('variety', 'active')
-    list_filter = ('variety', 'active')
-    search_fields = ['id', 'variety']
+class VarietyAdmin(admin.ModelAdmin):
+    list_display = ('name', 'active')
+    list_filter = ('name', 'active')
+    search_fields = ['id', 'name']
     fieldsets = [
-        ('Variety',  {'fields': ['variety']}),
+        ('Name',  {'fields': ['name']}),
         ('Is it still being picked?',  {'fields': ['active']}),
-        ('Ideal weight for this variety of mushroom', {'fields': ['idealWeight']}),
+        ('Ideal weight for this variety', {'fields': ['idealWeight']}),
         ('Tolerance from the ideal weight in kg', {'fields': ['tolerance']}),
     ]
 
@@ -102,6 +102,6 @@ admin.site.register(Room, RoomAdmin)
 admin.site.register(Crop, CropAdmin)
 admin.site.register(Flush, FlushAdmin)
 admin.site.register(Batch, BatchAdmin)
-admin.site.register(Mushroom, MushroomAdmin)
+admin.site.register(Variety, VarietyAdmin)
 admin.site.register(Box, BoxAdmin)
 admin.site.register(Bundy, BundyAdmin)
