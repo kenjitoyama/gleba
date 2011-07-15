@@ -30,6 +30,8 @@ and Daniel Kenji Toyama
 """
 
 from django.shortcuts import render_to_response, get_object_or_404
+from django.template import Context
+from django.template.loader import get_template
 from django.http import HttpResponse
 from glebaAdmin.models import *
 import json
@@ -88,9 +90,9 @@ def getPickerListXML(request):
     """
     picker_list = Picker.objects.filter(active = True, discharged = False)\
                                 .order_by('id')
-    return render_to_response('pickerList.xml', {
-        'picker_list' : picker_list,
-    })
+    templ = get_template('pickerList.xml')
+    context = Context({'picker_list': picker_list,})
+    return HttpResponse(templ.render(context), mimetype = 'text/xml')
 
 def getBatchList(request):
     """
