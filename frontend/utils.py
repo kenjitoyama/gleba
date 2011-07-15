@@ -126,13 +126,6 @@ class DBAPI ():
             result.append(variety.split("|"))
         return result
 
-    def get_active_pickers_json(self):
-        """
-        Simply forwards the json object to the client.
-        """
-        full_address = self.http_address + 'picker_list.json'
-        return urllib.urlopen(full_address).read()
-
     def get_active_pickers_xml(self):
         """
         Parse an xml list of all the current pickers into a python list.
@@ -191,3 +184,16 @@ class DBAPI ():
                            float(fw_elem.firstChild.data)])
         return result
 
+    def get_active_pickers_json(self):
+        """
+        Simply forwards the json object to the client.
+        """
+        full_address = self.http_address + 'picker_list.json'
+        return urllib.urlopen(full_address).read()
+
+    def get_active_batches_json(self):
+        """
+        Simply forwards the json object to the client.
+        """
+        full_address = self.http_address + 'batch_list.json'
+        return urllib.urlopen(full_address).read()

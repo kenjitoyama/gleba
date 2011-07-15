@@ -316,11 +316,13 @@ WebGUI.toggle_selected = function(row) {
 
 WebGUI.add_batches = function(batch_list) {
     var batch_select = document.getElementById('batch_div').childNodes[1];
-    var list = eval(batch_list);
+    var list = JSON.parse(batch_list);
     for(var i in list) {
-        var batch_number = list[i][0];
-        var batch_date = list[i][1];
-        var batch_room = list[i][2];
+        var batch_number = list[i]['id'];
+        var batch_date = list[i]['date']['year'] + '-' +
+                         list[i]['date']['month'] + '-' +
+                         list[i]['date']['day'];
+        var batch_room = list[i]['room_number'];
         var new_option = document.createElement('option');
         new_option.classList.add('batch');
         new_option.setAttribute('value', batch_number);
@@ -397,7 +399,7 @@ WebGUI.get_active_batches = function() {
             WebGUI.add_batches(xhr.responseText);
         }
     };
-    xhr.open('GET', 'active_batches', true);
+    xhr.open('GET', 'active_batches.json', true);
     xhr.send(null);
 }
 
