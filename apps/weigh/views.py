@@ -116,9 +116,9 @@ def getBatchListXML(request):
     """
     batch_list = Batch.objects.filter(flush__endDate__isnull = True)\
                               .order_by('id')
-    return render_to_response('batchList.xml', {
-        'batch_list' : batch_list,
-    })
+    templ = get_template('batchList.xml')
+    context = Context({'batch_list': batch_list,})
+    return HttpResponse(templ.render(context), mimetype = 'text/xml')
 
 def getVarietyList(request):
     """
