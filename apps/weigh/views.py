@@ -106,7 +106,7 @@ def getVarietyList(request):
         'variety_list' : variety_list,
     })
 
-def getPickerListXML(request):
+def get_picker_list_xml(request):
     """
     Returns the list of Pickers that are active and not discharged.
 

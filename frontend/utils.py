@@ -107,7 +107,7 @@ class DBAPI ():
         Parse an xml list of all the current pickers into a python list.
         """
         result = []
-        full_address = self.http_address + 'pickerList.xml'
+        full_address = self.http_address + 'picker_list.xml'
         xmldoc = minidom.parse(urllib.urlopen(full_address))
         for picker in xmldoc.getElementsByTagName("picker"):
             id_elem = picker.getElementsByTagName('id')[0]
