@@ -32,7 +32,6 @@ and Daniel Kenji Toyama
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse
 from glebaAdmin.models import *
-from django.core import serializers
 import json
 
 def addBox(request):
