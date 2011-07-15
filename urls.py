@@ -8,13 +8,13 @@ admin.autodiscover()
 urlpatterns = patterns('gleba.apps.weigh.views',
     (r'^addBox/$', 'addBox'),
     (r'^pickerList/$', 'getPickerList'),
-    (r'^picker_list.xml$', 'get_picker_list_xml'),
-    (r'^picker_list.json$', 'get_picker_list_json'),
     (r'^batchList/$', 'getBatchList'),
-    (r'^batch_list.xml$', 'get_batch_list_xml'),
-    (r'^batch_list.json$', 'get_batch_list_json'),
     (r'^varietyList/$', 'getVarietyList'),
+    (r'^picker_list.xml$', 'get_picker_list_xml'),
+    (r'^batch_list.xml$', 'get_batch_list_xml'),
     (r'^variety_list.xml$', 'get_variety_list_xml'),
+    (r'^picker_list.json$', 'get_picker_list_json'),
+    (r'^batch_list.json$', 'get_batch_list_json'),
     (r'^variety_list.json$', 'get_variety_list_json'),
 )
 

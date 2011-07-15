@@ -102,6 +102,30 @@ class DBAPI ():
             result.append(picker.split("|"))
         return result
 
+    def get_active_batches(self):
+        """
+        Parse a delimited string from a url of all the current batches into
+        a python list.
+        """
+        result = []
+        full_address = self.http_address + 'batchList'
+        batches = urllib.urlopen(full_address)
+        for batch in batches.read().split('*')[:-1]:
+            result.append(batch.split('|'))
+        return result
+
+    def get_active_varieties(self):
+        """
+        Parse a delimited string from a url of all the current batches into
+        a python list
+        """
+        result = []
+        full_address = self.http_address + 'varietyList'
+        varieties = urllib.urlopen(full_address)
+        for variety in varieties.read().split("*")[:-1]:
+            result.append(variety.split("|"))
+        return result
+
     def get_active_pickers_xml(self):
         """
         Parse an xml list of all the current pickers into a python list.
@@ -116,18 +140,6 @@ class DBAPI ():
             result.append([id_elem.firstChild.data,
                            fname_elem.firstChild.data,
                            lname_elem.firstChild.data])
-        return result
-
-    def get_active_batches(self):
-        """
-        Parse a delimited string from a url of all the current batches into
-        a python list.
-        """
-        result = []
-        full_address = self.http_address + 'batchList'
-        batches = urllib.urlopen(full_address)
-        for batch in batches.read().split('*')[:-1]:
-            result.append(batch.split('|'))
         return result
 
     def get_active_batches_xml(self):
@@ -149,18 +161,6 @@ class DBAPI ():
             date_format = u'{}/{}/{}'
             batch_date = date_format.format(day, month, year)
             result.append([batch_id, batch_date, room_number])
-        return result
-
-    def get_active_varieties(self):
-        """
-        Parse a delimited string from a url of all the current batches into
-        a python list
-        """
-        result = []
-        full_address = self.http_address + 'varietyList'
-        varieties = urllib.urlopen(full_address)
-        for variety in varieties.read().split("*")[:-1]:
-            result.append(variety.split("|"))
         return result
 
     def get_active_varieties_xml(self):
