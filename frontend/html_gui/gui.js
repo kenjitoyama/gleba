@@ -1,8 +1,8 @@
 var WebGUI = {};
 
+WebGUI.current_picker = null;
 WebGUI.current_batch = null;
 WebGUI.current_variety = null;
-WebGUI.current_picker = null;
 WebGUI.current_weight = null;
 
 WebGUI.change_status = function(text) {
@@ -60,6 +60,15 @@ WebGUI.update_current_info_div = function() {
                           WebGUI.get_picker_name(WebGUI.current_picker) + ')';
 }
 
+WebGUI.picker_callback = function(button) {
+    document.getElementById('button_audio').play();
+    if(button.dataset) /* if browser supports dataset */
+        WebGUI.current_picker = parseInt(button.dataset.id, 10);
+    else
+        WebGUI.current_picker = parseInt(button.getAttribute('data-id'), 10);
+    WebGUI.update_current_info_div();
+}
+
 WebGUI.batch_callback = function(select_box) {
     document.getElementById('button_audio').play();
     var selected_item = select_box[select_box.selectedIndex];
@@ -76,15 +85,6 @@ WebGUI.variety_callback = function(button) {
         WebGUI.current_variety = parseInt(button.dataset.id, 10);
     else
         WebGUI.current_variety = parseInt(button.getAttribute('data-id'), 10);
-    WebGUI.update_current_info_div();
-}
-
-WebGUI.picker_callback = function(button) {
-    document.getElementById('button_audio').play();
-    if(button.dataset) /* if browser supports dataset */
-        WebGUI.current_picker = parseInt(button.dataset.id, 10);
-    else
-        WebGUI.current_picker = parseInt(button.getAttribute('data-id'), 10);
     WebGUI.update_current_info_div();
 }
 
@@ -314,6 +314,31 @@ WebGUI.toggle_selected = function(row) {
     }
 }
 
+WebGUI.add_pickers = function(picker_list) {
+    var picker_div = document.getElementById('picker_div');
+    var list = JSON.parse(picker_list);
+    for(var i in list) {
+        var picker_id = list[i]['id'];
+        var picker_fname = list[i]['first_name'];
+        var picker_lname = list[i]['last_name'];
+        var new_option = document.createElement('input');
+        new_option.setAttribute('type', 'button');
+        new_option.setAttribute('onclick', 'WebGUI.picker_callback(this)');
+        new_option.classList.add('picker');
+        if(new_option.dataset) {
+            new_option.dataset.id = picker_id;
+            new_option.dataset.fname = picker_fname;
+            new_option.dataset.lname = picker_lname;
+        } else {
+            new_option.setAttribute('data-id', picker_id);
+            new_option.setAttribute('data-fname', picker_fname);
+            new_option.setAttribute('data-lname', picker_lname);
+        }
+        new_option.setAttribute('value', picker_id + '. ' + picker_fname);
+        picker_div.appendChild(new_option);
+    }
+}
+
 WebGUI.add_batches = function(batch_list) {
     var batch_select = document.getElementById('batch_div').childNodes[1];
     var list = JSON.parse(batch_list);
@@ -367,29 +392,15 @@ WebGUI.add_varieties = function(variety_list) {
     }
 }
 
-WebGUI.add_pickers = function(picker_list) {
-    var picker_div = document.getElementById('picker_div');
-    var list = JSON.parse(picker_list);
-    for(var i in list) {
-        var picker_id = list[i]['id'];
-        var picker_fname = list[i]['first_name'];
-        var picker_lname = list[i]['last_name'];
-        var new_option = document.createElement('input');
-        new_option.setAttribute('type', 'button');
-        new_option.setAttribute('onclick', 'WebGUI.picker_callback(this)');
-        new_option.classList.add('picker');
-        if(new_option.dataset) {
-            new_option.dataset.id = picker_id;
-            new_option.dataset.fname = picker_fname;
-            new_option.dataset.lname = picker_lname;
-        } else {
-            new_option.setAttribute('data-id', picker_id);
-            new_option.setAttribute('data-fname', picker_fname);
-            new_option.setAttribute('data-lname', picker_lname);
+WebGUI.get_active_pickers = function() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            WebGUI.add_pickers(xhr.responseText);
         }
-        new_option.setAttribute('value', picker_id + '. ' + picker_fname);
-        picker_div.appendChild(new_option);
-    }
+    };
+    xhr.open('GET', 'active_pickers.json', true);
+    xhr.send(null);
 }
 
 WebGUI.get_active_batches = function() {
@@ -411,17 +422,6 @@ WebGUI.get_active_varieties = function() {
         }
     };
     xhr.open('GET', 'active_varieties.json', true);
-    xhr.send(null);
-}
-
-WebGUI.get_active_pickers = function() {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-        if(xhr.readyState == 4 && xhr.status == 200) {
-            WebGUI.add_pickers(xhr.responseText);
-        }
-    };
-    xhr.open('GET', 'active_pickers.json', true);
     xhr.send(null);
 }
 

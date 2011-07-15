@@ -25,6 +25,12 @@ class GUIHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(str(self.serial_thread.get_weight()))
             return
+        elif(self.path == '/active_pickers'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(dumps(self.db_connection.get_active_pickers()))
+            return
         elif(self.path == '/active_batches'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -36,12 +42,6 @@ class GUIHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(dumps(self.db_connection.get_active_varieties()))
-            return
-        elif(self.path == '/active_pickers'):
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(dumps(self.db_connection.get_active_pickers()))
             return
         elif(self.path == '/active_pickers.json'):
             self.send_response(200)
