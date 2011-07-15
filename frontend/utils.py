@@ -197,3 +197,10 @@ class DBAPI ():
         """
         full_address = self.http_address + 'batch_list.json'
         return urllib.urlopen(full_address).read()
+
+    def get_active_varieties_json(self):
+        """
+        Simply forwards the json object to the client.
+        """
+        full_address = self.http_address + 'variety_list.json'
+        return urllib.urlopen(full_address).read()

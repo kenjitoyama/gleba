@@ -341,12 +341,12 @@ WebGUI.add_batches = function(batch_list) {
 
 WebGUI.add_varieties = function(variety_list) {
     var variety_div = document.getElementById('variety_div');
-    var list = eval(variety_list);
+    var list = JSON.parse(variety_list);
     for(var i in list) {
-        var variety_id = list[i][0];
-        var variety_name = list[i][1];
-        var variety_idealweight = list[i][2];
-        var variety_tolerance = list[i][3];
+        var variety_id = list[i]['id'];
+        var variety_name = list[i]['name'];
+        var variety_idealweight = list[i]['ideal_weight'];
+        var variety_tolerance = list[i]['tolerance'];
         var new_option = document.createElement('input');
         new_option.setAttribute('type', 'button');
         new_option.setAttribute('onclick', 'WebGUI.variety_callback(this)');
@@ -410,7 +410,7 @@ WebGUI.get_active_varieties = function() {
             WebGUI.add_varieties(xhr.responseText);
         }
     };
-    xhr.open('GET', 'active_varieties', true);
+    xhr.open('GET', 'active_varieties.json', true);
     xhr.send(null);
 }
 

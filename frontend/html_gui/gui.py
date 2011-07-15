@@ -55,6 +55,12 @@ class GUIHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(self.db_connection.get_active_batches_json())
             return
+        elif(self.path == '/active_varieties.json'):
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(self.db_connection.get_active_varieties_json())
+            return
         elif(self.path == '/gui.html'):
             req_file = open(curdir + sep + self.path)
             self.send_response(200)
