@@ -57,7 +57,7 @@ class ThreadSerial(threading.Thread):
 
     def kill(self):
         """
-        Called when thread must be killed. Causes loop of thread to 
+        Called when thread must be killed. Causes loop of thread to
         terminate and thread to die
         """
         self.should_run = False
@@ -70,7 +70,7 @@ class DBAPI ():
         self.http_address = config.django_http_path
 
     def add_box(self, picker, batch, variety,
-                      initial_weight, final_weight, timestamp): 
+                      initial_weight, final_weight, timestamp):
         """
         Performs a url request with for the django add box using all the
         info in parameters
@@ -125,6 +125,13 @@ class DBAPI ():
         for variety in varieties.read().split("*")[:-1]:
             result.append(variety.split("|"))
         return result
+
+    def get_active_pickers_json(self):
+        """
+        Simply forwards the json object to the client.
+        """
+        full_address = self.http_address + 'picker_list.json'
+        return urllib.urlopen(full_address).read()
 
     def get_active_pickers_xml(self):
         """

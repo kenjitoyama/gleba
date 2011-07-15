@@ -367,11 +367,11 @@ WebGUI.add_varieties = function(variety_list) {
 
 WebGUI.add_pickers = function(picker_list) {
     var picker_div = document.getElementById('picker_div');
-    var list = eval(picker_list);
+    var list = JSON.parse(picker_list);
     for(var i in list) {
-        var picker_id = list[i][0];
-        var picker_fname = list[i][1];
-        var picker_lname = list[i][2];
+        var picker_id = list[i]['id'];
+        var picker_fname = list[i]['first_name'];
+        var picker_lname = list[i]['last_name'];
         var new_option = document.createElement('input');
         new_option.setAttribute('type', 'button');
         new_option.setAttribute('onclick', 'WebGUI.picker_callback(this)');
@@ -419,7 +419,7 @@ WebGUI.get_active_pickers = function() {
             WebGUI.add_pickers(xhr.responseText);
         }
     };
-    xhr.open('GET', 'active_pickers', true);
+    xhr.open('GET', 'active_pickers.json', true);
     xhr.send(null);
 }
 
