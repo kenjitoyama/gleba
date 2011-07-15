@@ -131,7 +131,7 @@ def get_batch_list_xml(request):
     context = Context({'batch_list': batch_list,})
     return HttpResponse(templ.render(context), mimetype = 'text/xml')
 
-def getVarietyListXML(request):
+def get_variety_list_xml(request):
     """
     Returns the list of Varieties that are still being used.
 

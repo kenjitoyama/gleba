@@ -171,7 +171,7 @@ class DBAPI ():
               for the number values
         """
         result = []
-        full_address = self.http_address + 'varietyList.xml'
+        full_address = self.http_address + 'variety_list.xml'
         xmldoc = minidom.parse(urllib.urlopen(full_address))
         for variety in xmldoc.getElementsByTagName('variety'):
             id_elem = variety.getElementsByTagName("id")[0]

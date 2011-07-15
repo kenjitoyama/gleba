@@ -14,7 +14,7 @@ urlpatterns = patterns('gleba.apps.weigh.views',
     (r'^batch_list.xml$', 'get_batch_list_xml'),
     (r'^batch_list.json$', 'get_batch_list_json'),
     (r'^varietyList/$', 'getVarietyList'),
-    (r'^varietyList.xml$', 'getVarietyListXML'),
+    (r'^variety_list.xml$', 'get_variety_list_xml'),
     (r'^variety_list.json$', 'get_variety_list_json'),
 )
 
