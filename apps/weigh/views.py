@@ -138,9 +138,9 @@ def getVarietyListXML(request):
     The result is given in an XML format.
     """
     variety_list = Variety.objects.filter(active = True).order_by('name')
-    return render_to_response('varietyList.xml', {
-        'variety_list' : variety_list,
-    })
+    templ = get_template('varietyList.xml')
+    context = Context({'variety_list': variety_list,})
+    return HttpResponse(templ.render(context), mimetype = 'text/xml')
 
 def get_picker_list_json(request):
     """
