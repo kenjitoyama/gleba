@@ -135,7 +135,7 @@ class DBAPI ():
         Parse an xml list of all the current batches into a python list.
         """
         result = []
-        full_address = self.http_address + 'batchList.xml'
+        full_address = self.http_address + 'batch_list.xml'
         xmldoc = minidom.parse(urllib.urlopen(full_address))
         for batch in xmldoc.getElementsByTagName("batch"):
             batch_id = batch.getElementsByTagName('id')[0].firstChild.data

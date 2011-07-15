@@ -118,7 +118,7 @@ def get_picker_list_xml(request):
     context = Context({'picker_list': picker_list,})
     return HttpResponse(templ.render(context), mimetype = 'text/xml')
 
-def getBatchListXML(request):
+def get_batch_list_xml(request):
     """
     Returns the list of Batches that are not finished yet
     (i.e. endDate is null).
