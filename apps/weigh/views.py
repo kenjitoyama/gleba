@@ -82,18 +82,6 @@ def getPickerList(request):
         'picker_list' : picker_list,
     })
 
-def getPickerListXML(request):
-    """
-    Returns the list of Pickers that are active and not discharged.
-
-    The result is given in an XML format.
-    """
-    picker_list = Picker.objects.filter(active = True, discharged = False)\
-                                .order_by('id')
-    templ = get_template('pickerList.xml')
-    context = Context({'picker_list': picker_list,})
-    return HttpResponse(templ.render(context), mimetype = 'text/xml')
-
 def getBatchList(request):
     """
     Returns the list of Batches that are not finished yet
@@ -107,6 +95,29 @@ def getBatchList(request):
         'batch_list' : batch_list,
     })
 
+def getVarietyList(request):
+    """
+    Returns the list of Varieties that are still being used.
+
+    The result is a Django QuerySet.
+    """
+    variety_list = Variety.objects.filter(active = True).order_by('name')
+    return render_to_response('varietyList.html', {
+        'variety_list' : variety_list,
+    })
+
+def getPickerListXML(request):
+    """
+    Returns the list of Pickers that are active and not discharged.
+
+    The result is given in an XML format.
+    """
+    picker_list = Picker.objects.filter(active = True, discharged = False)\
+                                .order_by('id')
+    templ = get_template('pickerList.xml')
+    context = Context({'picker_list': picker_list,})
+    return HttpResponse(templ.render(context), mimetype = 'text/xml')
+
 def getBatchListXML(request):
     """
     Returns the list of Batches that are not finished yet
@@ -119,17 +130,6 @@ def getBatchListXML(request):
     templ = get_template('batchList.xml')
     context = Context({'batch_list': batch_list,})
     return HttpResponse(templ.render(context), mimetype = 'text/xml')
-
-def getVarietyList(request):
-    """
-    Returns the list of Varieties that are still being used.
-
-    The result is a Django QuerySet.
-    """
-    variety_list = Variety.objects.filter(active = True).order_by('name')
-    return render_to_response('varietyList.html', {
-        'variety_list' : variety_list,
-    })
 
 def getVarietyListXML(request):
     """
