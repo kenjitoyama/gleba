@@ -33,17 +33,16 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.http import HttpResponse
-from glebaAdmin.models import *
+from glebaAdmin.models import Picker, Batch, Variety, Box
 import json
 
-"""
-- Create data within the database
-"""
-
+################################################################################
+# Add data to the database
+################################################################################
 def add_box(request):
     """
-       Creates a box object. Requires picker, contentVariety, batch, initialWeight,
-       finalWeight and timestamp to be in the request header.
+    Creates a box object. Requires picker, contentVariety, batch, initialWeight,
+    finalWeight and timestamp to be in the request header.
     """
     if ('picker'         in request.GET and
         'contentVariety' in request.GET and
@@ -74,67 +73,68 @@ def add_box(request):
         error_list = ['Not enough parameters']
         return render_to_response('error.html', {'error_list' : error_list})
 
-"""
-- Retrieve data from within the database
-""" 
-def get_picker_list(request,result_format):
+################################################################################
+# Retrieve data from the database
+################################################################################
+def get_picker_list(request, result_format):
     """
     Returns the list of Pickers that are active and not discharged.
 
-    The result is a Django QuerySet.
+    The result is either an XML or JSON file depending on result_format.
     """
-    picker_list = Picker.objects.filter(active = True, discharged = False)\
-                                .order_by('id')
+    picker_list = (Picker.objects.filter(active = True, discharged = False)
+                                .order_by('id'))
     if result_format == 'xml':
         templ = get_template('pickerList.xml')
         context = Context({'picker_list': picker_list,})
         return HttpResponse(templ.render(context), mimetype = 'text/xml')
     elif result_format == 'json':
         data = [{
-                    'id': picker.id,
-                    'first_name': picker.firstName,
-                    'last_name': picker.lastName
-                }
-                for picker in picker_list ]
+            'id': picker.id,
+            'first_name': picker.firstName,
+            'last_name': picker.lastName
+        } for picker in picker_list]
         return HttpResponse(json.dumps(data), mimetype = 'application/json')
     else:
-        return render_to_response('error.html', {'error_list' : ['URL Pattern Matched failed to parse (xml|json)']})
+        return render_to_response('error.html', {
+            'error_list' : ['URL Pattern Matched failed to parse (xml|json)',]
+        })
 
 def get_batch_list(request, result_format):
     """
     Returns the list of Batches that are not finished yet
     (i.e. endDate is null).
 
-    The result is a Django QuerySet.
+    The result is either an XML or JSON file depending on result_format.
     """
-    batch_list = Batch.objects.filter(flush__endDate__isnull = True)\
-                              .order_by('id')
+    batch_list = (Batch.objects.filter(flush__endDate__isnull = True)
+                              .order_by('id'))
     if result_format == 'xml':
         templ = get_template('batchList.xml')
         context = Context({'batch_list': batch_list,})
         return HttpResponse(templ.render(context), mimetype = 'text/xml')
     elif result_format == 'json':
-        data = [
-            {
-                'id': batch.id,
-                'flush_number': batch.flush.flushNo,
-                'room_number': batch.flush.crop.room.number,
-                'date': {
-                    'day': batch.date.day,
-                    'month': batch.date.month,
-                    'year': batch.date.year,
-                }
+        data = [{
+            'id': batch.id,
+            'flush_number': batch.flush.flushNo,
+            'room_number': batch.flush.crop.room.number,
+            'date': {
+                'day': batch.date.day,
+                'month': batch.date.month,
+                'year': batch.date.year,
             }
-            for batch in batch_list ]
+        } for batch in batch_list]
         return HttpResponse(json.dumps(data), mimetype = 'application/json')
     else:
-        return render_to_response('error.html', {'error_list' : ['URL Pattern Matched failed to parse (xml|json)']})
+        return render_to_response('error.html', {
+            'error_list' : ['URL Pattern Matched failed to parse (xml|json)',]
+        })
 
-def get_variety_list(request):
+def get_variety_list(request, result_format):
     """
     Returns the list of Varieties that are still being used.
 
-    The result is a Django QuerySet.
+    The result is either an XML or JSON file depending on result_format.
     """
     variety_list = Variety.objects.filter(active = True).order_by('name')
     if result_format == 'xml':
@@ -142,15 +142,15 @@ def get_variety_list(request):
         context = Context({'variety_list': variety_list,}) 
         return HttpResponse(templ.render(context), mimetype = 'text/xml')
     elif result_format == 'json':
-        data = [
-            { 
-                'id': variety.id,
-                'name': variety.name,
-                'ideal_weight': variety.idealWeight,
-                'tolerance': variety.tolerance
-            }
-            for variety in variety_list ]
+        data = [{
+            'id': variety.id,
+            'name': variety.name,
+            'ideal_weight': variety.idealWeight,
+            'tolerance': variety.tolerance
+        } for variety in variety_list]
         return HttpResponse(json.dumps(data), mimetype = 'application/json')
     else:
-        return render_to_response('error.html', {'error_list' : ['URL Pattern Matched failed to parse (xml|json)']})
+        return render_to_response('error.html', {
+            'error_list' : ['URL Pattern Matched failed to parse (xml|json)',]
+        })
 
