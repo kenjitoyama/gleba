@@ -86,7 +86,7 @@ class DBAPI ():
             'picker':         picker,
             'batch':          batch
         })
-        full_address = self.http_address + 'addBox?{}'
+        full_address = self.http_address + 'add_box?{}'
         request = urllib.urlopen(full_address.format(params))
         return ((request.read() == 'success'), request.read())
 
