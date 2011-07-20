@@ -90,42 +90,6 @@ class DBAPI ():
         request = urllib.urlopen(full_address.format(params))
         return ((request.read() == 'success'), request.read())
 
-    def get_active_pickers(self):
-        """
-        Parse a delimited string from a url of all the current pickers
-        into a python list.
-        """
-        result = []
-        full_address = self.http_address + 'pickerList'
-        pickers = urllib.urlopen(full_address)
-        for picker in pickers.read().split("*")[:-1]:
-            result.append(picker.split("|"))
-        return result
-
-    def get_active_batches(self):
-        """
-        Parse a delimited string from a url of all the current batches into
-        a python list.
-        """
-        result = []
-        full_address = self.http_address + 'batchList'
-        batches = urllib.urlopen(full_address)
-        for batch in batches.read().split('*')[:-1]:
-            result.append(batch.split('|'))
-        return result
-
-    def get_active_varieties(self):
-        """
-        Parse a delimited string from a url of all the current batches into
-        a python list
-        """
-        result = []
-        full_address = self.http_address + 'varietyList'
-        varieties = urllib.urlopen(full_address)
-        for variety in varieties.read().split("*")[:-1]:
-            result.append(variety.split("|"))
-        return result
-
     def get_active_pickers_xml(self):
         """
         Parse an xml list of all the current pickers into a python list.

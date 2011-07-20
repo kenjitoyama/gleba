@@ -189,9 +189,9 @@ class MainWindow(Gtk.Window):
         """
         Alleviates the burden of adding data from __init__().
         """
-        self.batches   = DB.get_active_batches()
-        self.pickers   = DB.get_active_pickers()
-        self.varieties = DB.get_active_varieties()
+        self.batches   = DB.get_active_batches_xml()
+        self.pickers   = DB.get_active_pickers_xml()
+        self.varieties = DB.get_active_varieties_xml()
         # add batches
         batch_text_format = 'Batch No. {} ({}) Room {}'
         for batch in self.batches:
