@@ -10,7 +10,7 @@ On GNU/Linux:
 
 # - Serial Configuration
 #ser_port=1#"/dev/ttyS0"
-ser_port = '/dev/pts/7'
+ser_port = '/dev/pts/5'
 
 # - Django Configuration
 #    Full http path to the root of the django web app 

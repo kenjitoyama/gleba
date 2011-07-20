@@ -36,7 +36,11 @@ from django.http import HttpResponse
 from glebaAdmin.models import *
 import json
 
-def addBox(request):
+"""
+- Create data within the database
+"""
+
+def add_box(request):
     """
        Creates a box object. Requires picker, contentVariety, batch, initialWeight,
        finalWeight and timestamp to be in the request header.
@@ -70,7 +74,10 @@ def addBox(request):
         error_list = ['Not enough parameters']
         return render_to_response('error.html', {'error_list' : error_list})
 
-def getPickerList(request):
+"""
+- Retrieve data from within the database
+""" 
+def get_picker_list(request,result_format):
     """
     Returns the list of Pickers that are active and not discharged.
 
@@ -78,11 +85,22 @@ def getPickerList(request):
     """
     picker_list = Picker.objects.filter(active = True, discharged = False)\
                                 .order_by('id')
-    return render_to_response('pickerList.html', {
-        'picker_list' : picker_list,
-    })
+    if result_format == 'xml':
+        templ = get_template('pickerList.xml')
+        context = Context({'picker_list': picker_list,})
+        return HttpResponse(templ.render(context), mimetype = 'text/xml')
+    elif result_format == 'json':
+        data = [{
+                    'id': picker.id,
+                    'first_name': picker.firstName,
+                    'last_name': picker.lastName
+                }
+                for picker in picker_list ]
+        return HttpResponse(json.dumps(data), mimetype = 'application/json')
+    else:
+        return render_to_response('error.html', {'error_list' : ['URL Pattern Matched failed to parse (xml|json)']})
 
-def getBatchList(request):
+def get_batch_list(request, result_format):
     """
     Returns the list of Batches that are not finished yet
     (i.e. endDate is null).
@@ -91,110 +109,48 @@ def getBatchList(request):
     """
     batch_list = Batch.objects.filter(flush__endDate__isnull = True)\
                               .order_by('id')
-    return render_to_response('batchList.html', {
-        'batch_list' : batch_list,
-    })
-
-def getVarietyList(request):
-    """
-    Returns the list of Varieties that are still being used.
-
-    The result is a Django QuerySet.
-    """
-    variety_list = Variety.objects.filter(active = True).order_by('name')
-    return render_to_response('varietyList.html', {
-        'variety_list' : variety_list,
-    })
-
-def get_picker_list_xml(request):
-    """
-    Returns the list of Pickers that are active and not discharged.
-
-    The result is given in an XML format.
-    """
-    picker_list = Picker.objects.filter(active = True, discharged = False)\
-                                .order_by('id')
-    templ = get_template('pickerList.xml')
-    context = Context({'picker_list': picker_list,})
-    return HttpResponse(templ.render(context), mimetype = 'text/xml')
-
-def get_batch_list_xml(request):
-    """
-    Returns the list of Batches that are not finished yet
-    (i.e. endDate is null).
-
-    The result is given in an XML format.
-    """
-    batch_list = Batch.objects.filter(flush__endDate__isnull = True)\
-                              .order_by('id')
-    templ = get_template('batchList.xml')
-    context = Context({'batch_list': batch_list,})
-    return HttpResponse(templ.render(context), mimetype = 'text/xml')
-
-def get_variety_list_xml(request):
-    """
-    Returns the list of Varieties that are still being used.
-
-    The result is given in an XML format.
-    """
-    variety_list = Variety.objects.filter(active = True).order_by('name')
-    templ = get_template('varietyList.xml')
-    context = Context({'variety_list': variety_list,})
-    return HttpResponse(templ.render(context), mimetype = 'text/xml')
-
-def get_picker_list_json(request):
-    """
-    Returns the list of Pickers that are active and not discharged.
-
-    The result is given in an JSON format.
-    """
-    picker_list = Picker.objects.filter(active = True, discharged = False)\
-                                .order_by('id')
-    data = []
-    for picker in picker_list:
-        data.append({
-            'id': picker.id,
-            'first_name': picker.firstName,
-            'last_name': picker.lastName
-        })
-    return HttpResponse(json.dumps(data), mimetype = 'application/json')
-
-def get_batch_list_json(request):
-    """
-    Returns the list of Batches that are not finished yet
-    (i.e. endDate is null).
-
-    The result is given in an JSON format.
-    """
-    batch_list = Batch.objects.filter(flush__endDate__isnull = True)\
-                              .order_by('id')
-    data = []
-    for batch in batch_list:
-        data.append({
-            'id': batch.id,
-            'flush_number': batch.flush.flushNo,
-            'room_number': batch.flush.crop.room.number,
-            'date': {
-                'day': batch.date.day,
-                'month': batch.date.month,
-                'year': batch.date.year,
+    if result_format == 'xml':
+        templ = get_template('batchList.xml')
+        context = Context({'batch_list': batch_list,})
+        return HttpResponse(templ.render(context), mimetype = 'text/xml')
+    elif result_format == 'json':
+        data = [
+            {
+                'id': batch.id,
+                'flush_number': batch.flush.flushNo,
+                'room_number': batch.flush.crop.room.number,
+                'date': {
+                    'day': batch.date.day,
+                    'month': batch.date.month,
+                    'year': batch.date.year,
+                }
             }
-        })
-    return HttpResponse(json.dumps(data), mimetype = 'application/json')
+            for batch in batch_list ]
+        return HttpResponse(json.dumps(data), mimetype = 'application/json')
+    else:
+        return render_to_response('error.html', {'error_list' : ['URL Pattern Matched failed to parse (xml|json)']})
 
-def get_variety_list_json(request):
+def get_variety_list(request):
     """
     Returns the list of Varieties that are still being used.
 
-    The result is given in an JSON format.
+    The result is a Django QuerySet.
     """
     variety_list = Variety.objects.filter(active = True).order_by('name')
-    data = []
-    for variety in variety_list:
-        data.append({
-            'id': variety.id,
-            'name': variety.name,
-            'ideal_weight': variety.idealWeight,
-            'tolerance': variety.tolerance
-        })
-    return HttpResponse(json.dumps(data), mimetype = 'application/json')
+    if result_format == 'xml':
+        templ = get_template('varietyList.xml')
+        context = Context({'variety_list': variety_list,}) 
+        return HttpResponse(templ.render(context), mimetype = 'text/xml')
+    elif result_format == 'json':
+        data = [
+            { 
+                'id': variety.id,
+                'name': variety.name,
+                'ideal_weight': variety.idealWeight,
+                'tolerance': variety.tolerance
+            }
+            for variety in variety_list ]
+        return HttpResponse(json.dumps(data), mimetype = 'application/json')
+    else:
+        return render_to_response('error.html', {'error_list' : ['URL Pattern Matched failed to parse (xml|json)']})
+
