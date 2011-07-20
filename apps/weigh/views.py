@@ -85,7 +85,7 @@ def get_picker_list(request, result_format):
     picker_list = (Picker.objects.filter(active = True, discharged = False)
                                 .order_by('id'))
     if result_format == 'xml':
-        templ = get_template('pickerList.xml')
+        templ = get_template('picker_list.xml')
         context = Context({'picker_list': picker_list,})
         return HttpResponse(templ.render(context), mimetype = 'text/xml')
     elif result_format == 'json':
@@ -110,7 +110,7 @@ def get_batch_list(request, result_format):
     batch_list = (Batch.objects.filter(flush__endDate__isnull = True)
                               .order_by('id'))
     if result_format == 'xml':
-        templ = get_template('batchList.xml')
+        templ = get_template('batch_list.xml')
         context = Context({'batch_list': batch_list,})
         return HttpResponse(templ.render(context), mimetype = 'text/xml')
     elif result_format == 'json':
@@ -138,7 +138,7 @@ def get_variety_list(request, result_format):
     """
     variety_list = Variety.objects.filter(active = True).order_by('name')
     if result_format == 'xml':
-        templ = get_template('varietyList.xml')
+        templ = get_template('variety_list.xml')
         context = Context({'variety_list': variety_list,}) 
         return HttpResponse(templ.render(context), mimetype = 'text/xml')
     elif result_format == 'json':
