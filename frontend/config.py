@@ -9,12 +9,10 @@ On GNU/Linux:
 """
 
 # - Serial Configuration
-#ser_port=1#"/dev/ttyS0"
 ser_port = '/dev/pts/5'
 
 # - Django Configuration
 #    Full http path to the root of the django web app 
-#         Change before deployment
 django_http_path = 'http://localhost:8000/'
 
 WEIGHT_WINDOW_SIZE = 100
@@ -38,8 +36,8 @@ VARIETY_COLS = 2
 
 # Status appearance (don't change the stuff inside the curly brackets}
 STATUS_STYLE = '<span foreground="#000000" font="Calibri 30">{text}</span>'
-WEIGHT_STYLE = '<span foreground="#ffffff" font="Calibri 30">{0:.3}</span>'
-OFFSET_STYLE = '<span foreground="#ffffff" font="Calibri 30">{0:+.3}</span>'
+WEIGHT_STYLE = '<span foreground="#ffffff" font="Calibri 30">{0:.3f}</span>'
+OFFSET_STYLE = '<span foreground="#ffffff" font="Calibri 30">{0:+.3f}</span>'
 NA_MARKUP = '<span foreground="#000000" font_desc="Calibri 30">N/A</span>'
 
 WHITE_COLOR = (0xffff, 0xffff, 0xffff)

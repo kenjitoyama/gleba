@@ -3,7 +3,8 @@
 """
 This is a library of classes for use within the Gleba Software system
 
-Copyright (C) Simon Dawson, Kenji Toyama, Meryl Baquiran, Chris Ellis 2010-2011
+Copyright (C) Simon Dawson, Kenji Toyama, Meryl Baquiran, Chris Ellis
+2010-2011
 """
 
 import serial
@@ -15,17 +16,16 @@ import config
 
 class ThreadSerial(threading.Thread):
     """
-    Opens a serial connection on the port specified in the glocal variable section
+    Opens a serial connection on the port specified in config.py.
 
-    Starts a thread which reads from it. It will return the value of the weight as
-    the getWeight method is called.
+    Starts a thread which consumes the serial port and returns the value of
+    the weight as the get_weight method is called.
 
-    As of 9/2/11 this is untested using a serial scale.
+    As of 9/2/11 this is untested using a serial scale (just the simulator).
     """
     def __init__(self):
         """
-        Open a start a new thread which will read from the serial port opened
-        in this function.
+        Sets up the running environment for reading the serial port.
         """
         threading.Thread.__init__(self)
         self.should_run = True
@@ -40,7 +40,7 @@ class ThreadSerial(threading.Thread):
         """
         Read serial until thread killed
         """
-        while self.should_run == True:
+        while self.should_run:
             self.scale_string = self.ser.readline()
 
     def is_stable(self):
@@ -62,7 +62,7 @@ class ThreadSerial(threading.Thread):
         """
         self.should_run = False
 
-class DBAPI ():
+class DBAPI:
     """
     This class is a helper in accessing DB related functions of Gleba.
     """
@@ -122,7 +122,7 @@ class DBAPI ():
             room_elem = batch.getElementsByTagName('room')[0]
             room_number = (room_elem.getElementsByTagName('number')[0]
                            .firstChild.data)
-            date_format = u'{}/{}/{}'
+            date_format = '{}/{}/{}'
             batch_date = date_format.format(day, month, year)
             result.append([batch_id, batch_date, room_number])
         return result
