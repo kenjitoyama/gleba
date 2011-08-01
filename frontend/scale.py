@@ -10,7 +10,6 @@ pygtk.require('2.0')
 import gtk
 import multiprocessing
 import Queue # for Queue.Empty Exception
-import time
 import subprocess, shlex # for "forking socat"
 
 SOCAT_EXECUTABLE = '/usr/bin/socat'
@@ -32,12 +31,10 @@ class ScaleProcess(multiprocessing.Process):
             self.output_format = output_format
 
     def run(self):
-        weight = '0'
+        weight = '0.000'
         while self.is_alive():
             try:
-                time.sleep(0.01)
-                item = self.queue.get(False) # don't block if there's no item
-                weight = item
+                weight = self.queue.get(True, 0.1)
             except Queue.Empty:
                 pass
             self.serial_port.write(self.line(weight))
@@ -46,10 +43,7 @@ class ScaleProcess(multiprocessing.Process):
         """
         Returns the 'line' as given by a scale.
         """
-        try:
-            return (self.output_format+'\n').format(float(weight))
-        except:
-            pass
+        return (self.output_format+'\n').format(float(weight))
 
 def extract_device_from_line(line):
     """
@@ -76,7 +70,7 @@ class Scale(gtk.Window):
             device_for_writes,
             device_for_reads
         ))
-        self.queue = multiprocessing.Queue()
+        self.queue = multiprocessing.Queue(1)
         self.scale_process = ScaleProcess(port = device_for_writes,
                                           queue = self.queue)
         self.scale_process.start()
@@ -120,9 +114,10 @@ class Scale(gtk.Window):
         """
         weight = str(slider.get_value())
         try:
-            self.queue.put(weight, False)
+            self.queue.put(weight, True, 0.5)
+            print '' # bug in Python? See commit notes
         except Queue.Full:
-            self.queue.get(False) # throw away the first item
+            pass
 
 if __name__ == '__main__':
     scale = Scale()
