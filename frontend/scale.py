@@ -1,4 +1,9 @@
 #!/usr/bin/python
+"""
+Scale simulator.
+
+It writes a chosen weight to a serial port, just like a normal scale.
+"""
 import serial
 import pygtk
 pygtk.require('2.0')
@@ -6,7 +11,6 @@ import gtk
 import multiprocessing
 import Queue # for Queue.Empty Exception
 import time
-import gobject
 import subprocess, shlex # for "forking socat"
 
 SOCAT_EXECUTABLE = '/usr/bin/socat'
@@ -97,10 +101,7 @@ class Scale(gtk.Window):
         self.slider.set_digits(3)
         self.slider.set_value_pos(gtk.POS_TOP)
         self.slider.set_draw_value(True)
-        self.display = gtk.Label()
-        self.display.set_size_request(100,20)
         self.main_container.add(self.slider)
-        self.main_container.add(self.display)
         self.add(self.main_container)
         self.show_all()
 
@@ -108,16 +109,10 @@ class Scale(gtk.Window):
         return False
 
     def destroy(self, widget, data = None):
+        self.scale_process.terminate()
         self.scale_process.serial_port.close() # close serial port
         self.socat_process.terminate()
         gtk.main_quit()
-
-    def update_display(self, weight):
-        """
-        Simply updates the display Label widget to the current weight.
-        """
-        self.slider.set_value(float(weight))
-        self.display.set_markup("{0} Kg".format(weight))
 
     def slider_change(self, slider):
         """
@@ -125,21 +120,9 @@ class Scale(gtk.Window):
         """
         weight = str(slider.get_value())
         try:
-            self.queue.put(weight, False, 0.1) # wait only 0.1s
+            self.queue.put(weight, False)
         except Queue.Full:
-            pass
-        self.update_display(weight)
-
-    def set_weight_cb(self, entry):
-        """
-        Puts the current value of self.weight_input into self.queue.
-        """
-        weight = entry.get_text()
-        try:
-            self.queue.put(weight, False, 0.1) # wait only 0.1s
-        except Queue.Full:
-            pass
-        self.update_display(weight)
+            self.queue.get(False) # throw away the first item
 
 if __name__ == '__main__':
     scale = Scale()
