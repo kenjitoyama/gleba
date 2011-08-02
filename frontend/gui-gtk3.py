@@ -524,9 +524,8 @@ class MainWindow(Gtk.Window):
             if self.show_weight:
                 self.weight_window.pop(0)
                 self.weight_window.append(self.current_weight)
-                self.min_weight = float(self.varieties[self.current_variety][2])
-                weight_tolerance = float(
-                    self.varieties[self.current_variety][3])
+                self.min_weight = self.varieties[self.current_variety][2]
+                weight_tolerance = self.varieties[self.current_variety][3]
                 if self.current_weight >= self.min_weight + weight_tolerance:
                     # overweight
                     self.weight_color = config.RED_COLOR
