@@ -307,7 +307,7 @@ class Variety(models.Model):
 
     def __unicode__(self):
         return 'Variety {name}'.format(
-            naem = str(self.name)
+            name = str(self.name)
         )
 
 class Box(models.Model):
