@@ -56,11 +56,6 @@ class MainWindow(Gtk.Window):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        #Thread to read from scale
-        self.serial_thread = utils.ThreadSerial()
-        self.serial_thread.daemon = True
-        self.serial_thread.start()
-
         # set minimum size and register the exit button
         self.set_size_request(int(WINDOWW), int(WINDOWH))
         self.connect('destroy', self.exit_callback)
@@ -68,17 +63,24 @@ class MainWindow(Gtk.Window):
         self.add_widgets()
         self.add_initial_data()
 
-        self.keep_running = True # Kenji: flag to stop the consumer thread
-        self.reading_thread = Thread(target = self.consumer_thread)
-        self.reading_thread.start()
-        self.show_all()
-
         self.player = gst.element_factory_make('playbin2', 'player')
         fakesink = gst.element_factory_make('fakesink', 'fakesink')
         self.player.set_property('video-sink', fakesink)
         bus = self.player.get_bus()
         bus.add_signal_watch()
         bus.connect('message', self.on_message)
+
+        # Thread to read from scale (producer)
+        self.serial_thread = utils.ThreadSerial()
+        self.serial_thread.daemon = True
+        self.serial_thread.start()
+
+        # Thread to process stuff (consumer)
+        self.keep_running = True # Kenji: flag to stop the consumer thread
+        self.reading_thread = Thread(target = self.consumer_thread)
+        self.reading_thread.start()
+        self.show_all()
+
 
     def add_widgets(self):
         """
