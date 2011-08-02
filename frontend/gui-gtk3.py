@@ -90,14 +90,9 @@ class MainWindow(Gtk.Window):
         main_hbox = Gtk.HBox()
         self.add(main_hbox)
 
-        #status_frame for leftmost VBox, pack into main_hbox
-        status_frame = Gtk.Frame()
-        status_frame.set_size_request(int(WINDOWW/2.5), int(WINDOWH/6))
-        main_hbox.add(status_frame)
-
         #Leftmost VBox, add to status_frame
         status_vbox = Gtk.VBox()
-        status_frame.add(status_vbox)
+        main_hbox.add(status_vbox)
 
         #Extra Frame for Batch ComboBox, add to leftmost VBox
         batch_frame = Gtk.Frame(label = 'Batch')
