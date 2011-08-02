@@ -62,6 +62,7 @@ class MainWindow(Gtk.Window):
 
         self.add_widgets()
         self.add_initial_data()
+        self.set_status_feedback()
 
         self.player = gst.element_factory_make('playbin2', 'player')
         fakesink = gst.element_factory_make('fakesink', 'fakesink')
@@ -116,7 +117,6 @@ class MainWindow(Gtk.Window):
         self.event_box1.add(self.offset_label)
         offset_display_frame.add(self.event_box1)
         left_vbox.add(offset_display_frame)
-        self.set_status_feedback()
 
         # Center VBox (Pickers)
         center_vbox = Gtk.VBox()
