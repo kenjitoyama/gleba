@@ -90,24 +90,19 @@ class MainWindow(Gtk.Window):
         main_hbox = Gtk.HBox()
         self.add(main_hbox)
 
-        #Leftmost VBox, add to status_frame
+        #Leftmost VBox (batches, status, messages, weight and offset)
         left_vbox = Gtk.VBox()
-        main_hbox.add(left_vbox)
-
         #Extra Frame for Batch ComboBox, add to leftmost VBox
         batch_frame = Gtk.Frame(label = 'Batch')
         batch_frame.set_size_request(0, 0) # minimum as possible
         left_vbox.add(batch_frame)
-
         #Batch ComboBox, pack into batch HBox
         self.batch_combo_box = Gtk.ComboBoxText()
         batch_frame.add(self.batch_combo_box)
-        
         #Status feedback label
         self.status_label = Gtk.Label()
         self.status_label.set_size_request(250, 200)
         left_vbox.add(self.status_label)
-
         #Weight and offset display labels 
         weight_display_frame = Gtk.Frame(label = 'Weight')
         self.weight_label = Gtk.Label()
@@ -115,50 +110,37 @@ class MainWindow(Gtk.Window):
         self.event_box.add(self.weight_label)
         weight_display_frame.add(self.event_box)
         left_vbox.add(weight_display_frame)
-        
         offset_display_frame = Gtk.Frame(label = 'Offset')
         self.offset_label = Gtk.Label()
         self.event_box1 = Gtk.EventBox()
         self.event_box1.add(self.offset_label)
         offset_display_frame.add(self.event_box1)
         left_vbox.add(offset_display_frame)
-
         self.set_status_feedback()
 
+        # Center VBox (Pickers)
         center_vbox = Gtk.VBox()
-        #Frame for middle VBox() containing pickers
         picker_frame = Gtk.Frame(label = 'Pickers')
         picker_frame.set_size_request(int(WINDOWW/2), int(WINDOWH/6))
         self.picker_vbox = Gtk.VBox()
         picker_frame.add(self.picker_vbox)
         center_vbox.add(picker_frame)
-        main_hbox.add(center_vbox)
 
-        history_vbox = Gtk.VBox()
+        # Rightmost VBox (varieties, history and buttons)
+        right_vbox = Gtk.VBox()
         varieties_frame = Gtk.Frame(label = 'Varieties')
         varieties_frame.set_size_request(int(WINDOWW/2), int(WINDOWH/2))
-        history_vbox.add(varieties_frame)
-	
+        right_vbox.add(varieties_frame)
         self.varieties_vbox = Gtk.VBox()
         varieties_frame.add(self.varieties_vbox)
-
-        #Frame for rightmost VBox() containing entry history
-        history_frame = Gtk.Frame()
-        main_hbox.add(history_frame)
-        history_frame.set_size_request(int(WINDOWW/4), 0)
-        
         adj1 = Gtk.Adjustment(0.0, 0.0, 101.0, 0.1, 1.0, 1.0)
-
         scrolled_window = Gtk.ScrolledWindow(adj1)
         scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC,
                                    Gtk.PolicyType.AUTOMATIC)
-
         history_frame1 = Gtk.Frame()
         history_frame1.add(scrolled_window)
         history_frame1.set_size_request(int(WINDOWW/2), int(WINDOWH/3))
-        history_frame.add(history_vbox)
-        history_vbox.add(history_frame1)
-        
+        right_vbox.add(history_frame1)
         self.history_list = Gtk.TreeView()
         self.history_store = Gtk.ListStore(str)
         column = Gtk.TreeViewColumn('History', Gtk.CellRendererText(), text=0)
@@ -167,22 +149,22 @@ class MainWindow(Gtk.Window):
         self.history_list.append_column(column)
         self.history_list.set_model(self.history_store)
         scrolled_window.add(self.history_list)
-        
         edit_button_box = Gtk.HBox()
-        
         history_frame2 = Gtk.Frame()
         history_frame2.set_size_request(int(WINDOWW/2), int(WINDOWH/24))
-        history_vbox.add(history_frame2)
+        right_vbox.add(history_frame2)
         history_frame2.add(edit_button_box)
-        
         edit_button = Gtk.Button(label='Edit')
         edit_button.set_size_request(20, 20)
         edit_button_box.add(edit_button)
         edit_button.connect('clicked', self.open_edit_window)
-
         commit_button = Gtk.Button(label='Commit')
         commit_button.connect('clicked', self.commit_callback)
         edit_button_box.add(commit_button)
+
+        main_hbox.add(left_vbox)
+        main_hbox.add(center_vbox)
+        main_hbox.add(right_vbox)
 
     def add_initial_data(self):
         """
