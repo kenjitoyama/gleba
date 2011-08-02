@@ -91,13 +91,13 @@ class MainWindow(Gtk.Window):
         self.add(main_hbox)
 
         #Leftmost VBox, add to status_frame
-        status_vbox = Gtk.VBox()
-        main_hbox.add(status_vbox)
+        left_vbox = Gtk.VBox()
+        main_hbox.add(left_vbox)
 
         #Extra Frame for Batch ComboBox, add to leftmost VBox
         batch_frame = Gtk.Frame(label = 'Batch')
         batch_frame.set_size_request(0, 0) # minimum as possible
-        status_vbox.add(batch_frame)
+        left_vbox.add(batch_frame)
 
         #Batch ComboBox, pack into batch HBox
         self.batch_combo_box = Gtk.ComboBoxText()
@@ -106,7 +106,7 @@ class MainWindow(Gtk.Window):
         #Status feedback label
         self.status_label = Gtk.Label()
         self.status_label.set_size_request(250, 200)
-        status_vbox.add(self.status_label)
+        left_vbox.add(self.status_label)
 
         #Weight and offset display labels 
         weight_display_frame = Gtk.Frame(label = 'Weight')
@@ -114,23 +114,25 @@ class MainWindow(Gtk.Window):
         self.event_box = Gtk.EventBox()
         self.event_box.add(self.weight_label)
         weight_display_frame.add(self.event_box)
-        status_vbox.add(weight_display_frame)
+        left_vbox.add(weight_display_frame)
         
         offset_display_frame = Gtk.Frame(label = 'Offset')
         self.offset_label = Gtk.Label()
         self.event_box1 = Gtk.EventBox()
         self.event_box1.add(self.offset_label)
         offset_display_frame.add(self.event_box1)
-        status_vbox.add(offset_display_frame)
+        left_vbox.add(offset_display_frame)
 
         self.set_status_feedback()
 
+        center_vbox = Gtk.VBox()
         #Frame for middle VBox() containing pickers
         picker_frame = Gtk.Frame(label = 'Pickers')
         picker_frame.set_size_request(int(WINDOWW/2), int(WINDOWH/6))
         self.picker_vbox = Gtk.VBox()
         picker_frame.add(self.picker_vbox)
-        main_hbox.add(picker_frame)
+        center_vbox.add(picker_frame)
+        main_hbox.add(center_vbox)
 
         history_vbox = Gtk.VBox()
         varieties_frame = Gtk.Frame(label = 'Varieties')
