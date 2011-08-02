@@ -28,7 +28,6 @@ class ThreadSerial(threading.Thread):
         Sets up the running environment for reading the serial port.
         """
         threading.Thread.__init__(self)
-        self.should_run = True
         self.pattern_matcher = re.compile(
             r'^(ST|US),(GS|[A-Z]+), (\d+\.\d+)KG,$')
         self.scale_string = 'ST,GS, 0.0KG,'
@@ -40,7 +39,7 @@ class ThreadSerial(threading.Thread):
         """
         Read serial until thread killed
         """
-        while self.should_run:
+        while self.ser.isOpen():
             self.scale_string = self.ser.readline()
 
     def is_stable(self):
@@ -60,7 +59,7 @@ class ThreadSerial(threading.Thread):
         Called when thread must be killed. Causes loop of thread to
         terminate and thread to die
         """
-        self.should_run = False
+        self.ser.close()
 
 class DBAPI:
     """
