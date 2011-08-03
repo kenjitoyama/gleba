@@ -220,13 +220,13 @@ class MainWindow(Gtk.Window):
         selection, iterator = self.history_list.get_selection().get_selected()
         if iterator is not None:
             edit_dialog = Gtk.Window()
-            vertical_box = Gtk.VBox()
-            frame1 = Gtk.Frame(label = 'Batch')
-            frame2 = Gtk.Frame(label = 'Picker')
-            frame3 = Gtk.Frame(label = 'Variety')
-            vertical_box.add(frame1)
-            vertical_box.add(frame2)
-            vertical_box.add(frame3)
+            edit_vbox = Gtk.VBox()
+            edit_batch_frame = Gtk.Frame(label = 'Batch')
+            edit_picker_frame = Gtk.Frame(label = 'Picker')
+            edit_variety_frame = Gtk.Frame(label = 'Variety')
+            edit_vbox.add(edit_batch_frame)
+            edit_vbox.add(edit_picker_frame)
+            edit_vbox.add(edit_variety_frame)
             # Kenji: TODO row is super ugly. change this later.
             row = int(str(selection.get_path(iterator)))
             index_list = self.history_entries[row][6]
@@ -253,28 +253,30 @@ class MainWindow(Gtk.Window):
                 ))
             edit_varieties_combo.set_active(index_list[1])
             # pack everything and show window
-            frame1.add(edit_batch_combo)
-            frame2.add(edit_picker_combo)
-            frame3.add(edit_varieties_combo)
-            delete_button = Gtk.Button(label = 'Delete Record')
-            delete_button.connect('clicked', self.modify_history_callback,
-                                             iterator, row, True,
-                                             edit_batch_combo,
-                                             edit_varieties_combo,
-                                             edit_picker_combo,
-                                             edit_dialog)
-            delete_button.set_size_request(10, 15)
-            apply_button = Gtk.Button(label = 'Apply Changes')
-            apply_button.set_size_request(10, 35)
-            apply_button.connect('clicked', self.modify_history_callback,
-                                                iterator, row, False,
-                                                edit_batch_combo,
-                                                edit_varieties_combo,
-                                                edit_picker_combo,
-                                                edit_dialog)
-            vertical_box.add(apply_button)
-            vertical_box.add(delete_button)
-            edit_dialog.add(vertical_box)
+            edit_batch_frame.add(edit_batch_combo)
+            edit_picker_frame.add(edit_picker_combo)
+            edit_variety_frame.add(edit_varieties_combo)
+            edit_delete_button = Gtk.Button(label = 'Delete Record')
+            edit_delete_button.connect('clicked',
+                                       self.modify_history_callback,
+                                       iterator, row, True,
+                                       edit_batch_combo,
+                                       edit_varieties_combo,
+                                       edit_picker_combo,
+                                       edit_dialog)
+            edit_delete_button.set_size_request(10, 15)
+            edit_apply_button = Gtk.Button(label = 'Apply Changes')
+            edit_apply_button.set_size_request(10, 35)
+            edit_apply_button.connect('clicked',
+                                      self.modify_history_callback,
+                                      iterator, row, False,
+                                      edit_batch_combo,
+                                      edit_varieties_combo,
+                                      edit_picker_combo,
+                                      edit_dialog)
+            edit_vbox.add(edit_apply_button)
+            edit_vbox.add(edit_delete_button)
+            edit_dialog.add(edit_vbox)
             edit_dialog.set_size_request(int(WINDOWW/2.7),
                                          int(WINDOWH/1.6))
             edit_dialog.show_all()
