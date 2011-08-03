@@ -1,0 +1,122 @@
+<interface>
+  <object class="GtkWindow" id="window">
+    <signal name="destroy" handler="exit_callback"/>
+    <child>
+      <object class="GtkHBox" id="main_hbox">
+        <child>
+          <object class="GtkVBox" id="left_vbox">
+            <child>
+              <object class="GtkFrame" id="batch_frame">
+                <property name="label">Batch</property>
+                <child>
+                  <object class="GtkComboBoxText" id="batch_combo_box"/>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="status_label"/>
+            </child>
+            <child>
+              <object class="GtkFrame" id="weight_display_frame">
+                <property name="label">Weight</property>
+                <child>
+                  <object class="GtkEventBox" id="weight_event_box">
+                    <child>
+                      <object class="GtkLabel" id="weight_label"/>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkFrame" id="offset_display_frame">
+                <property name="label">Offset</property>
+                <child>
+                  <object class="GtkEventBox" id="offset_event_box">
+                    <child>
+                      <object class="GtkLabel" id="offset_label"/>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkVBox" id="center_vbox">
+            <child>
+              <object class="GtkFrame" id="picker_frame">
+                <property name="label">Pickers</property>
+                <child>
+                  <object class="GtkVBox" id="picker_vbox"/>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkVBox" id="right_vbox">
+            <child>
+              <object class="GtkFrame" id="varieties_frame">
+                <property name="label">Varieties</property>
+                <child>
+                  <object class="GtkVBox" id="varieties_vbox"/>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="scrolled_window">
+                <property name="hscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
+                <property name="vscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
+                <child>
+                  <object class="GtkTreeView" id="history_list">
+                    <property name="model">history_store</property>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="tree_column">
+                        <property name="title">History</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="cell_renderer_text">
+                            <property name="text">0</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkHBox" id="edit_button_hbox">
+                <child>
+                  <object class="GtkButton" id="edit_button">
+                    <property name="label">Edit</property>
+                    <signal name="clicked" handler="open_edit_window"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="commit_button">
+                    <property name="label">Commit</property>
+                    <signal name="clicked" handler="commit_callback"/>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkAdjustment" id="scroll_adjustment">
+    <property name="value">0.0</property>
+    <property name="lower">0.0</property>
+    <property name="upper">101.0</property>
+    <property name="step_increment">0.1</property>
+    <property name="page_increment">1.0</property>
+    <property name="page_size">1.0</property>
+  </object>
+  <object class="GtkListStore" id="history_store">
+    <columns>
+      <column type="gchararray"/>
+    </columns>
+  </object>
+</interface>
