@@ -221,7 +221,6 @@ class MainWindow(Gtk.Window):
         if iterator is not None:
             edit_dialog = Gtk.Window()
             vertical_box = Gtk.VBox()
-            edit_frame = Gtk.Frame(label = 'Modify Entry')
             frame1 = Gtk.Frame(label = 'Batch')
             frame2 = Gtk.Frame(label = 'Picker')
             frame3 = Gtk.Frame(label = 'Variety')
@@ -232,7 +231,6 @@ class MainWindow(Gtk.Window):
             vertical_box.add(frame4)
             # Kenji: TODO row is super ugly. change this later.
             row = int(str(selection.get_path(iterator)))
-            edit_frame.set_size_request(0, 60)
             index_list = self.history_entries[row][6]
             # get batches
             edit_batch_combo = Gtk.ComboBoxText()
@@ -282,9 +280,8 @@ class MainWindow(Gtk.Window):
             vertical_box2.add(apply_button)
             vertical_box2.add(frame5)
             vertical_box2.add(delete_button)
-            edit_frame.add(vertical_box)
             frame4.add(vertical_box2)
-            edit_dialog.add(edit_frame)
+            edit_dialog.add(vertical_box)
             edit_dialog.set_size_request(int(WINDOWW/2.7),
                                          int(WINDOWH/1.6))
             edit_dialog.show_all()
