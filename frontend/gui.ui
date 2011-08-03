@@ -119,4 +119,46 @@
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkWindow" id="edit_window">
+    <child>
+      <object class="GtkVBox" id="edit_vertical_box">
+        <child>
+          <object class="GtkFrame" id="edit_batch_frame">
+            <property name="label">Batch</property>
+            <child>
+              <object class="GtkComboBoxText" id="edit_batch_combo"/>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkFrame" id="edit_picker_frame">
+            <property name="label">Picker</property>
+            <child>
+              <object class="GtkComboBoxText" id="edit_picker_combo"/>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkFrame" id="edit_variety_frame">
+            <property name="label">Variety</property>
+            <child>
+              <object class="GtkComboBoxText" id="edit_variety_combo"/>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="edit_delete_button">
+            <signal name="clicked" handler="modify_history_callback"/>
+            <property name="label">Delete Record</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="edit_apply_button">
+            <signal name="clicked" handler="modify_history_callback"/>
+            <property name="label">Apply Changes</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
 </interface>
