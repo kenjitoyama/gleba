@@ -259,8 +259,6 @@ class MainWindow(Gtk.Window):
             frame2.add(edit_picker_combo)
             frame3.add(edit_varieties_combo)
             vertical_box2 = Gtk.VBox()
-            frame5 = Gtk.Frame()
-            frame5.set_size_request(100, 50)
             delete_button = Gtk.Button(label = 'Delete Record')
             delete_button.connect('clicked', self.modify_history_callback,
                                              iterator, row, True,
@@ -278,7 +276,6 @@ class MainWindow(Gtk.Window):
                                                 edit_picker_combo,
                                                 edit_dialog)
             vertical_box2.add(apply_button)
-            vertical_box2.add(frame5)
             vertical_box2.add(delete_button)
             frame4.add(vertical_box2)
             edit_dialog.add(vertical_box)
