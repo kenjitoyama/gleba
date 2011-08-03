@@ -57,10 +57,10 @@
         <child>
           <object class="GtkVBox" id="right_vbox">
             <child>
-              <object class="GtkFrame" id="varieties_frame">
+              <object class="GtkFrame" id="variety_frame">
                 <property name="label">Varieties</property>
                 <child>
-                  <object class="GtkVBox" id="varieties_vbox"/>
+                  <object class="GtkVBox" id="variety_vbox"/>
                 </child>
               </object>
             </child>
