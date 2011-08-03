@@ -13,6 +13,7 @@ import urllib
 import re
 from xml.dom import minidom
 import config
+from json import loads
 
 class ThreadSerial(threading.Thread):
     """
@@ -167,3 +168,21 @@ class DBAPI:
         """
         full_address = self.http_address + 'variety_list.json'
         return urllib.urlopen(full_address).read()
+
+    def get_active_pickers_list(self):
+        """
+        Returns a list of dictionaries of all active pickers.
+        """
+        return loads(self.get_active_pickers_json())
+
+    def get_active_batches_list(self):
+        """
+        Returns a list of dictionaries of all active batches.
+        """
+        return loads(self.get_active_batches_json())
+
+    def get_active_varieties_list(self):
+        """
+        Returns a list of dictionaries of all active varieties.
+        """
+        return loads(self.get_active_varieties_json())

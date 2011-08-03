@@ -10,15 +10,19 @@ class MainWindow:
         self.builder.add_from_file('gui.ui')
         self.window = self.builder.get_object('window')
         self.builder.connect_signals(self)
-        self.batches   = DB.get_active_batches_xml()
-        self.pickers   = DB.get_active_pickers_xml()
-        self.varieties = DB.get_active_varieties_xml()
+        self.batches   = DB.get_active_batches_list()
+        self.pickers   = DB.get_active_pickers_list()
+        self.varieties = DB.get_active_varieties_list()
         # add batches
         batch_combo_box = self.builder.get_object('batch_combo_box')
-        batch_text_format = 'Batch No. {} ({}) Room {}'
+        batch_text_format = 'Batch No. {} ({}/{}/{}) Room {}'
         for batch in self.batches:
             batch_combo_box.append_text(batch_text_format.format(
-                batch[0], batch[1], batch[2]
+                batch['id'],
+                batch['date']['day'],
+                batch['date']['month'],
+                batch['date']['year'],
+                batch['room_number']
             ))
         # add pickers
         picker_total = len(self.pickers)
@@ -31,8 +35,8 @@ class MainWindow:
                 idx = cols*row + col
                 if idx >= picker_total:
                     break
-                text = '{0}. {1}'.format(self.pickers[idx][0],
-                                         self.pickers[idx][1])
+                text = '{0}. {1}'.format(self.pickers[idx]['id'],
+                                         self.pickers[idx]['first_name'])
                 button = Gtk.Button(label = text)
                 button.set_size_request(14, 10)
                 button.connect('clicked', self.select_picker_callback, idx)
@@ -49,7 +53,7 @@ class MainWindow:
                 idx = cols*row + col
                 if idx >= variety_total:
                     break
-                text = '{0}'.format(self.varieties[idx][1])
+                text = '{0}'.format(self.varieties[idx]['name'])
                 button = Gtk.Button(label = text)
                 button.set_size_request(14, 15)
                 button.connect('clicked', self.select_variety_callback, idx)
