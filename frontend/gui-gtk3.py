@@ -224,11 +224,9 @@ class MainWindow(Gtk.Window):
             frame1 = Gtk.Frame(label = 'Batch')
             frame2 = Gtk.Frame(label = 'Picker')
             frame3 = Gtk.Frame(label = 'Variety')
-            frame4 = Gtk.Frame(label = '')
             vertical_box.add(frame1)
             vertical_box.add(frame2)
             vertical_box.add(frame3)
-            vertical_box.add(frame4)
             # Kenji: TODO row is super ugly. change this later.
             row = int(str(selection.get_path(iterator)))
             index_list = self.history_entries[row][6]
@@ -258,7 +256,6 @@ class MainWindow(Gtk.Window):
             frame1.add(edit_batch_combo)
             frame2.add(edit_picker_combo)
             frame3.add(edit_varieties_combo)
-            vertical_box2 = Gtk.VBox()
             delete_button = Gtk.Button(label = 'Delete Record')
             delete_button.connect('clicked', self.modify_history_callback,
                                              iterator, row, True,
@@ -275,9 +272,8 @@ class MainWindow(Gtk.Window):
                                                 edit_varieties_combo,
                                                 edit_picker_combo,
                                                 edit_dialog)
-            vertical_box2.add(apply_button)
-            vertical_box2.add(delete_button)
-            frame4.add(vertical_box2)
+            vertical_box.add(apply_button)
+            vertical_box.add(delete_button)
             edit_dialog.add(vertical_box)
             edit_dialog.set_size_request(int(WINDOWW/2.7),
                                          int(WINDOWH/1.6))
