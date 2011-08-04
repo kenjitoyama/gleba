@@ -100,6 +100,17 @@ class MainWindow(Gtk.Window):
         #Batch ComboBox, pack into batch HBox
         self.batch_combo_box = Gtk.ComboBoxText()
         batch_frame.add(self.batch_combo_box)
+        # Current data
+        currents_hbox = Gtk.HBox()
+        current_picker_frame = Gtk.Frame(label = 'Current Picker')
+        self.current_picker_label = Gtk.Label()
+        current_picker_frame.add(self.current_picker_label)
+        current_variety_frame = Gtk.Frame(label = 'Current Variety')
+        self.current_variety_label = Gtk.Label()
+        current_variety_frame.add(self.current_variety_label)
+        currents_hbox.add(current_picker_frame)
+        currents_hbox.add(current_variety_frame)
+        left_vbox.add(currents_hbox)
         #Status feedback label
         self.status_label = Gtk.Label()
         self.status_label.set_size_request(250, 200)
@@ -446,6 +457,19 @@ class MainWindow(Gtk.Window):
         markup = config.STATUS_STYLE.format(
             text = STATUS_MESSAGES[self.current_state])
         self.status_label.set_markup(markup)
+        # update currents data
+        if self.current_picker is not None:
+            self.current_picker_label.set_markup(
+                self.pickers[self.current_picker][1]
+            )
+        else:
+            self.current_picker_label.set_markup('')
+        if self.current_variety is not None:
+            self.current_variety_label.set_markup(
+                self.varieties[self.current_variety][1]
+            )
+        else:
+            self.current_variety_label.set_markup('')
         if self.show_weight is True:
             markup = config.WEIGHT_STYLE.format(self.current_weight)
             self.weight_label.set_markup(markup)
