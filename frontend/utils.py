@@ -13,7 +13,7 @@ import urllib
 import re
 from xml.dom import minidom
 import config
-from json import loads
+from json import dumps, loads
 
 class ThreadSerial(threading.Thread):
     """
@@ -89,6 +89,25 @@ class DBAPI:
         full_address = self.http_address + 'add_box?{}'
         request = urllib.urlopen(full_address.format(params))
         return ((request.read() == 'success'), request.read())
+
+    def add_boxes(self, box_list):
+        """
+        Performs a single request with box_list as parameters.
+
+        box_list must be a list of dictionaries. For example:
+        [{'picker': picker_id,
+          'batch':  batch_id,
+          'variety': variety_id,
+          'initial_weight': initial_weight,
+          'final_weight': final_weight,
+          'timestamp': timestamp (format is "%Y-%m-%d %H:%M:%S")
+        },]
+        """
+        full_address = self.http_address + 'add_boxes/'
+        data = urllib.urlencode({'boxes': dumps(box_list)})
+        request = urllib.urlopen(full_address, data)
+        response = request.read()
+        return True if (response == 'success\n') else response
 
     def get_active_pickers_xml(self):
         """

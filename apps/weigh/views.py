@@ -73,6 +73,60 @@ def add_box(request):
         error_list = ['Not enough parameters']
         return render_to_response('error.html', {'error_list' : error_list})
 
+def add_boxes(request):
+    """
+    Processes a batch of boxes in one go.
+
+    The request must be a POST request with a parameter 'boxes'
+    that contains a list of boxes in a dictionary format as follows:
+        {'picker': picker_id,
+          'batch':  batch_id,
+          'variety': variety_id,
+          'initial_weight': initial_weight,
+          'final_weight': final_weight,
+          'timestamp': timestamp}
+    The processing must be correct for ALL the boxes, otherwise
+    nothing will be added to the database (i.e. everything or nothing).
+    """
+    if request.method == 'POST' and
+       'boxes' in request.POST:
+        boxes_to_save = []
+        boxes = json.loads(request.POST.get('boxes'))
+        for box in boxes:
+            if ('picker'         in box and
+                'batch'          in box and
+                'variety'        in box and
+                'initial_weight' in box and
+                'final_weight'   in box and
+                'timestamp'      in box):
+                picker_id          = box['picker']
+                batch_id           = box['batch']
+                variety_id         = box['variety']
+                initial_weight_tmp = box['initial_weight']
+                final_weight_tmp   = box['final_weight']
+                timestamp_tmp      = box['timestamp']
+
+                picker_obj = get_object_or_404(Picker, pk = picker_id)
+                batch_obj = get_object_or_404(Batch, pk = batch_id)
+                variety_obj = get_object_or_404(Variety, pk = variety_id)
+                boxes_to_save.append(Box(
+                    initialWeight = float(initial_weight_tmp),
+                    finalWeight = float(final_weight_tmp),
+                    timestamp = timestamp_tmp,
+                    contentVariety = variety_obj,
+                    picker = picker_obj,
+                    batch = batch_obj,
+                ))
+            else: # something missing in this box
+                error_list = ['Not enough parameters in box {}.'.format(i)]
+                return render_to_response('error.html', {
+                    'error_list' : error_list
+                })
+        # all boxes were processed, just save all of them
+        for box in boxes_to_save:
+            box.save()
+        return render_to_response('success.html')
+
 ################################################################################
 # Retrieve data from the database
 ################################################################################
