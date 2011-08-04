@@ -1,8 +1,57 @@
+"""
+Main interface to weigh boxes in Gleba.
+"""
 from gi.repository import Gtk
 import utils
 import config
 
-DB = utils.DBAPI()
+class DataModel:
+    """
+    Represents the model in the MVC paradigm.
+    """
+    def __init__(self):
+        self.db_conn = utils.DBAPI()
+        self.batches   = self.db_conn.get_active_batches_list()
+        self.pickers   = self.db_conn.get_active_pickers_list()
+        self.varieties = self.db_conn.get_active_varieties_list()
+
+    def picker_to_string(self, picker_number, full_name = False):
+        """
+        Returns a string representing picker picker_number.
+
+        If full_name is True the surname is appended to the string.
+        """
+        if(full_name):
+            return '{0}. {1} {2}'.format(
+                self.pickers[picker_number]['id'],
+                self.pickers[picker_number]['first_name'],
+                self.pickers[picker_number]['last_name']
+            )
+        else:
+            return '{0}. {1}'.format(
+                self.pickers[picker_number]['id'],
+                self.pickers[picker_number]['first_name']
+            )
+
+    def batch_to_string(self, batch_number):
+        """
+        Returns a string representing batch batch_number.
+        """
+        return 'Batch No. {} ({}/{}/{}) Room {}'.format(
+            self.batches[batch_number]['id'],
+            self.batches[batch_number]['date']['day'],
+            self.batches[batch_number]['date']['month'],
+            self.batches[batch_number]['date']['year'],
+            self.batches[batch_number]['room_number']
+        )
+
+    def variety_to_string(self, variety_number):
+        """
+        Returns a string representing variety variety_number.
+        """
+        return '{0}'.format(
+            self.varieties[variety_number]['name']
+        )
 
 class MainWindow:
     def __init__(self):
@@ -10,22 +59,13 @@ class MainWindow:
         self.builder.add_from_file('gui.ui')
         self.window = self.builder.get_object('window')
         self.builder.connect_signals(self)
-        self.batches   = DB.get_active_batches_list()
-        self.pickers   = DB.get_active_pickers_list()
-        self.varieties = DB.get_active_varieties_list()
+        self.data_model = DataModel()
         # add batches
         batch_combo_box = self.builder.get_object('batch_combo_box')
-        batch_text_format = 'Batch No. {} ({}/{}/{}) Room {}'
-        for batch in self.batches:
-            batch_combo_box.append_text(batch_text_format.format(
-                batch['id'],
-                batch['date']['day'],
-                batch['date']['month'],
-                batch['date']['year'],
-                batch['room_number']
-            ))
+        for i, batch in enumerate(self.data_model.batches):
+            batch_combo_box.append_text(self.data_model.batch_to_string(i))
         # add pickers
-        picker_total = len(self.pickers)
+        picker_total = len(self.data_model.pickers)
         cols = config.PICKER_COLS
         rows = picker_total/cols + int(picker_total%cols != 0)
         picker_vbox = self.builder.get_object('picker_vbox')
@@ -35,15 +75,15 @@ class MainWindow:
                 idx = cols*row + col
                 if idx >= picker_total:
                     break
-                text = '{0}. {1}'.format(self.pickers[idx]['id'],
-                                         self.pickers[idx]['first_name'])
-                button = Gtk.Button(label = text)
+                button = Gtk.Button(
+                    label = self.data_model.picker_to_string(idx)
+                )
                 button.set_size_request(14, 10)
                 button.connect('clicked', self.select_picker_callback, idx)
                 hbox.add(button)
             picker_vbox.add(hbox)
         # add varieties
-        variety_total = len(self.varieties)
+        variety_total = len(self.data_model.varieties)
         cols = config.VARIETY_COLS
         rows = variety_total/cols + int(variety_total%cols != 0)
         variety_vbox = self.builder.get_object('variety_vbox')
@@ -53,8 +93,9 @@ class MainWindow:
                 idx = cols*row + col
                 if idx >= variety_total:
                     break
-                text = '{0}'.format(self.varieties[idx]['name'])
-                button = Gtk.Button(label = text)
+                button = Gtk.Button(
+                    label = self.data_model.variety_to_string(idx)
+                )
                 button.set_size_request(14, 15)
                 button.connect('clicked', self.select_variety_callback, idx)
                 hbox.add(button)
