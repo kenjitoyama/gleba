@@ -470,20 +470,18 @@ class MainWindow(Gtk.Window):
             elif self.save_weight and self.current_weight < 0.4:
                 self.save_weight = False
                 self.current_weight = self.stable_weight
-                self.current_state = AWAITING_BOX
+                gobject.idle_add(self.change_state, AWAITING_BOX)
                 self.show_weight = False
                 self.weight_color = config.WHITE_COLOR
-                gobject.idle_add(self.set_status_feedback)
                 gobject.idle_add(self.history_callback, None)
             elif self.current_state == AWAITING_BOX:
                 if self.current_weight > config.BOX_WEIGHT:
                     gobject.idle_add(self.change_state)
             elif (self.current_batch is not None and
                   self.current_weight < config.BOX_WEIGHT):
-                self.current_state = AWAITING_BOX
                 self.show_weight = False
                 self.weight_color = config.WHITE_COLOR
-                gobject.idle_add(self.set_status_feedback)
+                gobject.idle_add(self.change_state, AWAITING_BOX)
             if self.show_weight:
                 self.weight_window.pop(0)
                 self.weight_window.append(self.current_weight)
@@ -492,40 +490,46 @@ class MainWindow(Gtk.Window):
                 if self.current_weight >= self.min_weight + weight_tolerance:
                     # overweight
                     self.weight_color = config.RED_COLOR
-                    self.current_state = OVERWEIGHT_ADJUST
+                    gobject.idle_add(self.change_state, OVERWEIGHT_ADJUST)
                 elif self.current_weight < self.min_weight:
                     # underweight
                     self.weight_color = config.BLUE_COLOR
-                    self.current_state = UNDERWEIGHT_ADJUST
+                    gobject.idle_add(self.change_state, UNDERWEIGHT_ADJUST)
                 else: # within acceptable range
                     if self.weight_color != config.GREEN_COLOR:
                         self.start_stop('green')
                     self.weight_color = config.GREEN_COLOR
-                    self.current_state = REMOVE_BOX
+                    gobject.idle_add(self.change_state, REMOVE_BOX)
                     if self.weight_window[0] == self.current_weight:
                         self.stable_weight = self.weight_window[0]
                         self.save_weight = True
                     if not self.save_weight:
                         self.stable_weight = self.current_weight
                         self.save_weight = True
-                gobject.idle_add(self.set_status_feedback)
             time.sleep(0.01)
 
-    def change_state(self):
+    def change_state(self, state = None):
         """
         This method is fired when the overall state of the program is updated.
+
+        The natural order is: AWAITING_BATCH -> AWAITING_BOX ->
+        AWAITING_VARIETY -> AWAITING_PICKER -> UNDERWEIGHT|OVERWEIGHT|REMOVE_BOX
+        If state is not given, the "next" one in the list follows.
         """
-        if self.current_state == AWAITING_BATCH:
-            self.current_state = AWAITING_BOX
-        elif self.current_state == AWAITING_BOX:
-            self.current_state = AWAITING_VARIETY
-        elif self.current_state == AWAITING_VARIETY:
-            self.current_state = AWAITING_PICKER
-        elif self.current_state == AWAITING_PICKER:
-            self.show_weight = True
-        elif self.current_state == REMOVE_BOX:
-            self.show_weight = False
-            self.current_state = AWAITING_BOX
+        if state == None:
+            if self.current_state == AWAITING_BATCH:
+                self.current_state = AWAITING_BOX
+            elif self.current_state == AWAITING_BOX:
+                self.current_state = AWAITING_VARIETY
+            elif self.current_state == AWAITING_VARIETY:
+                self.current_state = AWAITING_PICKER
+            elif self.current_state == AWAITING_PICKER:
+                self.show_weight = True
+            elif self.current_state == REMOVE_BOX:
+                self.show_weight = False
+                self.current_state = AWAITING_BOX
+        else:
+            self.current_state = state
         self.set_status_feedback()
 
     def start_stop(self, sound):
