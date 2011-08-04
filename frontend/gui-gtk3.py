@@ -466,40 +466,31 @@ class MainWindow(Gtk.Window):
                 if (self.current_batch is not None and
                     self.current_batch >= 0): # -1 if no active item
                     self.current_batch = self.batch_combo_box.get_active()
-                    gobject.idle_add(self.change_state)
+                    self.change_state()
             elif self.save_weight and self.current_weight < 0.4:
                 self.save_weight = False
                 self.current_weight = self.stable_weight
-                gobject.idle_add(self.change_state, AWAITING_BOX)
-                self.show_weight = False
-                self.weight_color = config.WHITE_COLOR
-                gobject.idle_add(self.history_callback, None)
+                self.change_state(AWAITING_BOX)
+                self.history_callback(None)
             elif self.current_state == AWAITING_BOX:
                 if self.current_weight > config.BOX_WEIGHT:
-                    gobject.idle_add(self.change_state)
+                    self.change_state()
             elif (self.current_batch is not None and
                   self.current_weight < config.BOX_WEIGHT):
-                self.show_weight = False
-                self.weight_color = config.WHITE_COLOR
-                gobject.idle_add(self.change_state, AWAITING_BOX)
+                self.change_state(AWAITING_BOX)
             if self.show_weight:
                 self.weight_window.pop(0)
                 self.weight_window.append(self.current_weight)
                 self.min_weight = self.varieties[self.current_variety][2]
                 weight_tolerance = self.varieties[self.current_variety][3]
                 if self.current_weight >= self.min_weight + weight_tolerance:
-                    # overweight
-                    self.weight_color = config.RED_COLOR
-                    gobject.idle_add(self.change_state, OVERWEIGHT_ADJUST)
+                    self.change_state(OVERWEIGHT_ADJUST)
                 elif self.current_weight < self.min_weight:
-                    # underweight
-                    self.weight_color = config.BLUE_COLOR
-                    gobject.idle_add(self.change_state, UNDERWEIGHT_ADJUST)
+                    self.change_state(UNDERWEIGHT_ADJUST)
                 else: # within acceptable range
                     if self.weight_color != config.GREEN_COLOR:
                         self.start_stop('green')
-                    self.weight_color = config.GREEN_COLOR
-                    gobject.idle_add(self.change_state, REMOVE_BOX)
+                    self.change_state(REMOVE_BOX)
                     if self.weight_window[0] == self.current_weight:
                         self.stable_weight = self.weight_window[0]
                         self.save_weight = True
@@ -530,7 +521,16 @@ class MainWindow(Gtk.Window):
                 self.current_state = AWAITING_BOX
         else:
             self.current_state = state
-        self.set_status_feedback()
+            if state == AWAITING_BOX:
+                self.show_weight = False
+                self.weight_color = config.WHITE_COLOR
+            elif state == OVERWEIGHT_ADJUST:
+                self.weight_color = config.RED_COLOR
+            elif state == UNDERWEIGHT_ADJUST:
+                self.weight_color = config.BLUE_COLOR
+            elif state == REMOVE_BOX:
+                self.weight_color = config.GREEN_COLOR
+        gobject.idle_add(self.set_status_feedback)
 
     def start_stop(self, sound):
         """
