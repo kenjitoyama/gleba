@@ -88,8 +88,8 @@ def add_boxes(request):
     The processing must be correct for ALL the boxes, otherwise
     nothing will be added to the database (i.e. everything or nothing).
     """
-    if request.method == 'POST' and
-       'boxes' in request.POST:
+    if (request.method == 'POST' and
+        'boxes' in request.POST):
         boxes_to_save = []
         boxes = json.loads(request.POST.get('boxes'))
         for box in boxes:
