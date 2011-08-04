@@ -360,7 +360,6 @@ class MainWindow(Gtk.Window):
         if self.current_state == AWAITING_PICKER:
             self.current_picker_weight = self.current_weight
             self.change_state()
-            self.set_status_feedback()
 
     def select_variety_callback(self, button, index):
         """
@@ -373,7 +372,6 @@ class MainWindow(Gtk.Window):
         self.current_variety = index
         if self.current_state == AWAITING_VARIETY:
             self.change_state()
-            self.set_status_feedback()
 
     def commit_callback(self, button):
         """
@@ -469,7 +467,6 @@ class MainWindow(Gtk.Window):
                     self.current_batch >= 0): # -1 if no active item
                     self.current_batch = self.batch_combo_box.get_active()
                     gobject.idle_add(self.change_state)
-                    gobject.idle_add(self.set_status_feedback)
             elif self.save_weight and self.current_weight < 0.4:
                 self.save_weight = False
                 self.current_weight = self.stable_weight
@@ -481,7 +478,6 @@ class MainWindow(Gtk.Window):
             elif self.current_state == AWAITING_BOX:
                 if self.current_weight > config.BOX_WEIGHT:
                     gobject.idle_add(self.change_state)
-                    gobject.idle_add(self.set_status_feedback)
             elif (self.current_batch is not None and
                   self.current_weight < config.BOX_WEIGHT):
                 self.current_state = AWAITING_BOX
@@ -530,7 +526,7 @@ class MainWindow(Gtk.Window):
         elif self.current_state == REMOVE_BOX:
             self.show_weight = False
             self.current_state = AWAITING_BOX
-            self.set_status_feedback()
+        self.set_status_feedback()
 
     def start_stop(self, sound):
         """
