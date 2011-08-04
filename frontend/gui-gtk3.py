@@ -356,8 +356,8 @@ class MainWindow(Gtk.Window):
         to be the actual picker the user has chosen.
         """
         self.start_stop('button')
-        self.current_picker = index
         if self.current_state == AWAITING_PICKER:
+            self.current_picker = index
             self.current_picker_weight = self.current_weight
             self.change_state()
 
@@ -369,8 +369,8 @@ class MainWindow(Gtk.Window):
         to be the actual variety the user has chosen.
         """
         self.start_stop('button')
-        self.current_variety = index
         if self.current_state == AWAITING_VARIETY:
+            self.current_variety = index
             self.change_state()
 
     def commit_callback(self, button):
@@ -433,6 +433,7 @@ class MainWindow(Gtk.Window):
                                     index_list))
         self.history_store.append(temp)
         self.history_list.set_model(self.history_store)
+        self.current_picker = self.current_variety = None
         self.show_all()
 
     def set_status_feedback(self):
