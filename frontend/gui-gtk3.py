@@ -467,7 +467,8 @@ class MainWindow(Gtk.Window):
                     self.current_batch >= 0): # -1 if no active item
                     self.current_batch = self.batch_combo_box.get_active()
                     self.change_state()
-            elif self.save_weight and self.current_weight < 0.4:
+            elif (self.save_weight and
+                  self.current_weight < config.BOX_WEIGHT): # save the box
                 self.save_weight = False
                 self.current_weight = self.stable_weight
                 self.change_state(AWAITING_BOX)
