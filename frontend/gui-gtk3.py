@@ -460,22 +460,20 @@ class MainWindow(Gtk.Window):
         This is the main thread that consumes the stream given from a scale.
         """
         while self.keep_running:
-            self.current_batch = self.batch_combo_box.get_active()
             self.current_weight = self.serial_thread.get_weight()
-            if self.current_state == AWAITING_BATCH:
-                if (self.current_batch is not None and
-                    self.current_batch >= 0): # -1 if no active item
-                    self.current_batch = self.batch_combo_box.get_active()
-                    self.change_state()
+            if (self.current_state == AWAITING_BATCH and
+                self.batch_combo_box.get_active() >= 0):
+                self.current_batch = self.batch_combo_box.get_active()
+                self.change_state()
             elif (self.save_weight and
                   self.current_weight < config.BOX_WEIGHT): # save the box
                 self.save_weight = False
                 self.current_weight = self.stable_weight
                 self.change_state(AWAITING_BOX)
                 self.history_callback(None)
-            elif self.current_state == AWAITING_BOX:
-                if self.current_weight > config.BOX_WEIGHT:
-                    self.change_state()
+            elif (self.current_state == AWAITING_BOX and
+                  self.current_weight > config.BOX_WEIGHT):
+                self.change_state()
             elif (self.current_batch is not None and
                   self.current_weight < config.BOX_WEIGHT):
                 self.change_state(AWAITING_BOX)
