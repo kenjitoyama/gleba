@@ -477,7 +477,7 @@ class MainWindow(Gtk.Window):
             elif (self.current_batch is not None and
                   self.current_weight < config.BOX_WEIGHT):
                 self.change_state(AWAITING_BOX)
-            if self.show_weight:
+            elif self.show_weight:
                 self.weight_window.pop(0)
                 self.weight_window.append(self.current_weight)
                 self.min_weight = self.varieties[self.current_variety][2]
@@ -506,7 +506,18 @@ class MainWindow(Gtk.Window):
         AWAITING_VARIETY -> AWAITING_PICKER -> UNDERWEIGHT|OVERWEIGHT|REMOVE_BOX
         If state is not given, the "next" one in the list follows.
         """
-        if state == None:
+        if state:
+            self.current_state = state
+            if state == AWAITING_BOX:
+                self.show_weight = False
+                self.weight_color = config.WHITE_COLOR
+            elif state == OVERWEIGHT_ADJUST:
+                self.weight_color = config.RED_COLOR
+            elif state == UNDERWEIGHT_ADJUST:
+                self.weight_color = config.BLUE_COLOR
+            elif state == REMOVE_BOX:
+                self.weight_color = config.GREEN_COLOR
+        else:
             if self.current_state == AWAITING_BATCH:
                 self.current_state = AWAITING_BOX
             elif self.current_state == AWAITING_BOX:
@@ -518,17 +529,6 @@ class MainWindow(Gtk.Window):
             elif self.current_state == REMOVE_BOX:
                 self.show_weight = False
                 self.current_state = AWAITING_BOX
-        else:
-            self.current_state = state
-            if state == AWAITING_BOX:
-                self.show_weight = False
-                self.weight_color = config.WHITE_COLOR
-            elif state == OVERWEIGHT_ADJUST:
-                self.weight_color = config.RED_COLOR
-            elif state == UNDERWEIGHT_ADJUST:
-                self.weight_color = config.BLUE_COLOR
-            elif state == REMOVE_BOX:
-                self.weight_color = config.GREEN_COLOR
         gobject.idle_add(self.set_status_feedback)
 
     def start_stop(self, sound):
