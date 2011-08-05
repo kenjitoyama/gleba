@@ -499,8 +499,8 @@ class MainWindow(Gtk.Window):
                   self.current_weight < config.BOX_WEIGHT): # save the box
                 self.save_weight = False
                 self.current_weight = self.stable_weight
-                self.change_state(AWAITING_BOX)
                 self.save_box()
+                self.change_state(AWAITING_BOX)
             elif (self.current_state == AWAITING_BOX and
                   self.current_weight > config.BOX_WEIGHT):
                 self.change_state()
