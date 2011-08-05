@@ -110,15 +110,15 @@ class MainWindow(Gtk.Window):
         #Weight and offset display labels 
         weight_display_frame = Gtk.Frame(label = 'Weight')
         self.weight_label = Gtk.Label()
-        self.event_box = Gtk.EventBox()
-        self.event_box.add(self.weight_label)
-        weight_display_frame.add(self.event_box)
+        weight_event_box = Gtk.EventBox()
+        weight_event_box.add(self.weight_label)
+        weight_display_frame.add(weight_event_box)
         left_vbox.add(weight_display_frame)
         offset_display_frame = Gtk.Frame(label = 'Offset')
         self.offset_label = Gtk.Label()
-        self.event_box1 = Gtk.EventBox()
-        self.event_box1.add(self.offset_label)
-        offset_display_frame.add(self.event_box1)
+        offset_event_box = Gtk.EventBox()
+        offset_event_box.add(self.offset_label)
+        offset_display_frame.add(offset_event_box)
         left_vbox.add(offset_display_frame)
 
         # Center VBox (Pickers)
@@ -441,8 +441,8 @@ class MainWindow(Gtk.Window):
         This callback is fired when the status_label needs to be updated.
         """
         color = Gdk.Color(*self.weight_color) # unpack the tuple
-        self.event_box.modify_bg(Gtk.StateType.NORMAL, color)
-        self.event_box1.modify_bg(Gtk.StateType.NORMAL, color)
+        self.weight_label.get_parent().modify_bg(Gtk.StateType.NORMAL, color)
+        self.offset_label.get_parent().modify_bg(Gtk.StateType.NORMAL, color)
         markup = config.STATUS_STYLE.format(
             text = STATUS_MESSAGES[self.current_state])
         self.status_label.set_markup(markup)
