@@ -310,28 +310,28 @@ class MainWindow(Gtk.Window):
             edit_delete_button = Gtk.Button(label = 'Delete Record')
             edit_delete_button.connect(
                 'clicked', self.delete_history_row,
-                model, iterator, edit_dialog
+                model, iterator
             )
             edit_apply_button = Gtk.Button(label = 'Apply Changes')
             edit_apply_button.connect(
                 'clicked', self.modify_history_callback,
                 model, iterator, edit_batch_combo, edit_varieties_combo,
-                edit_picker_combo, edit_dialog
+                edit_picker_combo
             )
             edit_vbox.add(edit_apply_button)
             edit_vbox.add(edit_delete_button)
             edit_dialog.add(edit_vbox)
             edit_dialog.show_all()
     
-    def delete_history_row(self, button, model, iterator, edit_dialog):
+    def delete_history_row(self, button, model, iterator):
         """
         Callback that gets called when user deletes a history entry.
         """
         model.remove(iterator)
-        edit_dialog.destroy()
+        button.get_parent().get_parent().destroy() # remove edit_dialog
 
     def modify_history_callback(self, button, model, iterator, batch_combobox,
-                                varieties_combobox, picker_combobox, edit_dialog):
+                                varieties_combobox, picker_combobox):
         """
         This callback is fired when an entry in the history list has been
         edited in the edit window.
@@ -350,7 +350,7 @@ class MainWindow(Gtk.Window):
         model.set_value(iterator, 7,  selected_variety[1])
         model.set_value(iterator, 10, time.strftime('%Y-%m-%d %H:%M:%S',
                                       time.localtime() ))
-        edit_dialog.destroy()
+        button.get_parent().get_parent().destroy() # remove edit_dialog
 
     def exit_callback(self, widget):
         """
