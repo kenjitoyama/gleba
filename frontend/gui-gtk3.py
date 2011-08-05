@@ -414,7 +414,6 @@ class MainWindow(Gtk.Window):
         - self.timestamp             -> box.timestamp
         """
         self.start_stop('success')
-        self.current_weight = self.stable_weight
         temp = []
         index_list = []
         index_list.append(self.current_batch)
