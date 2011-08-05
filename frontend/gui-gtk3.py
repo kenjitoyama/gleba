@@ -54,9 +54,7 @@ class MainWindow(Gtk.Window):
 
     def __init__(self):
         super(MainWindow, self).__init__()
-
-        # set minimum size and register the exit button
-        self.set_size_request(int(WINDOWW), int(WINDOWH))
+        self.set_default_size(int(WINDOWW), int(WINDOWH))
         self.connect('destroy', self.exit_callback)
 
         self.add_widgets()
@@ -81,7 +79,6 @@ class MainWindow(Gtk.Window):
         self.reading_thread.start()
         self.show_all()
 
-
     def add_widgets(self):
         """
         Adds GUI widgets to this object.
@@ -94,7 +91,6 @@ class MainWindow(Gtk.Window):
         left_vbox = Gtk.VBox()
         #Extra Frame for Batch ComboBox, add to leftmost VBox
         batch_frame = Gtk.Frame(label = 'Batch')
-        batch_frame.set_size_request(0, 0) # minimum as possible
         left_vbox.add(batch_frame)
         #Batch ComboBox, pack into batch HBox
         self.batch_combo_box = Gtk.ComboBoxText()
@@ -112,7 +108,6 @@ class MainWindow(Gtk.Window):
         left_vbox.add(currents_hbox)
         #Status feedback label
         self.status_label = Gtk.Label()
-        self.status_label.set_size_request(250, 200)
         left_vbox.add(self.status_label)
         #Weight and offset display labels 
         weight_display_frame = Gtk.Frame(label = 'Weight')
@@ -131,7 +126,6 @@ class MainWindow(Gtk.Window):
         # Center VBox (Pickers)
         center_vbox = Gtk.VBox()
         picker_frame = Gtk.Frame(label = 'Pickers')
-        picker_frame.set_size_request(int(WINDOWW/2), int(WINDOWH/6))
         self.picker_vbox = Gtk.VBox()
         picker_frame.add(self.picker_vbox)
         center_vbox.add(picker_frame)
@@ -139,7 +133,6 @@ class MainWindow(Gtk.Window):
         # Rightmost VBox (varieties, history and buttons)
         right_vbox = Gtk.VBox()
         varieties_frame = Gtk.Frame(label = 'Varieties')
-        varieties_frame.set_size_request(int(WINDOWW/2), int(WINDOWH/2))
         right_vbox.add(varieties_frame)
         self.varieties_vbox = Gtk.VBox()
         varieties_frame.add(self.varieties_vbox)
@@ -200,7 +193,6 @@ class MainWindow(Gtk.Window):
         edit_button_box = Gtk.HBox()
         right_vbox.add(edit_button_box)
         edit_button = Gtk.Button(label='Edit')
-        edit_button.set_size_request(20, 20)
         edit_button_box.add(edit_button)
         edit_button.connect('clicked', self.open_edit_window)
         commit_button = Gtk.Button(label='Commit')
@@ -246,7 +238,6 @@ class MainWindow(Gtk.Window):
                 text = '{0}. {1}'.format(self.pickers[idx][0],
                                          self.pickers[idx][1])
                 button = Gtk.Button(label = text)
-                button.set_size_request(14, 10)
                 button.connect('clicked', self.select_picker_callback, idx)
                 hbox.add(button)
             self.picker_vbox.add(hbox)
@@ -262,7 +253,6 @@ class MainWindow(Gtk.Window):
                     break
                 text = '{0}'.format(self.varieties[idx][1])
                 button = Gtk.Button(label = text)
-                button.set_size_request(14, 15)
                 button.connect('clicked', self.select_variety_callback, idx)
                 hbox.add(button)
             self.varieties_vbox.add(hbox)
@@ -324,9 +314,7 @@ class MainWindow(Gtk.Window):
                 'clicked', self.delete_history_row,
                 model, iterator, edit_dialog
             )
-            edit_delete_button.set_size_request(10, 15)
             edit_apply_button = Gtk.Button(label = 'Apply Changes')
-            edit_apply_button.set_size_request(10, 35)
             edit_apply_button.connect(
                 'clicked', self.modify_history_callback,
                 model, iterator, edit_batch_combo, edit_varieties_combo,
@@ -335,8 +323,6 @@ class MainWindow(Gtk.Window):
             edit_vbox.add(edit_apply_button)
             edit_vbox.add(edit_delete_button)
             edit_dialog.add(edit_vbox)
-            edit_dialog.set_size_request(int(WINDOWW/2.7),
-                                         int(WINDOWH/1.6))
             edit_dialog.show_all()
     
     def delete_history_row(self, button, model, iterator, edit_dialog):
