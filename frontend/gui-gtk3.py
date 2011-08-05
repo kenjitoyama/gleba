@@ -422,7 +422,6 @@ class MainWindow(Gtk.Window):
         DB.add_boxes(boxes)
         # clear the history
         self.history_store.clear()
-        self.show_all()
 
     def save_box(self):
         """
