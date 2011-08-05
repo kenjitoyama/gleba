@@ -39,7 +39,6 @@ WINDOWW = config.WINDOW_WIDTH
 WINDOWH = config.WINDOW_HEIGHT
 
 class MainWindow(Gtk.Window):
-    save_weight = False
     weight_color = config.WHITE_COLOR
     current_batch = None
     current_picker = None
@@ -475,15 +474,16 @@ class MainWindow(Gtk.Window):
         This is the main thread that consumes the stream given from a scale.
         """
         stable_weight = 0
+        save_weight = False
         while self.keep_running:
             self.current_weight = self.serial_thread.get_weight()
             if (self.current_state == AWAITING_BATCH and
                 self.batch_combo_box.get_active() >= 0):
                 self.current_batch = self.batch_combo_box.get_active()
                 self.change_state()
-            elif (self.save_weight and
+            elif (save_weight and
                   self.current_weight < config.BOX_WEIGHT): # save the box
-                self.save_weight = False
+                save_weight = False
                 self.current_weight = stable_weight
                 self.save_box()
                 self.change_state(AWAITING_BOX)
@@ -508,10 +508,10 @@ class MainWindow(Gtk.Window):
                     self.change_state(REMOVE_BOX)
                     if self.weight_window[0] == self.current_weight:
                         stable_weight = self.weight_window[0]
-                        self.save_weight = True
-                    if not self.save_weight:
+                        save_weight = True
+                    if not save_weight:
                         stable_weight = self.current_weight
-                        self.save_weight = True
+                        save_weight = True
             time.sleep(0.01)
 
     def change_state(self, state = None):
