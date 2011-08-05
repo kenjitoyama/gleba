@@ -424,10 +424,17 @@ class MainWindow(Gtk.Window):
         committed to the database.
         """
         self.start_stop('button')
-        for (picker, batch, variety, init_weight,
-             final_weight, timestamp, index_list) in self.history_entries:
-            DB.add_box(picker, batch, variety, init_weight,
-                      final_weight, timestamp)
+        boxes = []
+        for row in self.history_store:
+            boxes.append({
+                'picker':         row[0],
+                'batch':          row[3],
+                'variety':        row[6],
+                'initial_weight': row[8],
+                'final_weight':   row[9],
+                'timestamp':      row[10]
+            })
+        DB.add_boxes(boxes)
         # clear the history
         self.history_store.clear()
         self.history_entries = []
