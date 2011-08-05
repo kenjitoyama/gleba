@@ -150,11 +150,52 @@ class MainWindow(Gtk.Window):
                                    Gtk.PolicyType.AUTOMATIC)
         right_vbox.add(scrolled_window)
         self.history_list = Gtk.TreeView()
-        self.history_store = Gtk.ListStore(str)
-        column = Gtk.TreeViewColumn('History', Gtk.CellRendererText(), text=0)
-        column.set_resizable(True)
-        column.set_sort_column_id(0)
-        self.history_list.append_column(column)
+        self.history_store = Gtk.ListStore(
+            int,   # picker_number
+            str,   # picker_first_name
+            str,   # picker_last_name
+            int,   # batch_number
+            str,   # batch_date
+            int,   # room_number
+            int,   # variety_number
+            str,   # variety_name
+            float, # initial_weight
+            float, # final_weight
+            str,   # timestamp
+        )
+        col0 = Gtk.TreeViewColumn('Picker Number', Gtk.CellRendererText(), text=0)
+        col1 = Gtk.TreeViewColumn('First Name', Gtk.CellRendererText(), text=1)
+        col2 = Gtk.TreeViewColumn('Last Name', Gtk.CellRendererText(), text=2)
+        col3 = Gtk.TreeViewColumn('Batch Number', Gtk.CellRendererText(), text=3)
+        col4 = Gtk.TreeViewColumn('Batch Date', Gtk.CellRendererText(), text=4)
+        col5 = Gtk.TreeViewColumn('Room Number', Gtk.CellRendererText(), text=5)
+        col6 = Gtk.TreeViewColumn('Variety Number', Gtk.CellRendererText(), text=6)
+        col7 = Gtk.TreeViewColumn('Variety Name', Gtk.CellRendererText(), text=7)
+        col8 = Gtk.TreeViewColumn('Initial Weight', Gtk.CellRendererText(), text=8)
+        col9 = Gtk.TreeViewColumn('Final Weight', Gtk.CellRendererText(), text=9)
+        col10 = Gtk.TreeViewColumn('Timestamp', Gtk.CellRendererText(), text=10)
+        col0.set_resizable(True)
+        col1.set_resizable(True)
+        col2.set_resizable(True)
+        col3.set_resizable(True)
+        col4.set_resizable(True)
+        col5.set_resizable(True)
+        col6.set_resizable(True)
+        col7.set_resizable(True)
+        col8.set_resizable(True)
+        col9.set_resizable(True)
+        col10.set_resizable(True)
+        self.history_list.append_column(col0)
+        self.history_list.append_column(col1)
+        self.history_list.append_column(col2)
+        self.history_list.append_column(col3)
+        self.history_list.append_column(col4)
+        self.history_list.append_column(col5)
+        self.history_list.append_column(col6)
+        self.history_list.append_column(col7)
+        self.history_list.append_column(col8)
+        self.history_list.append_column(col9)
+        self.history_list.append_column(col10)
         self.history_list.set_model(self.history_store)
         scrolled_window.add(self.history_list)
         edit_button_box = Gtk.HBox()
@@ -326,29 +367,20 @@ class MainWindow(Gtk.Window):
                                                       time.localtime()),
                                         index_list)
             #modify treeView model
-            temp = []
-            text = ('Picker {picker_number} ' +
-                   '({picker_firstname} {picker_lastname}), ' +
-                   'Variety {variety_number} ({variety_name}), ' +
-                   'Batch {batch_number} ({batch_date}), ' +
-                   'Room {room_number}, ' +
-                   'Picker Weight: {picker_weight}, ' +
-                   'Final Weight: {final_weight}, Time: {timestamp}')
-            temp.append(text.format(
-                picker_number    = self.pickers[self.current_picker][0],
-                picker_firstname = self.pickers[self.current_picker][1],
-                picker_lastname  = self.pickers[self.current_picker][2],
-                variety_number   = self.varieties[self.current_variety][0],
-                variety_name     = self.varieties[self.current_variety][1],
-                batch_number     = self.batches[self.current_batch][0],
-                batch_date       = self.batches[self.current_batch][1],
-                room_number      = self.batches[self.current_batch][2],
-                picker_weight    = self.current_picker_weight,
-                final_weight     = self.current_weight,
-                timestamp        = time.strftime('%Y-%m-%d %H:%M:%S',
-                                                 time.localtime())
+            self.history_store.insert(row, (
+                int(self.pickers[self.current_picker][0]),    # picker_number
+                self.pickers[self.current_picker][1],         # picker_first_name
+                self.pickers[self.current_picker][2],         # picker_last_name
+                int(self.batches[self.current_batch][0]),     # batch_number
+                self.batches[self.current_batch][1],          # batch_date
+                int(self.batches[self.current_batch][2]),     # room_number
+                int(self.varieties[self.current_variety][0]), # variety_number
+                self.varieties[self.current_variety][1],      # variety_name
+                self.current_picker_weight,                   # initial_weight
+                self.current_weight,                          # final_weight
+                time.strftime('%Y-%m-%d %H:%M:%S',            # timestamp
+                              time.localtime())
             ))
-            self.history_store.insert(row, temp)
         edit_dialog.destroy()
 
     def exit_callback(self, widget):
@@ -414,32 +446,10 @@ class MainWindow(Gtk.Window):
         - self.timestamp             -> box.timestamp
         """
         self.start_stop('success')
-        temp = []
         index_list = []
         index_list.append(self.current_batch)
         index_list.append(self.current_variety)
         index_list.append(self.current_picker)
-        text = ('Picker {picker_number} ' +
-               '({picker_firstname} {picker_lastname}), ' +
-               'Variety {variety_number} ({variety_name}), ' +
-               'Batch {batch_number} ({batch_date}), Room {room_number}, ' +
-               'Picker Weight: {picker_weight}, ' +
-               'Final Weight: {final_weight}, Time: {timestamp}')
-        temp.append(text.format(
-            picker_number    = self.pickers[self.current_picker][0],
-            picker_firstname = self.pickers[self.current_picker][1],
-            picker_lastname  = self.pickers[self.current_picker][2],
-            variety_number   = self.varieties[self.current_variety][0],
-            variety_name     = self.varieties[self.current_variety][1],
-            batch_number     = self.batches[self.current_batch][0],
-            batch_date       = self.batches[self.current_batch][1],
-            room_number      = self.batches[self.current_batch][2],
-            picker_weight    = self.current_picker_weight,
-            final_weight     = self.current_weight,
-            timestamp        = time.strftime('%Y-%m-%d %H:%M:%S',
-                                             time.localtime())
-        ))
-
         self.history_entries.append((self.pickers[self.current_picker][0],
                                     self.batches[self.current_batch][0],
                                     self.varieties[self.current_variety][0],
@@ -448,7 +458,20 @@ class MainWindow(Gtk.Window):
                                     time.strftime('%Y-%m-%d %H:%M:%S',
                                                   time.localtime()),
                                     index_list))
-        self.history_store.append(temp)
+        self.history_store.append((
+            int(self.pickers[self.current_picker][0]),    # picker_number
+            self.pickers[self.current_picker][1],         # picker_first_name
+            self.pickers[self.current_picker][2],         # picker_last_name
+            int(self.batches[self.current_batch][0]),     # batch_number
+            self.batches[self.current_batch][1],          # batch_date
+            int(self.batches[self.current_batch][2]),     # room_number
+            int(self.varieties[self.current_variety][0]), # variety_number
+            self.varieties[self.current_variety][1],      # variety_name
+            self.current_picker_weight,                   # initial_weight
+            self.current_weight,                          # final_weight
+            time.strftime('%Y-%m-%d %H:%M:%S',            # timestamp
+                          time.localtime())
+        ))
         self.current_picker = self.current_variety = None
 
     def set_status_feedback(self):
