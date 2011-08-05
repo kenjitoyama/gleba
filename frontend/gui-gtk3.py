@@ -449,7 +449,6 @@ class MainWindow(Gtk.Window):
                                                   time.localtime()),
                                     index_list))
         self.history_store.append(temp)
-        self.history_list.set_model(self.history_store)
         self.current_picker = self.current_variety = None
 
     def set_status_feedback(self):
