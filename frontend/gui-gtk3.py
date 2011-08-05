@@ -51,7 +51,6 @@ class MainWindow(Gtk.Window):
     show_weight = False
     min_weight = 0.0
     weight_window = []
-    history_entries = []
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -219,6 +218,15 @@ class MainWindow(Gtk.Window):
         self.batches   = DB.get_active_batches_xml()
         self.pickers   = DB.get_active_pickers_xml()
         self.varieties = DB.get_active_varieties_xml()
+        self.inverted_index_picker = {}
+        self.inverted_index_batch = {}
+        self.inverted_index_variety = {}
+        for i in range(len(self.pickers)):
+            self.inverted_index_picker[int(self.pickers[i][0])] = i
+        for i in range(len(self.batches)):
+            self.inverted_index_batch[int(self.batches[i][0])] = i
+        for i in range(len(self.varieties)):
+            self.inverted_index_variety[int(self.varieties[i][0])] = i
         # add batches
         batch_text_format = 'Batch No. {} ({}) Room {}'
         for batch in self.batches:
@@ -269,7 +277,7 @@ class MainWindow(Gtk.Window):
         """
         # add widgets
         self.start_stop('button')
-        selection, iterator = self.history_list.get_selection().get_selected()
+        model, iterator = self.history_list.get_selection().get_selected()
         if iterator is not None:
             edit_dialog = Gtk.Window()
             edit_vbox = Gtk.VBox()
@@ -279,9 +287,6 @@ class MainWindow(Gtk.Window):
             edit_vbox.add(edit_batch_frame)
             edit_vbox.add(edit_picker_frame)
             edit_vbox.add(edit_variety_frame)
-            # Kenji: TODO row is super ugly. change this later.
-            row = int(str(selection.get_path(iterator)))
-            index_list = self.history_entries[row][6]
             # get batches
             edit_batch_combo = Gtk.ComboBoxText()
             for batch in self.batches:
@@ -289,43 +294,44 @@ class MainWindow(Gtk.Window):
                     'Batch No. {} ({}) Room {}'.format(
                         batch[0], batch[1], batch[2]
                 ))
-            edit_batch_combo.set_active(index_list[0])
+            batch_number = model.get(iterator, 3)[0]
+            batch_idx = self.inverted_index_batch[batch_number]
+            edit_batch_combo.set_active(batch_idx)
             # get pickers
             edit_picker_combo = Gtk.ComboBoxText()
             for picker in self.pickers:
                 edit_picker_combo.append_text('{}. {} {}'.format(
                     picker[0], picker[1], picker[2]
                 ))
-            edit_picker_combo.set_active(index_list[2])
+            picker_number = model.get(iterator, 0)[0]
+            picker_idx = self.inverted_index_picker[picker_number]
+            edit_picker_combo.set_active(picker_idx)
             # get varieties
             edit_varieties_combo = Gtk.ComboBoxText()
             for variety in self.varieties:
                 edit_varieties_combo.append_text('{}. {}'.format(
                     variety[0], variety[1]
                 ))
-            edit_varieties_combo.set_active(index_list[1])
+            variety_number = model.get(iterator, 6)[0]
+            variety_idx = self.inverted_index_variety[variety_number]
+            edit_varieties_combo.set_active(variety_idx)
             # pack everything and show window
             edit_batch_frame.add(edit_batch_combo)
             edit_picker_frame.add(edit_picker_combo)
             edit_variety_frame.add(edit_varieties_combo)
             edit_delete_button = Gtk.Button(label = 'Delete Record')
-            edit_delete_button.connect('clicked',
-                                       self.modify_history_callback,
-                                       iterator, row, True,
-                                       edit_batch_combo,
-                                       edit_varieties_combo,
-                                       edit_picker_combo,
-                                       edit_dialog)
+            edit_delete_button.connect(
+                'clicked', self.delete_history_row,
+                model, iterator, edit_dialog
+            )
             edit_delete_button.set_size_request(10, 15)
             edit_apply_button = Gtk.Button(label = 'Apply Changes')
             edit_apply_button.set_size_request(10, 35)
-            edit_apply_button.connect('clicked',
-                                      self.modify_history_callback,
-                                      iterator, row, False,
-                                      edit_batch_combo,
-                                      edit_varieties_combo,
-                                      edit_picker_combo,
-                                      edit_dialog)
+            edit_apply_button.connect(
+                'clicked', self.modify_history_callback,
+                model, iterator, edit_batch_combo, edit_varieties_combo,
+                edit_picker_combo, edit_dialog
+            )
             edit_vbox.add(edit_apply_button)
             edit_vbox.add(edit_delete_button)
             edit_dialog.add(edit_vbox)
@@ -333,54 +339,33 @@ class MainWindow(Gtk.Window):
                                          int(WINDOWH/1.6))
             edit_dialog.show_all()
     
-    def modify_history_callback(self, button, iterator, row, delete,
-                                      batch_combobox,
-                                      varieties_combobox,
-                                      picker_combobox,
-                                      edit_dialog):
+    def delete_history_row(self, button, model, iterator, edit_dialog):
+        """
+        Callback that gets called when user deletes a history entry.
+        """
+        model.remove(iterator)
+        edit_dialog.destroy()
+
+    def modify_history_callback(self, button, model, iterator, batch_combobox,
+                                varieties_combobox, picker_combobox, edit_dialog):
         """
         This callback is fired when an entry in the history list has been
         edited in the edit window.
         """
         self.start_stop('button')
-        self.history_store.remove(iterator)
-        if delete:
-            self.history_entries.pop(row)
-        else:
-            entry = self.history_entries[row]
-            #modify      
-            self.current_batch = batch_combobox.get_active()
-            self.current_variety = varieties_combobox.get_active()
-            self.current_picker = picker_combobox.get_active()
-            index_list = (self.current_batch,
-                          self.current_variety,
-                          self.current_picker)
-            #retain
-            self.current_picker_weight = entry[3]
-            self.current_weight = entry[4]
-            self.history_entries[row] = (self.pickers[self.current_picker][0],
-                                        self.batches[self.current_batch][0],
-                                        self.varieties[self.current_variety][0],
-                                        self.current_picker_weight,
-                                        self.current_weight,
-                                        time.strftime('%Y-%m-%d %H:%M:%S',
-                                                      time.localtime()),
-                                        index_list)
-            #modify treeView model
-            self.history_store.insert(row, (
-                int(self.pickers[self.current_picker][0]),    # picker_number
-                self.pickers[self.current_picker][1],         # picker_first_name
-                self.pickers[self.current_picker][2],         # picker_last_name
-                int(self.batches[self.current_batch][0]),     # batch_number
-                self.batches[self.current_batch][1],          # batch_date
-                int(self.batches[self.current_batch][2]),     # room_number
-                int(self.varieties[self.current_variety][0]), # variety_number
-                self.varieties[self.current_variety][1],      # variety_name
-                self.current_picker_weight,                   # initial_weight
-                self.current_weight,                          # final_weight
-                time.strftime('%Y-%m-%d %H:%M:%S',            # timestamp
-                              time.localtime())
-            ))
+        selected_picker = self.pickers[picker_combobox.get_active()]
+        selected_batch = self.batches[batch_combobox.get_active()]
+        selected_variety = self.varieties[varieties_combobox.get_active()]
+        model.set_value(iterator, 0,  int(selected_picker[0]))
+        model.set_value(iterator, 1,  selected_picker[1])
+        model.set_value(iterator, 2,  selected_picker[2])
+        model.set_value(iterator, 3,  int(selected_batch[0]))
+        model.set_value(iterator, 4,  selected_batch[1])
+        model.set_value(iterator, 5,  int(selected_batch[2]))
+        model.set_value(iterator, 6,  int(selected_variety[0]))
+        model.set_value(iterator, 7,  selected_variety[1])
+        model.set_value(iterator, 10, time.strftime('%Y-%m-%d %H:%M:%S',
+                                      time.localtime() ))
         edit_dialog.destroy()
 
     def exit_callback(self, widget):
@@ -437,7 +422,6 @@ class MainWindow(Gtk.Window):
         DB.add_boxes(boxes)
         # clear the history
         self.history_store.clear()
-        self.history_entries = []
         self.show_all()
 
     def save_box(self):
@@ -453,18 +437,6 @@ class MainWindow(Gtk.Window):
         - self.timestamp             -> box.timestamp
         """
         self.start_stop('success')
-        index_list = []
-        index_list.append(self.current_batch)
-        index_list.append(self.current_variety)
-        index_list.append(self.current_picker)
-        self.history_entries.append((self.pickers[self.current_picker][0],
-                                    self.batches[self.current_batch][0],
-                                    self.varieties[self.current_variety][0],
-                                    self.current_picker_weight,
-                                    self.current_weight,
-                                    time.strftime('%Y-%m-%d %H:%M:%S',
-                                                  time.localtime()),
-                                    index_list))
         self.history_store.append((
             int(self.pickers[self.current_picker][0]),    # picker_number
             self.pickers[self.current_picker][1],         # picker_first_name
