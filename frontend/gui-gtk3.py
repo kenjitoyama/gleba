@@ -401,10 +401,17 @@ class MainWindow(Gtk.Window):
         self.history_entries = []
         self.show_all()
 
-    def history_callback(self, button):
+    def save_box(self):
         """
-        This callback is fired when any entry in the history list has been
-        added, deleted or modified.
+        Saves a box with the current picker, batch, variety, weight and timestamp.
+
+        The information will map from -> to:
+        - self.current_picker        -> box.picker
+        - self.current_batch         -> box.batch
+        - self.current_variety       -> box.contentVariety
+        - self.current_weight        -> box.finalWeight
+        - self.current_picker_weight -> box.initialWeight
+        - self.timestamp             -> box.timestamp
         """
         self.start_stop('success')
         self.current_weight = self.stable_weight
@@ -495,7 +502,7 @@ class MainWindow(Gtk.Window):
                 self.save_weight = False
                 self.current_weight = self.stable_weight
                 self.change_state(AWAITING_BOX)
-                self.history_callback(None)
+                self.save_box()
             elif (self.current_state == AWAITING_BOX and
                   self.current_weight > config.BOX_WEIGHT):
                 self.change_state()
