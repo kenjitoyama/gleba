@@ -171,6 +171,30 @@ class MainWindow:
                 button.connect('clicked', self.select_variety_callback, idx)
                 hbox.add(button)
             variety_vbox.add(hbox)
+        # edit window stuff
+        combo_box = self.builder.get_object('edit_batch_combo')
+        for batch in self.data_model.batches:
+            combo_box.append_text(config.BATCH_COMBO_FORMAT.format(
+                    batch_id = batch['id'],
+                    year = batch['date']['year'],
+                    month = batch['date']['month'],
+                    day = batch['date']['day'],
+                    room_number = batch['room_number']
+            ))
+        combo_box = self.builder.get_object('edit_picker_combo')
+        for picker in self.data_model.pickers:
+            combo_box.append_text(config.PICKER_BUTTON_FORMAT.format(
+                picker_id = picker['id'],
+                first_name = picker['first_name'],
+                last_name = picker['last_name']
+            ))
+        combo_box = self.builder.get_object('edit_variety_combo')
+        for variety in self.data_model.varieties:
+            combo_box.append_text(config.VARIETY_BUTTON_FORMAT.format(
+                variety_name = variety['name'],
+                min_weight = variety['ideal_weight'],
+                max_weight = variety['ideal_weight'] + variety['tolerance'],
+            ))
         # add mappings for treeview columns
         for i in range(11):
             tvc = self.builder.get_object('hist_col' + str(i))
@@ -195,6 +219,12 @@ class MainWindow:
         self.serial_thread.kill()
         Gtk.main_quit()
 
+    def exit_edit_window(self, widget):
+        """
+        Hides the edit window.
+        """
+        self.builder.get_object('edit_window').hide()
+
     def commit_callback(self, widget, data = None):
         """
         This callback is fired when the user presses the commit button.
@@ -218,9 +248,42 @@ class MainWindow:
         # clear the history
         history_store.clear()
 
-    def modify_history_callback(self, widget, data):
+    def edit_history_callback(self, button):
+        """
+        This callback is fired when an entry in the history list has been
+        edited in the edit window.
+        """
         self.start_stop('button')
-        pass
+        history_list = self.builder.get_object('history_list')
+        model, iterator = history_list.get_selection().get_selected()
+        picker_combo_box = self.builder.get_object('edit_picker_combo')
+        batch_combo_box = self.builder.get_object('edit_batch_combo')
+        variety_combo_box = self.builder.get_object('edit_variety_combo')
+        selected_picker = self.data_model.pickers[picker_combo_box.get_active()]
+        selected_batch = self.data_model.batches[batch_combo_box.get_active()]
+        selected_variety = self.data_model.varieties[variety_combo_box.get_active()]
+        model.set_value(iterator, 0,  selected_picker['id'])
+        model.set_value(iterator, 1,  selected_picker['first_name'])
+        model.set_value(iterator, 2,  selected_picker['last_name'])
+        model.set_value(iterator, 3,  selected_batch['id'])
+        model.set_value(iterator, 4,  self.data_model.
+            batch_date_str(selected_batch['id'])
+        )
+        model.set_value(iterator, 5,  selected_batch['room_number'])
+        model.set_value(iterator, 6,  selected_variety['id'])
+        model.set_value(iterator, 7,  selected_variety['name'])
+        model.set_value(iterator, 10, time.strftime('%Y-%m-%d %H:%M:%S',
+                                      time.localtime() ))
+        self.builder.get_object('edit_window').hide()
+
+    def delete_history_callback(self, button):
+        """
+        Callback that gets called when user deletes a history entry.
+        """
+        history_list = self.builder.get_object('history_list')
+        model, iterator = history_list.get_selection().get_selected()
+        model.remove(iterator)
+        self.builder.get_object('edit_window').hide()
 
     def select_picker_callback(self, widget, index):
         """
@@ -281,9 +344,27 @@ class MainWindow:
         self.current_picker = self.current_variety = None
 
     def open_edit_window(self, widget, data = None):
+        """
+        This callback is fired when editing an entry in the
+        history list.
+        """
         self.start_stop('button')
-        edit_window = self.builder.get_object('edit_window')
-        edit_window.show_all()
+        history_list = self.builder.get_object('history_list')
+        model, iterator = history_list.get_selection().get_selected()
+        if iterator is not None:
+            combo_box = self.builder.get_object('edit_batch_combo')
+            batch_number = model.get(iterator, 3)[0]
+            batch_idx = self.data_model.inverted_index_batch[batch_number]
+            combo_box.set_active(batch_idx)
+            combo_box = self.builder.get_object('edit_picker_combo')
+            picker_number = model.get(iterator, 0)[0]
+            picker_idx = self.data_model.inverted_index_picker[picker_number]
+            combo_box.set_active(picker_idx)
+            combo_box = self.builder.get_object('edit_variety_combo')
+            variety_number = model.get(iterator, 6)[0]
+            variety_idx = self.data_model.inverted_index_variety[variety_number]
+            combo_box.set_active(variety_idx)
+            self.builder.get_object('edit_window').show_all()
 
     def change_state(self, state = None):
         """

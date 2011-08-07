@@ -247,6 +247,7 @@
     </columns>
   </object>
   <object class="GtkWindow" id="edit_window">
+    <signal name="destroy" handler="exit_edit_window"/>
     <child>
       <object class="GtkVBox" id="edit_vertical_box">
         <child>
@@ -275,13 +276,13 @@
         </child>
         <child>
           <object class="GtkButton" id="edit_delete_button">
-            <signal name="clicked" handler="modify_history_callback"/>
+            <signal name="clicked" handler="delete_history_callback"/>
             <property name="label">Delete Record</property>
           </object>
         </child>
         <child>
           <object class="GtkButton" id="edit_apply_button">
-            <signal name="clicked" handler="modify_history_callback"/>
+            <signal name="clicked" handler="edit_history_callback"/>
             <property name="label">Apply Changes</property>
           </object>
         </child>
