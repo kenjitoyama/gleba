@@ -23,13 +23,13 @@ UNDERWEIGHT_ADJUST = 5
 AWAITING_CONFIRMATION = 6
 REMOVE_BOX = 7
 STATUS_MESSAGES = [
-    'Awaiting\nbatch',
-    'Awaiting\nbox',
-    'Awaiting\npicker',
-    'Awaiting\nvariety',
-    'Overweight,\nAdjust',
-    'Underweight,\nAdjust',
-    'Awaiting\nconfirmation',
+    'Awaiting batch',
+    'Awaiting box',
+    'Awaiting picker',
+    'Awaiting variety',
+    'Overweight, Adjust',
+    'Underweight, Adjust',
+    'Awaiting confirmation',
     'Remove box'
 ]
 
@@ -99,11 +99,28 @@ class MainWindow:
         self.window = self.builder.get_object('window')
         self.builder.connect_signals(self)
         self.data_model = DataModel()
-        # add mappings for treeview columns
-        for i in range(11):
-            tvc = self.builder.get_object('hist_col' + str(i))
-            cell_rend = self.builder.get_object('hist_cell' + str(i))
-            tvc.add_attribute(cell_rend, "text", i)
+        self.gui_init()
+        # sound stuff
+        self.player = gst.element_factory_make('playbin2', 'player')
+        fakesink = gst.element_factory_make('fakesink', 'fakesink')
+        self.player.set_property('video-sink', fakesink)
+        bus = self.player.get_bus()
+        bus.add_signal_watch()
+        bus.connect('message', self.on_message)
+        # Thread to read from scale (producer)
+        self.serial_thread = utils.ThreadSerial()
+        self.serial_thread.daemon = True
+        self.serial_thread.start()
+        # Thread to process stuff (consumer)
+        self.keep_running = True
+        self.reading_thread = Thread(target = self.consumer_thread)
+        self.reading_thread.start()
+        self.set_status_feedback()
+
+    def gui_init(self):
+        """
+        Some additional behavioural initializations in the GUI.
+        """
         # add batches
         batch_combo_box = self.builder.get_object('batch_combo_box')
         for batch in self.data_model.batches:
@@ -154,22 +171,24 @@ class MainWindow:
                 button.connect('clicked', self.select_variety_callback, idx)
                 hbox.add(button)
             variety_vbox.add(hbox)
-        # sound stuff
-        self.player = gst.element_factory_make('playbin2', 'player')
-        fakesink = gst.element_factory_make('fakesink', 'fakesink')
-        self.player.set_property('video-sink', fakesink)
-        bus = self.player.get_bus()
-        bus.add_signal_watch()
-        bus.connect('message', self.on_message)
-        # Thread to read from scale (producer)
-        self.serial_thread = utils.ThreadSerial()
-        self.serial_thread.daemon = True
-        self.serial_thread.start()
-        # Thread to process stuff (consumer)
-        self.keep_running = True
-        self.reading_thread = Thread(target = self.consumer_thread)
-        self.reading_thread.start()
-        self.set_status_feedback()
+        # add mappings for treeview columns
+        for i in range(11):
+            tvc = self.builder.get_object('hist_col' + str(i))
+            cell_rend = self.builder.get_object('hist_cell' + str(i))
+            tvc.add_attribute(cell_rend, "text", i)
+        # Adjust sizes of various widgets
+        self.builder.get_object('main_vbox').set_child_packing(
+            self.builder.get_object('top_hbox'),
+            False, False, 0, Gtk.PackType.START
+        )
+        self.builder.get_object('top_hbox').set_child_packing(
+            self.builder.get_object('status_label'),
+            False, False, 0, Gtk.PackType.START
+        )
+        self.builder.get_object('top_hbox').set_child_packing(
+            self.builder.get_object('edit_button_hbox'),
+            False, False, 0, Gtk.PackType.START
+        )
 
     def exit_callback(self, widget, data = None):
         self.keep_running = False

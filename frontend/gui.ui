@@ -2,189 +2,203 @@
   <object class="GtkWindow" id="window">
     <signal name="destroy" handler="exit_callback"/>
     <child>
-      <object class="GtkHBox" id="main_hbox">
+      <object class="GtkVBox" id="main_vbox">
         <child>
-          <object class="GtkVBox" id="left_vbox">
+          <object class="GtkVPaned" id="main_vpane">
             <child>
-              <object class="GtkFrame" id="batch_frame">
-                <property name="label">Batch</property>
+              <object class="GtkHBox" id="main_hbox">
                 <child>
-                  <object class="GtkComboBoxText" id="batch_combo_box"/>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkLabel" id="status_label"/>
-            </child>
-            <child>
-              <object class="GtkFrame" id="weight_display_frame">
-                <property name="label">Weight</property>
-                <child>
-                  <object class="GtkEventBox" id="weight_event_box">
+                  <object class="GtkVBox" id="left_vbox">
                     <child>
-                      <object class="GtkLabel" id="weight_label"/>
+                      <object class="GtkFrame" id="batch_frame">
+                        <property name="label">Batch</property>
+                        <child>
+                          <object class="GtkComboBoxText" id="batch_combo_box"/>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="weight_display_frame">
+                        <property name="label">Weight</property>
+                        <child>
+                          <object class="GtkEventBox" id="weight_event_box">
+                            <child>
+                              <object class="GtkLabel" id="weight_label"/>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="offset_display_frame">
+                        <property name="label">Offset</property>
+                        <child>
+                          <object class="GtkEventBox" id="offset_event_box">
+                            <child>
+                              <object class="GtkLabel" id="offset_label"/>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkVBox" id="center_vbox">
+                    <child>
+                      <object class="GtkFrame" id="picker_frame">
+                        <property name="label">Pickers</property>
+                        <child>
+                          <object class="GtkVBox" id="picker_vbox"/>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkVBox" id="right_vbox">
+                    <child>
+                      <object class="GtkFrame" id="variety_frame">
+                        <property name="label">Varieties</property>
+                        <child>
+                          <object class="GtkVBox" id="variety_vbox"/>
+                        </child>
+                      </object>
                     </child>
                   </object>
                 </child>
               </object>
             </child>
             <child>
-              <object class="GtkFrame" id="offset_display_frame">
-                <property name="label">Offset</property>
+              <object class="GtkFrame" id="history_frame">
+                <property name="label">History</property>
                 <child>
-                  <object class="GtkEventBox" id="offset_event_box">
+                  <object class="GtkScrolledWindow" id="scrolled_window">
+                    <property name="hscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
+                    <property name="vscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
                     <child>
-                      <object class="GtkLabel" id="offset_label"/>
+                      <object class="GtkTreeView" id="history_list">
+                        <property name="model">history_store</property>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="hist_col0">
+                            <property name="title">Picker Number</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="hist_cell0">
+                                <property name="text">0</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="hist_col1">
+                            <property name="title">First Name</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="hist_cell1">
+                                <property name="text">1</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="hist_col2">
+                            <property name="title">Last Name</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="hist_cell2">
+                                <property name="text">2</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="hist_col3">
+                            <property name="title">Batch Number</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="hist_cell3">
+                                <property name="text">3</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="hist_col4">
+                            <property name="title">Batch Date</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="hist_cell4">
+                                <property name="text">4</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="hist_col5">
+                            <property name="title">Room Number</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="hist_cell5">
+                                <property name="text">5</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="hist_col6">
+                            <property name="title">Variety Date</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="hist_cell6">
+                                <property name="text">6</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="hist_col7">
+                            <property name="title">Variety Name</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="hist_cell7">
+                                <property name="text">7</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="hist_col8">
+                            <property name="title">Initial Weight</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="hist_cell8">
+                                <property name="text">8</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="hist_col9">
+                            <property name="title">Final Weight</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="hist_cell9">
+                                <property name="text">9</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="hist_col10">
+                            <property name="title">Timestamp</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="hist_cell10">
+                                <property name="text">10</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
                     </child>
                   </object>
                 </child>
               </object>
             </child>
-          </object>
+          </object><!--main_vpaned-->
         </child>
         <child>
-          <object class="GtkVBox" id="center_vbox">
-            <child>
-              <object class="GtkFrame" id="picker_frame">
-                <property name="label">Pickers</property>
-                <child>
-                  <object class="GtkVBox" id="picker_vbox"/>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkVBox" id="right_vbox">
-            <child>
-              <object class="GtkFrame" id="variety_frame">
-                <property name="label">Varieties</property>
-                <child>
-                  <object class="GtkVBox" id="variety_vbox"/>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkScrolledWindow" id="scrolled_window">
-                <property name="hscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
-                <property name="vscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
-                <child>
-                  <object class="GtkTreeView" id="history_list">
-                    <property name="model">history_store</property>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="hist_col0">
-                        <property name="title">Picker Number</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="hist_cell0">
-                            <property name="text">0</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="hist_col1">
-                        <property name="title">First Name</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="hist_cell1">
-                            <property name="text">1</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="hist_col2">
-                        <property name="title">Last Name</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="hist_cell2">
-                            <property name="text">2</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="hist_col3">
-                        <property name="title">Batch Number</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="hist_cell3">
-                            <property name="text">3</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="hist_col4">
-                        <property name="title">Batch Date</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="hist_cell4">
-                            <property name="text">4</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="hist_col5">
-                        <property name="title">Room Number</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="hist_cell5">
-                            <property name="text">5</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="hist_col6">
-                        <property name="title">Variety Date</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="hist_cell6">
-                            <property name="text">6</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="hist_col7">
-                        <property name="title">Variety Name</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="hist_cell7">
-                            <property name="text">7</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="hist_col8">
-                        <property name="title">Initial Weight</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="hist_cell8">
-                            <property name="text">8</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="hist_col9">
-                        <property name="title">Final Weight</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="hist_cell9">
-                            <property name="text">9</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="hist_col10">
-                        <property name="title">Timestamp</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="hist_cell10">
-                            <property name="text">10</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
+          <object class="GtkHBox" id="top_hbox">
             <child>
               <object class="GtkHBox" id="edit_button_hbox">
                 <child>
@@ -201,11 +215,14 @@
                 </child>
               </object>
             </child>
+            <child>
+              <object class="GtkLabel" id="status_label"/>
+            </child>
           </object>
         </child>
-      </object>
+      </object><!--main_vbox-->
     </child>
-  </object>
+  </object><!--main_window-->
   <object class="GtkAdjustment" id="scroll_adjustment">
     <property name="value">0.0</property>
     <property name="lower">0.0</property>
