@@ -224,8 +224,8 @@
       <column type="gint"/>
       <column type="gint"/>
       <column type="gchararray"/>
-      <column type="gfloat"/>
-      <column type="gfloat"/>
+      <column type="gdouble"/>
+      <column type="gdouble"/>
       <column type="gchararray"/>
     </columns>
   </object>
