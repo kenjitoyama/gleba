@@ -72,11 +72,111 @@
                   <object class="GtkTreeView" id="history_list">
                     <property name="model">history_store</property>
                     <child>
-                      <object class="GtkTreeViewColumn" id="tree_column">
-                        <property name="title">History</property>
+                      <object class="GtkTreeViewColumn" id="hist_col0">
+                        <property name="title">Picker Number</property>
                         <child>
-                          <object class="GtkCellRendererText" id="cell_renderer_text">
+                          <object class="GtkCellRendererText" id="hist_cell0">
                             <property name="text">0</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="hist_col1">
+                        <property name="title">First Name</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="hist_cell1">
+                            <property name="text">1</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="hist_col2">
+                        <property name="title">Last Name</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="hist_cell2">
+                            <property name="text">2</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="hist_col3">
+                        <property name="title">Batch Number</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="hist_cell3">
+                            <property name="text">3</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="hist_col4">
+                        <property name="title">Batch Date</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="hist_cell4">
+                            <property name="text">4</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="hist_col5">
+                        <property name="title">Room Number</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="hist_cell5">
+                            <property name="text">5</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="hist_col6">
+                        <property name="title">Variety Date</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="hist_cell6">
+                            <property name="text">6</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="hist_col7">
+                        <property name="title">Variety Name</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="hist_cell7">
+                            <property name="text">7</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="hist_col8">
+                        <property name="title">Initial Weight</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="hist_cell8">
+                            <property name="text">8</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="hist_col9">
+                        <property name="title">Final Weight</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="hist_cell9">
+                            <property name="text">9</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="hist_col10">
+                        <property name="title">Timestamp</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="hist_cell10">
+                            <property name="text">10</property>
                           </object>
                         </child>
                       </object>
@@ -116,6 +216,16 @@
   </object>
   <object class="GtkListStore" id="history_store">
     <columns>
+      <column type="gint"/>
+      <column type="gchararray"/>
+      <column type="gchararray"/>
+      <column type="gint"/>
+      <column type="gchararray"/>
+      <column type="gint"/>
+      <column type="gint"/>
+      <column type="gchararray"/>
+      <column type="gfloat"/>
+      <column type="gfloat"/>
       <column type="gchararray"/>
     </columns>
   </object>
