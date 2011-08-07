@@ -14,6 +14,15 @@ class DataModel:
         self.batches   = self.db_conn.get_active_batches_list()
         self.pickers   = self.db_conn.get_active_pickers_list()
         self.varieties = self.db_conn.get_active_varieties_list()
+        self.inverted_index_picker = {}
+        self.inverted_index_batch = {}
+        self.inverted_index_variety = {}
+        for i in range(len(self.pickers)):
+            self.inverted_index_picker[int(self.pickers[i]['id'])] = i
+        for i in range(len(self.batches)):
+            self.inverted_index_batch[int(self.batches[i]['id'])] = i
+        for i in range(len(self.varieties)):
+            self.inverted_index_variety[int(self.varieties[i]['id'])] = i
 
     def picker_to_string(self, picker_number, full_name = False):
         """
