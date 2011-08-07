@@ -45,3 +45,8 @@ BLACK_COLOR = (0x0000, 0x0000, 0x0000)
 RED_COLOR   = (0xffff, 0x0000, 0x0000)
 GREEN_COLOR = (0x0000, 0xffff, 0x0000)
 BLUE_COLOR  = (0x0000, 0x0000, 0xffff)
+
+# Picker, batch and variety formats
+PICKER_BUTTON_FORMAT = '{picker_id}. {first_name} {last_name}'
+BATCH_COMBO_FORMAT = 'Batch No. {batch_id} ({year}-{month}-{day}) Room {room_number}'
+VARIETY_BUTTON_FORMAT = '{variety_name}\n[{min_weight} ~ {max_weight}]'
