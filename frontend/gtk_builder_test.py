@@ -5,15 +5,15 @@ import time
 from threading import Thread
 from gi.repository import Gtk
 from gi.repository import Gdk
-import utils
-import config
-import gobject
 import pygst
 pygst.require('0.10')
 import gst
-from os import getcwd
+import utils
+import config
+import gobject
 
 gobject.threads_init()
+
 AWAITING_BATCH = 0
 AWAITING_BOX = 1
 AWAITING_PICKER = 2
@@ -102,11 +102,9 @@ class MainWindow:
         self.gui_init()
         # sound stuff
         self.player = gst.element_factory_make('playbin2', 'player')
-        fakesink = gst.element_factory_make('fakesink', 'fakesink')
-        self.player.set_property('video-sink', fakesink)
         bus = self.player.get_bus()
+        bus.connect('message', self.bus_handler)
         bus.add_signal_watch()
-        bus.connect('message', self.on_message)
         # Thread to read from scale (producer)
         self.serial_thread = utils.ThreadSerial()
         self.serial_thread.daemon = True
@@ -475,16 +473,15 @@ class MainWindow:
         """
         This method is used to play or stop a sound file.
         """
-        path = 'file://{0}/'.format(getcwd())
         if sound == 'success':
-            self.player.set_property('uri', path + 'success.ogg')
+            self.player.set_property('uri', config.SUCCESS_SOUND)
         elif sound == 'green':
-            self.player.set_property('uri', path + 'green.ogg')
+            self.player.set_property('uri', config.GREEN_SOUND)
         elif sound == 'button':
-            self.player.set_property('uri', path + 'button.ogg')
+            self.player.set_property('uri', config.BUTTON_SOUND)
         self.player.set_state(gst.STATE_PLAYING)
 
-    def on_message(self, bus, message):
+    def bus_handler(self, bus, message):
         """
         This callback is fired when messages for GStreamer happen.
         """
@@ -496,6 +493,7 @@ class MainWindow:
             err, debug = message.parse_error()
             print('Error: {}'.format(err), debug)
             print('Bus: {}'.format(str(bus)))
+        return True
 
 if __name__ == '__main__':
     gui = MainWindow()

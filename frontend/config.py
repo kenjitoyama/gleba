@@ -7,6 +7,7 @@ Requirements for testing:
 On GNU/Linux:
 - socat (www.dest-unreach.org/socat/)
 """
+from os import getcwd
 
 # - Serial Configuration
 ser_port = '/dev/pts/5'
@@ -50,3 +51,9 @@ BLUE_COLOR  = (0x0000, 0x0000, 0xffff)
 PICKER_BUTTON_FORMAT = '{picker_id}. {first_name} {last_name}'
 BATCH_COMBO_FORMAT = 'Batch No. {batch_id} ({year}-{month}-{day}) Room {room_number}'
 VARIETY_BUTTON_FORMAT = '{variety_name}\n[{min_weight} ~ {max_weight}]'
+
+# sound files used for feedback
+SOUND_DIRECTORY = 'file://{0}/'.format(getcwd())
+BUTTON_SOUND = SOUND_DIRECTORY + 'button.ogg'
+GREEN_SOUND = SOUND_DIRECTORY + 'green.ogg'
+SUCCESS_SOUND = SOUND_DIRECTORY + 'success.ogg'
