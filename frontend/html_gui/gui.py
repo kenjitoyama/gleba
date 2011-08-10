@@ -6,6 +6,7 @@ from cgi import parse_qs
 import sys
 sys.path.append('..')
 from utils import ThreadSerial, DBAPI
+from config import BOX_WEIGHT
 
 HOSTNAME = '0.0.0.0'
 PORT_NUMBER = 45322 # 'gleba' in numpad letters
@@ -61,6 +62,11 @@ class GUIHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(self.db_connection.get_active_varieties_json())
             return
+        elif(self.path == '/box_weight'):
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(BOX_WEIGHT)
         elif(self.path == '/gui.html'):
             req_file = open(curdir + sep + self.path)
             self.send_response(200)

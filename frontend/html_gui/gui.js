@@ -4,7 +4,7 @@ WebGUI.AWAITING_BOX = 'Awaiting box';
 WebGUI.ADJUSTING = 'Adjusting';
 WebGUI.REMOVE_BOX = 'Remove box';
 
-WebGUI.BOX_WEIGHT = 0.2; /* KENJI: Replace this with information from config.py */
+WebGUI.BOX_WEIGHT = 0.0;
 WebGUI.weight_window = [];
 WebGUI.stable_weight = -1;
 
@@ -102,7 +102,7 @@ WebGUI.variety_callback = function(button) {
     WebGUI.update_current_info_div();
 }
 
-WebGUI.add_box = function() {
+WebGUI.save_box = function() {
     /* get data from the context */
     if(WebGUI.current_batch === null)
         return WebGUI.show_error('No batch selected. Please select a batch.');
@@ -347,7 +347,7 @@ WebGUI.get_weight_forever = function() {
                 }
             } else if(WebGUI.current_state == WebGUI.REMOVE_BOX &&
                       WebGUI.current_weight < WebGUI.BOX_WEIGHT) {
-                WebGUI.add_box();
+                WebGUI.save_box();
                 WebGUI.current_state = WebGUI.AWAITING_BOX;
             }
         }
@@ -479,10 +479,21 @@ WebGUI.get_active_varieties = function() {
     xhr.send(null);
 }
 
+WebGUI.get_box_weight = function() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == 4 && xhr.status == 200)
+            WebGUI.BOX_WEIGHT = parseFloat(xhr.responseText);
+    };
+    xhr.open('GET', 'box_weight', true);
+    xhr.send(null);
+}
+
 WebGUI.init_data = function() {
     WebGUI.get_active_batches();
     WebGUI.get_active_varieties();
     WebGUI.get_active_pickers();
+    WebGUI.get_box_weight();
     for(var i=0; i<10; i++) /* fill weight window */
         WebGUI.weight_window[i] = 0.0;
     WebGUI.get_weight_forever();
