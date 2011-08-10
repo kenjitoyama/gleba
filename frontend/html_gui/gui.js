@@ -1,9 +1,22 @@
 var WebGUI = {};
 
+WebGUI.AWAITING_BOX = 'Awaiting box';
+WebGUI.ADJUSTING = 'Adjusting';
+WebGUI.REMOVE_BOX = 'Remove box';
+
+WebGUI.BOX_WEIGHT = 0.2; /* KENJI: Replace this with information from config.py */
+WebGUI.weight_window = [];
+WebGUI.stable_weight = -1;
+
 WebGUI.current_picker = null;
 WebGUI.current_batch = null;
 WebGUI.current_variety = null;
 WebGUI.current_weight = null;
+WebGUI.picker_weight = null;
+WebGUI.current_state = WebGUI.AWAITING_BOX;
+
+WebGUI.current_min_weight = -1;
+WebGUI.current_tolerance = -1;
 
 WebGUI.change_status = function(text) {
     var status_span = document.querySelector('#status_div > span');
@@ -66,6 +79,7 @@ WebGUI.picker_callback = function(button) {
         WebGUI.current_picker = parseInt(button.dataset.id, 10);
     else
         WebGUI.current_picker = parseInt(button.getAttribute('data-id'), 10);
+    WebGUI.picker_weight = WebGUI.current_weight;
     WebGUI.update_current_info_div();
 }
 
@@ -96,39 +110,44 @@ WebGUI.add_box = function() {
         return WebGUI.show_error('No picker selected. Please select a picker.');
     else if(WebGUI.current_variety === null)
         return WebGUI.show_error('No variety selected. Please select a variety.');
-    var picker = WebGUI.current_picker;
-    var weight = WebGUI.current_weight;
-    var final_weight = WebGUI.current_weight; /* FIXME: adjust this later */
-    var variety = WebGUI.current_variety;
-    var batch = WebGUI.current_batch;
-    var timestamp = WebGUI.format_date(new Date());
-    /* add row to history_table */
-    var hist_table = document.getElementById('history_table');
-    var new_row = hist_table.insertRow(-1); /* insert at the end */
-    new_row.setAttribute('onclick', 'WebGUI.toggle_selected(this)');
-    /* add cells in the beginning in opposite order */
-    var timestamp_cell = new_row.insertCell(0);
-    timestamp_cell.appendChild(document.createTextNode(timestamp));
-    var batch_cell = new_row.insertCell(0);
-    batch_cell.appendChild(document.createTextNode(batch));
-    var variety_cell = new_row.insertCell(0);
-    variety_cell.appendChild(document.createTextNode(WebGUI.get_variety_name(variety)));
-    if(variety_cell.dataset)
-        variety_cell.dataset.id = variety;
-    else
-        variety_cell.setAttribute('data-id', variety);
-    var final_weight_cell = new_row.insertCell(0);
-    final_weight_cell.appendChild(document.createTextNode(final_weight));
-    var weight_cell = new_row.insertCell(0);
-    weight_cell.appendChild(document.createTextNode(weight));
-    var picker_cell = new_row.insertCell(0);
-    picker_cell.appendChild(document.createTextNode(WebGUI.get_picker_name(picker)));
-    if(picker_cell.dataset)
-        picker_cell.dataset.id = picker;
-    else
-        picker_cell.setAttribute('data-id', picker);
-    /* play sound */
-    document.getElementById('success_audio').play();
+    if(WebGUI.stable_weight > 0 &&
+       WebGUI.stable_weight > WebGUI.current_min_weight) {
+        var picker = WebGUI.current_picker;
+        var weight = WebGUI.picker_weight;
+        var final_weight = WebGUI.stable_weight;
+        WebGUI.stable_weight = -1;
+        var variety = WebGUI.current_variety;
+        var batch = WebGUI.current_batch;
+        var timestamp = WebGUI.format_date(new Date());
+        /* add row to history_table */
+        var hist_table = document.getElementById('history_table');
+        var new_row = hist_table.insertRow(-1); /* insert at the end */
+        new_row.setAttribute('onclick', 'WebGUI.toggle_selected(this)');
+        /* add cells in the beginning in opposite order */
+        var timestamp_cell = new_row.insertCell(0);
+        timestamp_cell.appendChild(document.createTextNode(timestamp));
+        var batch_cell = new_row.insertCell(0);
+        batch_cell.appendChild(document.createTextNode(batch));
+        var variety_cell = new_row.insertCell(0);
+        variety_cell.appendChild(document.createTextNode(WebGUI.get_variety_name(variety)));
+        if(variety_cell.dataset)
+            variety_cell.dataset.id = variety;
+        else
+            variety_cell.setAttribute('data-id', variety);
+        var final_weight_cell = new_row.insertCell(0);
+        final_weight_cell.appendChild(document.createTextNode(final_weight));
+        var weight_cell = new_row.insertCell(0);
+        weight_cell.appendChild(document.createTextNode(weight));
+        var picker_cell = new_row.insertCell(0);
+        picker_cell.appendChild(document.createTextNode(WebGUI.get_picker_name(picker)));
+        if(picker_cell.dataset)
+            picker_cell.dataset.id = picker;
+        else
+            picker_cell.setAttribute('data-id', picker);
+        /* play sound */
+        document.getElementById('success_audio').play();
+    } else
+        WebGUI.change_status('Weight not stable');
 }
 
 WebGUI.edit_callback = function() {
@@ -247,32 +266,43 @@ WebGUI.commit_callback = function() {
     }
 }
 
+WebGUI.update_variety_info = function() {
+    var query_string = '#variety_div > input[data-id="' + WebGUI.current_variety + '"]';
+    var curr_variety = document.querySelector(query_string)
+    var variety_ideal = parseFloat(curr_variety.getAttribute('data-idealweight'));
+    var variety_tolerance = parseFloat(curr_variety.getAttribute('data-tolerance'));
+    WebGUI.current_min_weight = variety_ideal;
+    WebGUI.current_tolerance = variety_tolerance;
+}
+
 WebGUI.update_weight_offset_labels = function() {
     var weight_div = document.getElementById('weight_div');
     var offset_div = document.getElementById('offset_div');
+    var status_div = document.getElementById('status_div');
     var weight_text = weight_div.childNodes[1].firstChild;
     var offset_text = offset_div.childNodes[1].firstChild;
+    var status_text = status_div.childNodes[1].firstChild;
     if(WebGUI.current_variety == null) {
         weight_text.nodeValue = '0.0000';
         offset_text.nodeValue = '0.0000';
         return;
     }
-    var query_string = '#variety_div > input[data-id="' + WebGUI.current_variety + '"]';
-    var curr_variety = document.querySelector(query_string)
-    var variety_ideal = parseFloat(curr_variety.getAttribute('data-idealweight'));
-    var variety_tolerance = parseFloat(curr_variety.getAttribute('data-tolerance'));
+    WebGUI.update_variety_info();
     /* update the text */
     weight_text.nodeValue = WebGUI.current_weight.toFixed(5);
-    offset_text.nodeValue = (WebGUI.current_weight-variety_ideal).toFixed(5);
+    offset_text.nodeValue = (WebGUI.current_weight-WebGUI.current_min_weight)
+                            .toFixed(5);
+    status_text.nodeValue = WebGUI.current_state;
     /* update the background */
-    if(WebGUI.current_weight < variety_ideal) { /* underweight */
+    if(WebGUI.current_weight < WebGUI.current_min_weight) { /* underweight */
         weight_div.classList.add('underweight');
         weight_div.classList.remove('within_range');
         weight_div.classList.remove('overweight');
         offset_div.classList.add('underweight');
         offset_div.classList.remove('within_range');
         offset_div.classList.remove('overweight');
-    } else if (WebGUI.current_weight < variety_ideal + variety_tolerance) { /*good*/
+    } else if (WebGUI.current_weight < WebGUI.current_min_weight +
+                                       WebGUI.current_tolerance) { /*good*/
         weight_div.classList.remove('underweight');
         weight_div.classList.add('within_range');
         weight_div.classList.remove('overweight');
@@ -296,6 +326,30 @@ WebGUI.get_weight_forever = function() {
         if(xhr.readyState == 4 && xhr.status == 200) {
             WebGUI.current_weight = parseFloat(xhr.responseText, 10);
             WebGUI.update_weight_offset_labels();
+            if(WebGUI.current_state == WebGUI.AWAITING_BOX &&
+               WebGUI.current_weight > WebGUI.BOX_WEIGHT)
+                WebGUI.current_state = WebGUI.ADJUSTING;
+            else if(WebGUI.current_state == WebGUI.ADJUSTING) {
+                if(WebGUI.current_weight < WebGUI.BOX_WEIGHT)
+                    WebGUI.current_state = WebGUI.AWAITING_BOX;
+                else if(WebGUI.current_variety) { // we have a box
+                    WebGUI.weight_window.shift();
+                    WebGUI.weight_window.push(WebGUI.current_weight);
+                    if(WebGUI.current_weight >= WebGUI.current_min_weight &&
+                       WebGUI.current_weight < WebGUI.current_min_weight +
+                                               WebGUI.current_tolerance) { // in range
+                        document.getElementById('green_audio').play();
+                        if(WebGUI.current_weight == WebGUI.weight_window[0]) {
+                            WebGUI.stable_weight = WebGUI.current_weight;
+                            WebGUI.current_state = WebGUI.REMOVE_BOX;
+                        }
+                    }
+                }
+            } else if(WebGUI.current_state == WebGUI.REMOVE_BOX &&
+                      WebGUI.current_weight < WebGUI.BOX_WEIGHT) {
+                WebGUI.add_box();
+                WebGUI.current_state = WebGUI.AWAITING_BOX;
+            }
         }
     };
     xhr.open('GET', 'weight', true);
@@ -429,6 +483,8 @@ WebGUI.init_data = function() {
     WebGUI.get_active_batches();
     WebGUI.get_active_varieties();
     WebGUI.get_active_pickers();
+    for(var i=0; i<10; i++) /* fill weight window */
+        WebGUI.weight_window[i] = 0.0;
     WebGUI.get_weight_forever();
 }
 
