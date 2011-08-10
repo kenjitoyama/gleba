@@ -1,35 +1,34 @@
+/////////////////////////////////////////
+// WebGUI is the main object of this file
+/////////////////////////////////////////
 var WebGUI = {};
 
+/////////////////////
+// 'Global' variables
+/////////////////////
 WebGUI.AWAITING_BOX = 'Awaiting box';
 WebGUI.ADJUSTING = 'Adjusting';
 WebGUI.REMOVE_BOX = 'Remove box';
-
-WebGUI.BOX_WEIGHT = 0.0;
-WebGUI.weight_window = [];
-WebGUI.stable_weight = -1;
+WebGUI.current_state = WebGUI.AWAITING_BOX;
 
 WebGUI.current_picker = null;
 WebGUI.current_batch = null;
 WebGUI.current_variety = null;
 WebGUI.current_weight = null;
 WebGUI.picker_weight = null;
-WebGUI.current_state = WebGUI.AWAITING_BOX;
-
+WebGUI.BOX_WEIGHT = 0.0;
+WebGUI.weight_window = [];
+WebGUI.stable_weight = -1;
 WebGUI.current_min_weight = -1;
 WebGUI.current_tolerance = -1;
 
-WebGUI.change_status = function(text) {
-    var status_span = document.querySelector('#status_div > span');
-    status_span.innerHTML = text;
-}
-
-WebGUI.show_error = function(error_msg) {
-    WebGUI.change_status(error_msg);
-    return null;
-}
+////////////////////
+// Utility functions
+////////////////////
 
 /* Function 'inspired' by the MDC docs.
- * Please see: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date */
+ * Please see:
+ * https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date */
 WebGUI.format_date = function(date) {
     function pad(n) {
         return n < 10 ? '0' + n : n;
@@ -64,14 +63,9 @@ WebGUI.get_variety_name = function(variety_id) {
         return button.getAttribute('data-name');
 }
 
-WebGUI.update_current_info_div = function() {
-    var curr = document.getElementById('current_info_div');
-    var curr_text = curr.childNodes[1].firstChild;
-    curr_text.nodeValue = 'Current (batch, variety, picker): (' +
-                          WebGUI.current_batch + ', ' +
-                          WebGUI.get_variety_name(WebGUI.current_variety) + ', ' +
-                          WebGUI.get_picker_name(WebGUI.current_picker) + ')';
-}
+////////////////
+// GUI callbacks
+////////////////
 
 WebGUI.picker_callback = function(button) {
     document.getElementById('button_audio').play();
@@ -101,6 +95,10 @@ WebGUI.variety_callback = function(button) {
         WebGUI.current_variety = parseInt(button.getAttribute('data-id'), 10);
     WebGUI.update_current_info_div();
 }
+
+////////////////////////////
+// History related functions
+////////////////////////////
 
 WebGUI.save_box = function() {
     /* get data from the context */
@@ -175,7 +173,8 @@ WebGUI.edit_callback = function() {
         WebGUI.change_status('Please make your changes and then press Apply');
         WebGUI.mark_history_rows(false);
         /* mark all currents to be null */
-        WebGUI.current_picker = WebGUI.current_variety = WebGUI.current_batch = null;
+        WebGUI.current_picker = WebGUI.current_variety =
+                                WebGUI.current_batch = null;
     }
 }
 
@@ -227,43 +226,38 @@ WebGUI.mark_history_rows = function(selectable) {
             table.rows[i].removeAttribute('onclick');
 }
 
-WebGUI.commit_callback = function() {
-    var hist_table = document.getElementById('history_table');
-    if(hist_table.rows.length < 2) /* remember rows also includes th */
-        return WebGUI.show_error('Nothing to commit');
-    while(hist_table.rows.length > 1) { /* always process the first row */
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-            if(xhr.readyState == 4 && xhr.status == 200) {
-                if(xhr.responseText != 'true')
-                    WebGUI.show_error(xhr.responseText);
-            }
-        };
-        /* get data from each row */
-        if(hist_table.rows[1].childNodes[0].dataset) {
-            var picker_id = hist_table.rows[1].childNodes[0].getAttribute('data-id');
-            var variety_id = hist_table.rows[1].childNodes[3].getAttribute('data-id');
-        } else {
-            var picker_id = hist_table.rows[1].childNodes[0].dataset.id;
-            var variety_id = hist_table.rows[1].childNodes[3].dataset.id;
-        }
-        var initial_weight = hist_table.rows[1].childNodes[1].firstChild.nodeValue;
-        var final_weight = hist_table.rows[1].childNodes[2].firstChild.nodeValue;
-        var batch_id = hist_table.rows[1].childNodes[4].firstChild.nodeValue;
-        var timestamp = hist_table.rows[1].childNodes[5].firstChild.nodeValue;
-        /* compile data into POST parameters */
-        var params = 'picker_id=' + picker_id +
-                     '&initial_weight=' + initial_weight +
-                     '&final_weight=' + final_weight +
-                     '&variety_id=' + variety_id +
-                     '&batch_id=' + batch_id +
-                     '&timestamp=' + timestamp;
-        xhr.open('POST', 'add_box', true);
-        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        xhr.send(params);
-        /* remove this row */
-        hist_table.deleteRow(1);
+WebGUI.toggle_selected = function(row) {
+    if(row.classList.contains('selected')) /* removing selection */
+        row.classList.remove('selected');
+    else { /* adding/changing selection */
+        var old_row = document.querySelector('#history_table tr.selected');
+        if(old_row != null) /* if there was a previously selected row */
+            old_row.classList.remove('selected');
+        row.classList.add('selected');
     }
+}
+
+///////////////////////
+// Update GUI functions
+///////////////////////
+
+WebGUI.change_status = function(text) {
+    var status_span = document.querySelector('#status_div > span');
+    status_span.innerHTML = text;
+}
+
+WebGUI.show_error = function(error_msg) {
+    WebGUI.change_status(error_msg);
+    return null;
+}
+
+WebGUI.update_current_info_div = function() {
+    var curr = document.getElementById('current_info_div');
+    var curr_text = curr.childNodes[1].firstChild;
+    curr_text.nodeValue = 'Current (batch, variety, picker): (' +
+        WebGUI.current_batch + ', ' +
+        WebGUI.get_variety_name(WebGUI.current_variety) + ', ' +
+        WebGUI.get_picker_name(WebGUI.current_picker) + ')';
 }
 
 WebGUI.update_variety_info = function() {
@@ -317,8 +311,11 @@ WebGUI.update_weight_offset_labels = function() {
         offset_div.classList.remove('within_range');
         offset_div.classList.add('overweight');
     }
-
 }
+
+/////////////////////////////////
+// Server communication functions
+/////////////////////////////////
 
 WebGUI.get_weight_forever = function() {
     var xhr = new XMLHttpRequest();
@@ -332,7 +329,7 @@ WebGUI.get_weight_forever = function() {
             else if(WebGUI.current_state == WebGUI.ADJUSTING) {
                 if(WebGUI.current_weight < WebGUI.BOX_WEIGHT)
                     WebGUI.current_state = WebGUI.AWAITING_BOX;
-                else if(WebGUI.current_variety) { // we have a box
+                else if(WebGUI.current_variety) {
                     WebGUI.weight_window.shift();
                     WebGUI.weight_window.push(WebGUI.current_weight);
                     if(WebGUI.current_weight >= WebGUI.current_min_weight &&
@@ -357,92 +354,41 @@ WebGUI.get_weight_forever = function() {
     setTimeout('WebGUI.get_weight_forever()', 100); /* every 100 ms */
 }
 
-WebGUI.toggle_selected = function(row) {
-    if(row.classList.contains('selected')) /* removing selection */
-        row.classList.remove('selected');
-    else { /* adding/changing selection */
-        var old_row = document.querySelector('#history_table tr.selected');
-        if(old_row != null) /* if there was a previously selected row */
-            old_row.classList.remove('selected');
-        row.classList.add('selected');
-    }
-}
-
-WebGUI.add_pickers = function(picker_list) {
-    var picker_div = document.getElementById('picker_div');
-    var list = JSON.parse(picker_list);
-    for(var i in list) {
-        var picker_id = list[i]['id'];
-        var picker_fname = list[i]['first_name'];
-        var picker_lname = list[i]['last_name'];
-        var new_option = document.createElement('input');
-        new_option.setAttribute('type', 'button');
-        new_option.setAttribute('onclick', 'WebGUI.picker_callback(this)');
-        new_option.classList.add('picker');
-        if(new_option.dataset) {
-            new_option.dataset.id = picker_id;
-            new_option.dataset.fname = picker_fname;
-            new_option.dataset.lname = picker_lname;
+WebGUI.commit_callback = function() {
+    var hist_table = document.getElementById('history_table');
+    if(hist_table.rows.length < 2) /* remember rows also includes th */
+        return WebGUI.show_error('Nothing to commit');
+    while(hist_table.rows.length > 1) { /* always process the first row */
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if(xhr.readyState == 4 && xhr.status == 200 &&
+               xhr.responseText != 'true')
+                WebGUI.show_error(xhr.responseText);
+        };
+        /* get data from each row */
+        if(hist_table.rows[1].childNodes[0].dataset) {
+            var picker_id = hist_table.rows[1].childNodes[0].getAttribute('data-id');
+            var variety_id = hist_table.rows[1].childNodes[3].getAttribute('data-id');
         } else {
-            new_option.setAttribute('data-id', picker_id);
-            new_option.setAttribute('data-fname', picker_fname);
-            new_option.setAttribute('data-lname', picker_lname);
+            var picker_id = hist_table.rows[1].childNodes[0].dataset.id;
+            var variety_id = hist_table.rows[1].childNodes[3].dataset.id;
         }
-        new_option.setAttribute('value', picker_id + '. ' + picker_fname);
-        picker_div.appendChild(new_option);
-    }
-}
-
-WebGUI.add_batches = function(batch_list) {
-    var batch_select = document.getElementById('batch_div').childNodes[1];
-    var list = JSON.parse(batch_list);
-    for(var i in list) {
-        var batch_number = list[i]['id'];
-        var batch_date = list[i]['date']['year'] + '-' +
-                         list[i]['date']['month'] + '-' +
-                         list[i]['date']['day'];
-        var batch_room = list[i]['room_number'];
-        var new_option = document.createElement('option');
-        new_option.classList.add('batch');
-        new_option.setAttribute('value', batch_number);
-        if(new_option.dataset) {
-            new_option.dataset.date = batch_date;
-            new_option.dataset.room = batch_room;
-        } else {
-            new_option.setAttribute('data-date', batch_date);
-            new_option.setAttribute('data-room', batch_room);
-        }
-        var batch_text = 'Batch '+batch_number+' '+batch_date+' room '+batch_room;
-        new_option.appendChild(document.createTextNode(batch_text));
-        batch_select.add(new_option, null);
-    }
-}
-
-WebGUI.add_varieties = function(variety_list) {
-    var variety_div = document.getElementById('variety_div');
-    var list = JSON.parse(variety_list);
-    for(var i in list) {
-        var variety_id = list[i]['id'];
-        var variety_name = list[i]['name'];
-        var variety_idealweight = list[i]['ideal_weight'];
-        var variety_tolerance = list[i]['tolerance'];
-        var new_option = document.createElement('input');
-        new_option.setAttribute('type', 'button');
-        new_option.setAttribute('onclick', 'WebGUI.variety_callback(this)');
-        new_option.classList.add('variety');
-        if(new_option.dataset) {
-            new_option.dataset.id = variety_id;
-            new_option.dataset.name = variety_name;
-            new_option.dataset.idealweight = variety_idealweight;
-            new_option.dataset.tolerance = variety_tolerance;
-        } else {
-            new_option.setAttribute('data-id', variety_id);
-            new_option.setAttribute('data-name', variety_name);
-            new_option.setAttribute('data-idealweight', variety_idealweight);
-            new_option.setAttribute('data-tolerance', variety_tolerance);
-        }
-        new_option.setAttribute('value', variety_name);
-        variety_div.appendChild(new_option);
+        var initial_weight = hist_table.rows[1].childNodes[1].firstChild.nodeValue;
+        var final_weight = hist_table.rows[1].childNodes[2].firstChild.nodeValue;
+        var batch_id = hist_table.rows[1].childNodes[4].firstChild.nodeValue;
+        var timestamp = hist_table.rows[1].childNodes[5].firstChild.nodeValue;
+        /* compile data into POST parameters */
+        var params = 'picker_id=' + picker_id +
+                     '&initial_weight=' + initial_weight +
+                     '&final_weight=' + final_weight +
+                     '&variety_id=' + variety_id +
+                     '&batch_id=' + batch_id +
+                     '&timestamp=' + timestamp;
+        xhr.open('POST', 'add_box', true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhr.send(params);
+        /* remove this row */
+        hist_table.deleteRow(1);
     }
 }
 
@@ -450,7 +396,29 @@ WebGUI.get_active_pickers = function() {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if(xhr.readyState == 4 && xhr.status == 200) {
-            WebGUI.add_pickers(xhr.responseText);
+            picker_list = xhr.responseText;
+            var picker_div = document.getElementById('picker_div');
+            var list = JSON.parse(picker_list);
+            for(var i in list) {
+                var picker_id = list[i]['id'];
+                var picker_fname = list[i]['first_name'];
+                var picker_lname = list[i]['last_name'];
+                var new_option = document.createElement('input');
+                new_option.setAttribute('type', 'button');
+                new_option.setAttribute('onclick', 'WebGUI.picker_callback(this)');
+                new_option.classList.add('picker');
+                if(new_option.dataset) {
+                    new_option.dataset.id = picker_id;
+                    new_option.dataset.fname = picker_fname;
+                    new_option.dataset.lname = picker_lname;
+                } else {
+                    new_option.setAttribute('data-id', picker_id);
+                    new_option.setAttribute('data-fname', picker_fname);
+                    new_option.setAttribute('data-lname', picker_lname);
+                }
+                new_option.setAttribute('value', picker_id + '. ' + picker_fname);
+                picker_div.appendChild(new_option);
+            }
         }
     };
     xhr.open('GET', 'active_pickers.json', true);
@@ -461,7 +429,29 @@ WebGUI.get_active_batches = function() {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if(xhr.readyState == 4 && xhr.status == 200) {
-            WebGUI.add_batches(xhr.responseText);
+            batch_list = xhr.responseText;
+            var batch_select = document.getElementById('batch_div').childNodes[1];
+            var list = JSON.parse(batch_list);
+            for(var i in list) {
+                var batch_number = list[i]['id'];
+                var batch_date = list[i]['date']['year'] + '-' +
+                                 list[i]['date']['month'] + '-' +
+                                 list[i]['date']['day'];
+                var batch_room = list[i]['room_number'];
+                var new_option = document.createElement('option');
+                new_option.classList.add('batch');
+                new_option.setAttribute('value', batch_number);
+                if(new_option.dataset) {
+                    new_option.dataset.date = batch_date;
+                    new_option.dataset.room = batch_room;
+                } else {
+                    new_option.setAttribute('data-date', batch_date);
+                    new_option.setAttribute('data-room', batch_room);
+                }
+                var batch_text = 'Batch '+batch_number+' '+batch_date+' room '+batch_room;
+                new_option.appendChild(document.createTextNode(batch_text));
+                batch_select.add(new_option, null);
+            }
         }
     };
     xhr.open('GET', 'active_batches.json', true);
@@ -472,7 +462,32 @@ WebGUI.get_active_varieties = function() {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
         if(xhr.readyState == 4 && xhr.status == 200) {
-            WebGUI.add_varieties(xhr.responseText);
+            variety_list = xhr.responseText;
+            var variety_div = document.getElementById('variety_div');
+            var list = JSON.parse(variety_list);
+            for(var i in list) {
+                var variety_id = list[i]['id'];
+                var variety_name = list[i]['name'];
+                var variety_idealweight = list[i]['ideal_weight'];
+                var variety_tolerance = list[i]['tolerance'];
+                var new_option = document.createElement('input');
+                new_option.setAttribute('type', 'button');
+                new_option.setAttribute('onclick', 'WebGUI.variety_callback(this)');
+                new_option.classList.add('variety');
+                if(new_option.dataset) {
+                    new_option.dataset.id = variety_id;
+                    new_option.dataset.name = variety_name;
+                    new_option.dataset.idealweight = variety_idealweight;
+                    new_option.dataset.tolerance = variety_tolerance;
+                } else {
+                    new_option.setAttribute('data-id', variety_id);
+                    new_option.setAttribute('data-name', variety_name);
+                    new_option.setAttribute('data-idealweight', variety_idealweight);
+                    new_option.setAttribute('data-tolerance', variety_tolerance);
+                }
+                new_option.setAttribute('value', variety_name);
+                variety_div.appendChild(new_option);
+            }
         }
     };
     xhr.open('GET', 'active_varieties.json', true);
