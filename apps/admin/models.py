@@ -20,7 +20,7 @@ Author(s):
     Daniel Kenji Toyama
 
 Path: 
-    gleba.apps.admin.models
+    apps.admin.models
 
 Purpose:
     This module contains the data models of Gleba.

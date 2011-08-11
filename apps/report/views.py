@@ -22,7 +22,7 @@ Author(s):
     Daniel Kenji Toyama
 
 Path: 
-    gleba.apps.report.views
+    apps.report.views
 
 Purpose:
    This package is used to provide dynamically generated reports from the data.

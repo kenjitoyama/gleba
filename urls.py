@@ -5,7 +5,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 # Database interaction
-urlpatterns = patterns('gleba.apps.weigh.views',
+urlpatterns = patterns('apps.weigh.views',
     (r'^add_box/$'               , 'add_box'),
     (r'^add_boxes/$'             , 'add_boxes'),
     (r'^picker_list.(xml|json)$' , 'get_picker_list'),
@@ -14,7 +14,7 @@ urlpatterns = patterns('gleba.apps.weigh.views',
 )
 
 # Production Reports
-urlpatterns += patterns('gleba.apps.report.views',
+urlpatterns += patterns('apps.report.views',
     (r'^report/$', 'generate_report'),
     (r'^report/picker/(\d+)/$', 'generate_report_picker'),
     (r'^report/picker/$', 'generate_report_all_picker'),
@@ -24,12 +24,12 @@ urlpatterns += patterns('gleba.apps.report.views',
 )
 
 # CSV timesheet reporting
-urlpatterns += patterns('gleba.apps.report.csv_views',
+urlpatterns += patterns('apps.report.csv_views',
     (r'^report/csv/$', 'generate_csv_range')
 )
 
 # Bundies
-urlpatterns += patterns('gleba.apps.bundy.views',
+urlpatterns += patterns('apps.bundy.views',
     (r'^bundy/(\d+)/$', 'bundy'),
     (r'^bundy/$', 'bundy')
 )

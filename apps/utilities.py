@@ -20,7 +20,7 @@ Author(s):
     Daniel Kenji Toyama
 
 Path: 
-    gleba.apps.utilities
+    apps.utilities
 
 Purpose:
     This file contains some utility functions used by other parts

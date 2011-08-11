@@ -22,7 +22,7 @@ Author(s):
     Daniel Kenji Toyama
 
 Path: 
-    gleba.apps.admin.admin
+    apps.admin.admin
 
 Purpose:
     This module provides some customizations to the default Django admin page.

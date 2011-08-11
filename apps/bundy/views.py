@@ -22,7 +22,7 @@ Author(s):
     Daniel Kenji Toyama
 
 Path: 
-    gleba.apps.bundy.views
+    apps.bundy.views
 
 Purpose:
    This package is used to provide user interaction with the Bundy objects

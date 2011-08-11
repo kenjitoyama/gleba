@@ -20,7 +20,7 @@ Author(s):
     Daniel Kenji Toyama
 
 Path: 
-    gleba.apps.admin.tests
+    apps.admin.tests
 
 Purpose:
     This file contains some tests for Gleba.

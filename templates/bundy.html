@@ -33,18 +33,18 @@
     </table>
     <form name="bundy_picker_form" method="post" id="bundy_picker_form">
       <input id="picker_id" type="text" readonly="readonly"/> 
-      <input type="submit" onClick="Bundy.submitForm('{%url gleba.apps.bundy.views.bundy%}')" value="Submit"/>
+      <input type="submit" onClick="Bundy.submitForm('{%url apps.bundy.views.bundy%}')" value="Submit"/>
     </form>
   {%endifequal%}
   {%ifequal bundy_action "signin"%}
     <h3>Welcome, {{picker.firstName}}!</h3>
-    <form name="bundy_confirmation" action="{%url gleba.apps.bundy.views.bundy%}{{picker.id}}" method="get">
+    <form name="bundy_confirmation" action="{%url apps.bundy.views.bundy%}{{picker.id}}" method="get">
       <input type="submit" value="Sign in"/>
       <input type="checkbox" name="confirmed" checked="true" hidden="true"/>
     </form>
   {%endifequal%}
   {%ifequal bundy_action "signoff"%}
-    <form action="{%url gleba.apps.bundy.views.bundy%}{{picker.id}}" method="get">
+    <form action="{%url apps.bundy.views.bundy%}{{picker.id}}" method="get">
       <input type="radio" name="lunch" value="True" checked="true">Sign Off WITH Lunch Break</input></br>
       <input type="radio" name="lunch" value="False">Sign Off With NO Lunch Break</input></br>
       <input type="Submit" value="Sign Off">

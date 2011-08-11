@@ -22,7 +22,7 @@ Author(s):
     Daniel Kenji Toyama
 
 Path: 
-    gleba.weigh.views
+    apps.weigh.views
 
 Purpose:
     This package is used to provide a web api to allow data creation and 
