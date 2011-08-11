@@ -9,7 +9,6 @@ Dependencies
 
 Python 2.7 (http://www.python.org/)
 Django 1.3+ (http://www.djangoproject.com/)
-Gnuplot.py 1.8+ (http://gnuplot-py.sourceforge.net/)
 Socat 1.7.1.3+ (http://www.dest-unreach.org/socat/) (for testing only)
 PySerial 2.5+ (http://pyserial.sourceforge.net/)
 PyGObject with GTK+ 2.22+ in the GI repository (http://http://live.gnome.org/PyGObject)
