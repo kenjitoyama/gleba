@@ -24,10 +24,7 @@ For the backend:
 
 1) Clone the git repository ('git clone git://github.com/kenjitoyama/gleba.git') into some directory (the default will be simply 'gleba').
 2) Run './manage.py syncdb' to create your own database.
-3) Make a symlink to the Django admin files from the glebaAdmin media folder. My Django distribution in Arch Linux is on /usr/lib/python2.7/site-packages/django/contrib/admin/media/, but yours might be in another location. The command to be run is something like:
-    4a) 'cd glebaAdmin/static/media/'
-    4b) 'ln -s /usr/lib/python2.7/site-packages/django/contrib/admin/media/ admin'
-4) run the server: './manage.py runserver'
+3) run the server: './manage.py runserver'
 
 For the frontend you would ideally use a physical scale, but I've created a small simulation app to write to a serial port which you can then read.
 
