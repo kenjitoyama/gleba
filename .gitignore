@@ -3,6 +3,3 @@
 
 # Ignore python compiled code
 *.pyc
-
-# ignore .db
-gleba.db
