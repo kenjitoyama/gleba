@@ -22,19 +22,19 @@ Author(s):
     Daniel Kenji Toyama
 
 Path: 
-    gleba.glebaAdmin.admin
+    gleba.apps.admin.admin
 
 Purpose:
     This module provides some customizations to the default Django admin page.
 """
-from gleba.glebaAdmin.models import Picker
-from gleba.glebaAdmin.models import Room
-from gleba.glebaAdmin.models import Crop
-from gleba.glebaAdmin.models import Flush
-from gleba.glebaAdmin.models import Batch
-from gleba.glebaAdmin.models import Variety
-from gleba.glebaAdmin.models import Box
-from gleba.glebaAdmin.models import Bundy
+from apps.admin.models import Picker
+from apps.admin.models import Room
+from apps.admin.models import Crop
+from apps.admin.models import Flush
+from apps.admin.models import Batch
+from apps.admin.models import Variety
+from apps.admin.models import Box
+from apps.admin.models import Bundy
 from django.contrib import admin
 
 class PickerAdmin(admin.ModelAdmin):

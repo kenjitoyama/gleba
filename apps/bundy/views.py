@@ -30,7 +30,7 @@ Purpose:
 """
 from django.shortcuts import render_to_response, get_object_or_404
 from django.shortcuts import redirect
-from glebaAdmin.models import *
+from apps.admin.models import *
 
 def bundy(request, picker_id = None):
     """

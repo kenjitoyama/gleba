@@ -20,7 +20,7 @@ Author(s):
     Daniel Kenji Toyama
 
 Path: 
-    gleba.glebaAdmin.tests
+    gleba.apps.admin.tests
 
 Purpose:
     This file contains some tests for Gleba.
@@ -29,7 +29,7 @@ from django.test import TestCase
 from django.shortcuts import get_object_or_404
 from django.test import Client
 from django.contrib.auth.models import User
-from glebaAdmin.models import *
+from apps.admin.models import *
 
 ################################################################################
 # View tests

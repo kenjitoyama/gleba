@@ -1,5 +1,5 @@
 [
-  {"model": "glebaAdmin.picker",
+  {"model": "admin.picker",
    "pk": 1,
    "fields": {
        "firstName":  "Jessica",
@@ -7,7 +7,7 @@
        "active":     true,
        "discharged": false
    }},
-  {"model": "glebaAdmin.picker",
+  {"model": "admin.picker",
    "pk": 2,
    "fields": {
        "firstName":  "Monica",
@@ -15,7 +15,7 @@
        "active":     true,
        "discharged": false
    }},
-  {"model": "glebaAdmin.picker",
+  {"model": "admin.picker",
    "pk": 3,
    "fields": {
        "firstName":  "Neve",
@@ -24,7 +24,7 @@
        "discharged": false
    }},
 
-  {"model": "glebaAdmin.variety",
+  {"model": "admin.variety",
    "pk": 1,
    "fields": {
        "name":     "Champignon",
@@ -32,7 +32,7 @@
        "tolerance":   0.020,
        "active":      true
    }},
-  {"model": "glebaAdmin.variety",
+  {"model": "admin.variety",
    "pk": 2,
    "fields": {
        "name":     "Shitake",
@@ -41,20 +41,20 @@
        "active":      true
    }},
 
-  {"model": "glebaAdmin.room",
+  {"model": "admin.room",
    "pk": 1,
    "fields": {
        "number": 1,
        "status": "All good"
    }},
-  {"model": "glebaAdmin.room",
+  {"model": "admin.room",
    "pk": 2,
    "fields": {
        "number": 2,
        "status": "In maintenance. Fixing the air conditioning."
    }},
 
-  {"model": "glebaAdmin.crop",
+  {"model": "admin.crop",
    "pk": 1,
    "fields": {
        "startDate": "2011-05-03",
@@ -62,7 +62,7 @@
        "room":      1
    }},
 
-  {"model": "glebaAdmin.flush",
+  {"model": "admin.flush",
    "pk": 1,
    "fields": {
        "startDate": "2011-05-03",
@@ -70,7 +70,7 @@
        "flushNo":   1,
        "crop":      1
    }},
-  {"model": "glebaAdmin.flush",
+  {"model": "admin.flush",
    "pk": 2,
    "fields": {
        "startDate": "2011-05-10",
@@ -79,13 +79,13 @@
        "crop":      1
    }},
 
-  {"model": "glebaAdmin.batch",
+  {"model": "admin.batch",
    "pk": 1,
    "fields": {
        "date":  "2011-05-03",
        "flush": 1
    }},
-  {"model": "glebaAdmin.batch",
+  {"model": "admin.batch",
    "pk": 2,
    "fields": {
        "date":  "2011-05-04",

@@ -29,7 +29,7 @@ Purpose:
 """
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
-from glebaAdmin.models import *
+from apps.admin.models import *
 import datetime
 import csv
 from django.http import HttpResponse

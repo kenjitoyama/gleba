@@ -29,7 +29,7 @@ Purpose:
 """
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
-from glebaAdmin.models import *
+from apps.admin.models import *
 from apps.utilities import date_range
 import json
 

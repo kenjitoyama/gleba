@@ -32,7 +32,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.http import HttpResponse
-from glebaAdmin.models import Picker, Batch, Variety, Box
+from apps.admin.models import Picker, Batch, Variety, Box
 import json
 
 ################################################################################
