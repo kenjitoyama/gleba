@@ -20,16 +20,14 @@ Author(s):
     Daniel Kenji Toyama
 
 Path: 
-    gleba.glebaAdmin.views
+    gleba.apps.utilities
 
 Purpose:
     This file contains some utility functions used by other parts
-    of Gleba. It will renamed and moved to a different location
-    in the future.
+    of Gleba.
 """
 import datetime
 
-################# General Utily Functions #################
 def last_month():
     """
     Returns a list of the last 31 days including today
