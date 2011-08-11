@@ -1,10 +1,30 @@
 """
-This file demonstrates two different styles of tests (one doctest and one
-unittest). These will both pass when you run "manage.py test".
+Copyright (C) Simon Dawson, Kenji Toyama, Meryl Baquiran, Chris Ellis 2010-2011
+This file is part of Gleba 
 
-Replace these with more appropriate tests for your application.
+Gleba is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Gleba is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Gleba.  If not, see <http://www.gnu.org/licenses/>.
+
+Author(s):
+    Simon Dawson
+    Daniel Kenji Toyama
+
+Path: 
+    gleba.glebaAdmin.tests
+
+Purpose:
+    This file contains some tests for Gleba.
 """
-
 from django.test import TestCase
 from django.shortcuts import get_object_or_404
 from django.test import Client

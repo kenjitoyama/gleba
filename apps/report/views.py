@@ -2,32 +2,31 @@
 Copyright (C) 2010-2011 Simon Dawson, Meryl Baquiran, Chris Ellis
 and Daniel Kenji Toyama 
 
- Path: 
-   gleba.report.views
+This file is part of Gleba 
 
- Purpose:
-   This package is used to provide dynamically generated reports from the data. 
+Gleba is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    This file is part of Gleba 
+Gleba is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    This program file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+You should have received a copy of the GNU General Public License
+along with Gleba.  If not, see <http://www.gnu.org/licenses/>.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Author:
+Author(s):
     Simon Dawson
     Daniel Kenji Toyama
-"""
 
+Path: 
+    gleba.report.views
+
+Purpose:
+   This package is used to provide dynamically generated reports from the data.
+"""
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from glebaAdmin.models import *

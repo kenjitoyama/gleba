@@ -2,34 +2,32 @@
 Copyright (C) 2010-2011 Simon Dawson, Meryl Baquiran, Chris Ellis
 and Daniel Kenji Toyama 
 
- Path: 
-   gleba.bundy.views
+This file is part of Gleba 
 
- Purpose:
-   This package is used to provide user interaction with the Bundy objects
-   allowing pickers to be sign in and out for the days work.
+Gleba is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
+Gleba is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    This file is part of Gleba 
+You should have received a copy of the GNU General Public License
+along with Gleba.  If not, see <http://www.gnu.org/licenses/>.
 
-    This program file is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Author:
+Author(s):
     Simon Dawson
     Daniel Kenji Toyama
-"""
 
+Path: 
+    gleba.bundy.views
+
+Purpose:
+   This package is used to provide user interaction with the Bundy objects
+   allowing pickers to be sign in and out for the days work.
+"""
 from django.shortcuts import render_to_response, get_object_or_404
 from django.shortcuts import redirect
 from glebaAdmin.models import *
