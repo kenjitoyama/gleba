@@ -22,7 +22,7 @@ Author(s):
     Daniel Kenji Toyama
 
 Path: 
-    gleba.report.csv_views
+    gleba.apps.report.csv_views
 
 Purpose:
     This package is used to build and deliver reports on pickers time at work.
