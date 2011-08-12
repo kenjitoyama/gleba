@@ -1,38 +1,17 @@
-Gleba is an open source automated weighing system.
+Gleba is an open source automated weighing system. It allows you to record
+boxes with an associated content to a database, and then extract some
+statistics and reports.
+
+Gleba was designed to automate the tedious task of weighing boxes in a
+farm. The boxes were required to have a minimum weight depending on the
+variety/content of these boxes. Each box also had an associated picker
+that represented the person that had collected the contents of such box.
+The goal was to make the weighing as fast and accurate as possible using
+touchscreen devices so that operators did not have to use the mouse or the
+keyboard while manipulating heavy boxes.
+
+Please check the wiki page for installation and usage instructions.
 
 Gleba was originally written by Simon Dawson, Meryl Baquiran, Chris Ellis
-and Daniel Kenji Toyama for Barrett's Mushrooms.
-
-============
-Dependencies
-============
-
-Python 2.7 (http://www.python.org/)
-Django 1.3+ (http://www.djangoproject.com/)
-Socat 1.7.1.3+ (http://www.dest-unreach.org/socat/) (for testing only)
-PySerial 2.5+ (http://pyserial.sourceforge.net/)
-PyGObject with GTK+ 2.22+ in the GI repository (http://http://live.gnome.org/PyGObject)
-
-The testing suite is written only for POSIX (because of its dependency
-on socat), but there are plans to support it in Windows too.
-
-============
-Installation
-============
-
-For the backend:
-
-1) Clone the git repository ('git clone git://github.com/kenjitoyama/gleba.git') into some directory (the default will be simply 'gleba').
-2) Run './manage.py syncdb' to create your own database.
-3) run the server: './manage.py runserver'
-
-For the frontend you would ideally use a physical scale, but I've created a small simulation app to write to a serial port which you can then read.
-
-1) Run the scale app: './scale.py'
-2) Adjust frontend/config.py to use the serial port given by the scale.py (it'll probably be /dev/pts/3 or some other number if running on a Linux machine). You also need to change the server address, the default is localhost and will work if you run the backend with 'runserver'.
-3) You can choose between a GTK3 GUI or a web based gui.
-    a) GTK3: Run the frontend GUI: './gui-gtk3.py'.
-    b) Web: 1) Go to frontend/html_gui/ and run gui.py (e.g. './gui.py').
-            2) Open your web browser and point to 'http://localhost:45322/gui.html'. You can configure the address or hostname in gui.py, but the defaults should be alright for most people. You can also access it from other computers by pointing to your hostname or IP address (e.g. 'http://192.168.1.100:45322/gui.html' or 'http://myhost.mydomain:45322/gui.html').
-
-If you've got Python3 as the default Python interpreter you might need to manually replace all the './pythonapp.py' commands with 'python2.7 pythonapp.py'.
+and Daniel Kenji Toyama for Barrett's Mushrooms. It's licensed under the
+GPLv3 license.
