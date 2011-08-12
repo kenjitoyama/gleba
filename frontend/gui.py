@@ -1,31 +1,19 @@
-#!/usr/bin/python
 """
-This is the main client the end-user will interact with.
+Main interface to weigh boxes in Gleba.
 """
+import time
+from threading import Thread
 from gi.repository import Gtk
 from gi.repository import Gdk
-from threading import Thread
-import time
-import gobject
-import utils
 import pygst
-pygst.require("0.10")
+pygst.require('0.10')
 import gst
-import os
+import utils
 import config
+import gobject
 
 gobject.threads_init()
 
-DB = utils.DBAPI()
-
-STATUS_MESSAGES = ['Awaiting\nbatch',
-                  'Awaiting\nbox',
-                  'Awaiting\npicker',
-                  'Awaiting\nvariety',
-                  'Overweight,\nAdjust',
-                  'Underweight,\nAdjust',
-                  'Awaiting\nconfirmation',
-                  'Remove box']
 AWAITING_BATCH = 0
 AWAITING_BOX = 1
 AWAITING_PICKER = 2
@@ -34,381 +22,208 @@ OVERWEIGHT_ADJUST = 4
 UNDERWEIGHT_ADJUST = 5
 AWAITING_CONFIRMATION = 6
 REMOVE_BOX = 7
+STATUS_MESSAGES = [
+    'Awaiting batch',
+    'Awaiting box',
+    'Awaiting picker',
+    'Awaiting variety',
+    'Overweight, Adjust',
+    'Underweight, Adjust',
+    'Awaiting confirmation',
+    'Remove box'
+]
 
-WINDOWW = config.WINDOW_WIDTH
-WINDOWH = config.WINDOW_HEIGHT
+class DataModel:
+    """
+    Represents the model in the MVC paradigm.
+    """
+    def __init__(self):
+        self.db_conn = utils.DBAPI()
+        self.batches   = self.db_conn.get_active_batches_list()
+        self.pickers   = self.db_conn.get_active_pickers_list()
+        self.varieties = self.db_conn.get_active_varieties_list()
+        self.inverted_index_picker = {}
+        self.inverted_index_batch = {}
+        self.inverted_index_variety = {}
+        for i in range(len(self.pickers)):
+            self.inverted_index_picker[int(self.pickers[i]['id'])] = i
+        for i in range(len(self.batches)):
+            self.inverted_index_batch[int(self.batches[i]['id'])] = i
+        for i in range(len(self.varieties)):
+            self.inverted_index_variety[int(self.varieties[i]['id'])] = i
 
-class MainWindow(Gtk.Window):
-    save_weight = False
-    weight_color = config.WHITE_COLOR
-    current_batch = None
+    def batch_date_str(self, batch_id):
+        """
+        Returns a string representing the date of the batch batch_idx.
+        """
+        batch = self.batch(batch_id)
+        return "{year}-{month}-{day}".format(
+            year = batch['date']['year'],
+            month = batch['date']['month'],
+            day = batch['date']['day']
+        )
+
+    def picker(self, picker_id):
+        """
+        Returns the picker with picker_id as a dictionary.
+        """
+        return self.pickers[self.inverted_index_picker[picker_id]]
+
+    def batch(self, batch_id):
+        """
+        Returns the batch with batch_id as a dictionary.
+        """
+        return self.batches[self.inverted_index_batch[batch_id]]
+
+    def variety(self, variety_id):
+        """
+        Returns the variety with variety_id as a dictionary.
+        """
+        return self.varieties[self.inverted_index_variety[variety_id]]
+
+class MainWindow:
     current_picker = None
+    current_batch = None
     current_variety = None
-    current_picker_weight = 0
+    current_state = AWAITING_BATCH
     current_weight = 0
-    current_state = 0
-    stable_weight = 0
+    current_picker_weight = 0
     show_weight = False
     min_weight = 0.0
-    weight_window = []
-    history_entries = []
+    weight_window = [0.0 for i in range(100)]
+    weight_color = config.WHITE_COLOR
 
     def __init__(self):
-        super(MainWindow, self).__init__()
-
-        #Thread to read from scale
+        self.builder = Gtk.Builder()
+        self.builder.add_from_file('gui.ui')
+        self.window = self.builder.get_object('window')
+        self.builder.connect_signals(self)
+        self.data_model = DataModel()
+        self.gui_init()
+        # sound stuff
+        self.player = gst.element_factory_make('playbin2', 'player')
+        bus = self.player.get_bus()
+        bus.connect('message', self.bus_handler)
+        bus.add_signal_watch()
+        # Thread to read from scale (producer)
         self.serial_thread = utils.ThreadSerial()
         self.serial_thread.daemon = True
         self.serial_thread.start()
-
-        # set minimum size and register the exit button
-        self.set_size_request(int(WINDOWW), int(WINDOWH))
-        self.connect('destroy', self.exit_callback)
-
-        self.add_widgets()
-        self.add_initial_data()
-
-        self.keep_running = True # Kenji: flag to stop the consumer thread
+        # Thread to process stuff (consumer)
+        self.keep_running = True
         self.reading_thread = Thread(target = self.consumer_thread)
         self.reading_thread.start()
-        self.show_all()
-
-        self.player = gst.element_factory_make('playbin2', 'player')
-        fakesink = gst.element_factory_make('fakesink', 'fakesink')
-        self.player.set_property('video-sink', fakesink)
-        bus = self.player.get_bus()
-        bus.add_signal_watch()
-        bus.connect('message', self.on_message)
-
-    def add_widgets(self):
-        """
-        Adds GUI widgets to this object.
-        """
-        #Main HBox, pack into main window
-        main_hbox = Gtk.HBox()
-        self.add(main_hbox)
-
-        #status_frame for leftmost VBox, pack into main_hbox
-        status_frame = Gtk.Frame()
-        status_frame.set_size_request(int(WINDOWW/2.5), int(WINDOWH/6))
-        main_hbox.add(status_frame)
-
-        #Leftmost VBox, add to status_frame
-        status_vbox = Gtk.VBox()
-        status_frame.add(status_vbox)
-
-        #Extra Frame for Batch ComboBox, add to leftmost VBox
-        batch_frame = Gtk.Frame(label = 'Batch')
-        batch_frame.set_size_request(0, 0) # minimum as possible
-        status_vbox.add(batch_frame)
-
-        #Batch ComboBox, pack into batch HBox
-        self.batch_combo_box = Gtk.ComboBox().new_text()
-        batch_frame.add(self.batch_combo_box)
-        
-        #Status feedback label
-        self.status_label = Gtk.Label()
-        self.status_label.set_size_request(250, 200)
-        status_vbox.add(self.status_label)
-
-        #Weight and offset display labels 
-        weight_display_frame = Gtk.Frame(label = 'Weight')
-        self.weight_label = Gtk.Label()
-        self.event_box = Gtk.EventBox()
-        self.event_box.add(self.weight_label)
-        weight_display_frame.add(self.event_box)
-        status_vbox.add(weight_display_frame)
-        
-        offset_display_frame = Gtk.Frame(label = 'Offset')
-        self.offset_label = Gtk.Label()
-        self.event_box1 = Gtk.EventBox()
-        self.event_box1.add(self.offset_label)
-        offset_display_frame.add(self.event_box1)
-        status_vbox.add(offset_display_frame)
-
         self.set_status_feedback()
 
-        #Frame for middle VBox() containing pickers
-        picker_frame = Gtk.Frame(label = 'Pickers')
-        picker_frame.set_size_request(int(WINDOWW/2), int(WINDOWH/6))
-        self.picker_vbox = Gtk.VBox()
-        picker_frame.add(self.picker_vbox)
-        main_hbox.add(picker_frame)
-
-        history_vbox = Gtk.VBox()
-        varieties_frame = Gtk.Frame(label = 'Varieties')
-        varieties_frame.set_size_request(int(WINDOWW/2), int(WINDOWH/2))
-        history_vbox.add(varieties_frame)
-	
-        self.varieties_vbox = Gtk.VBox()
-        varieties_frame.add(self.varieties_vbox)
-
-        #Frame for rightmost VBox() containing entry history
-        history_frame = Gtk.Frame()
-        main_hbox.add(history_frame)
-        history_frame.set_size_request(int(WINDOWW/4), 0)
-        
-        adj1 = Gtk.Adjustment(0.0, 0.0, 101.0, 0.1, 1.0, 1.0)
-
-        scrolled_window = Gtk.ScrolledWindow(adj1)
-        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC,
-                                   Gtk.PolicyType.AUTOMATIC)
-
-        history_frame1 = Gtk.Frame()
-        history_frame1.add(scrolled_window)
-        history_frame1.set_size_request(int(WINDOWW/2), int(WINDOWH/3))
-        history_frame.add(history_vbox)
-        history_vbox.add(history_frame1)
-        
-        self.history_list = Gtk.TreeView()
-        self.history_store = Gtk.ListStore(str)
-        column = Gtk.TreeViewColumn('History', Gtk.CellRendererText(), text=0)
-        column.set_resizable(True)
-        column.set_sort_column_id(0)
-        self.history_list.append_column(column)
-        self.history_list.set_model(self.history_store)
-        scrolled_window.add(self.history_list)
-        
-        edit_button_box = Gtk.HBox()
-        
-        history_frame2 = Gtk.Frame()
-        history_frame2.set_size_request(int(WINDOWW/2), int(WINDOWH/24))
-        history_vbox.add(history_frame2)
-        history_frame2.add(edit_button_box)
-        
-        edit_button = Gtk.Button(label='Edit')
-        edit_button.set_size_request(20, 20)
-        edit_button_box.add(edit_button)
-        edit_button.connect('clicked', self.open_edit_window)
-
-        commit_button = Gtk.Button(label='Commit')
-        commit_button.connect('clicked', self.commit_callback)
-        edit_button_box.add(commit_button)
-
-    def add_initial_data(self):
+    def gui_init(self):
         """
-        Alleviates the burden of adding data from __init__().
+        Some additional behavioural initializations in the GUI.
         """
-        self.batches   = DB.get_active_batches_xml()
-        self.pickers   = DB.get_active_pickers_xml()
-        self.varieties = DB.get_active_varieties_xml()
         # add batches
-        batch_text_format = 'Batch No. {} ({}) Room {}'
-        for batch in self.batches:
-            self.batch_combo_box.append_text(batch_text_format.format(
-                batch[0], batch[1], batch[2]
+        batch_combo_box = self.builder.get_object('batch_combo_box')
+        for batch in self.data_model.batches:
+            batch_combo_box.append_text(config.BATCH_COMBO_FORMAT.format(
+                batch_id = batch['id'],
+                year = batch['date']['year'],
+                month = batch['date']['month'],
+                day = batch['date']['day'],
+                room_number = batch['room_number']
             ))
         # add pickers
-        picker_total = len(self.pickers)
+        picker_total = len(self.data_model.pickers)
         cols = config.PICKER_COLS
         rows = picker_total/cols + int(picker_total%cols != 0)
+        picker_vbox = self.builder.get_object('picker_vbox')
         for row in range(0, rows):
             hbox = Gtk.HBox()
             for col in range(0, cols):
                 idx = cols*row + col
                 if idx >= picker_total:
                     break
-                text = '{0}. {1}'.format(self.pickers[idx][0],
-                                         self.pickers[idx][1])
-                button = Gtk.Button(label = text)
-                button.set_size_request(14, 10)
+                picker = self.data_model.pickers[idx]
+                button = Gtk.Button(label = config.PICKER_BUTTON_FORMAT.format(
+                    picker_id = picker['id'],
+                    first_name = picker['first_name'],
+                    last_name = picker['last_name']
+                ))
                 button.connect('clicked', self.select_picker_callback, idx)
                 hbox.add(button)
-            self.picker_vbox.add(hbox)
+            picker_vbox.add(hbox)
         # add varieties
-        variety_total = len(self.varieties)
+        variety_total = len(self.data_model.varieties)
         cols = config.VARIETY_COLS
         rows = variety_total/cols + int(variety_total%cols != 0)
+        variety_vbox = self.builder.get_object('variety_vbox')
         for row in range(0, rows):
             hbox = Gtk.HBox()
             for col in range(0, cols):
                 idx = cols*row + col
                 if idx >= variety_total:
                     break
-                text = '{0}'.format(self.varieties[idx][1])
-                button = Gtk.Button(label = text)
-                button.set_size_request(14, 15)
+                variety = self.data_model.varieties[idx]
+                button = Gtk.Button(label = config.VARIETY_BUTTON_FORMAT.format(
+                    variety_name = variety['name'],
+                    min_weight = variety['ideal_weight'],
+                    max_weight = variety['ideal_weight'] + variety['tolerance']
+                ))
                 button.connect('clicked', self.select_variety_callback, idx)
                 hbox.add(button)
-            self.varieties_vbox.add(hbox)
-        # initialize weight_window
-        for i in range(0, config.WEIGHT_WINDOW_SIZE):
-            self.weight_window.append(0)
-        
-    def open_edit_window(self, button):
-        """
-        This callback is fired when editing an entry in the
-        history list.
-        """
-        # add widgets
-        self.start_stop('button')
-        selection, iterator = self.history_list.get_selection().get_selected()
-        if iterator is not None:
-            edit_dialog = Gtk.Window()
-            vertical_box = Gtk.VBox()
-            edit_frame = Gtk.Frame(label = 'Modify Entry')
-            frame1 = Gtk.Frame(label = 'Batch')
-            frame2 = Gtk.Frame(label = 'Picker')
-            frame3 = Gtk.Frame(label = 'Variety')
-            frame4 = Gtk.Frame(label = '')
-            vertical_box.add(frame1)
-            vertical_box.add(frame2)
-            vertical_box.add(frame3)
-            vertical_box.add(frame4)
-            # Kenji: TODO row is super ugly. change this later.
-            row = int(str(selection.get_path(iterator)))
-            edit_frame.set_size_request(0, 60)
-            index_list = self.history_entries[row][6]
-            # get batches
-            edit_batch_combo = Gtk.ComboBox().new_text()
-            for batch in self.batches:
-                edit_batch_combo.append_text(
-                    'Batch No. {} ({}) Room {}'.format(
-                        batch[0], batch[1], batch[2]
-                ))
-            edit_batch_combo.set_active(index_list[0])
-            # get pickers
-            edit_picker_combo = Gtk.ComboBox().new_text()
-            for picker in self.pickers:
-                edit_picker_combo.append_text('{}. {} {}'.format(
-                    picker[0], picker[1], picker[2]
-                ))
-            edit_picker_combo.set_active(index_list[2])
-            # get varieties
-            edit_varieties_combo = Gtk.ComboBox().new_text()
-            for variety in self.varieties:
-                edit_varieties_combo.append_text('{}. {}'.format(
-                    variety[0], variety[1]
-                ))
-            edit_varieties_combo.set_active(index_list[1])
-            # pack everything and show window
-            frame1.add(edit_batch_combo)
-            frame2.add(edit_picker_combo)
-            frame3.add(edit_varieties_combo)
-            vertical_box2 = Gtk.VBox()
-            frame5 = Gtk.Frame()
-            frame5.set_size_request(100, 50)
-            delete_button = Gtk.Button(label = 'Delete Record')
-            delete_button.connect('clicked', self.modify_history_callback,
-                                             iterator, row, True,
-                                             edit_batch_combo,
-                                             edit_varieties_combo,
-                                             edit_picker_combo,
-                                             edit_dialog)
-            delete_button.set_size_request(10, 15)
-            apply_button = Gtk.Button(label = 'Apply Changes')
-            apply_button.set_size_request(10, 35)
-            apply_button.connect('clicked', self.modify_history_callback,
-                                                iterator, row, False,
-                                                edit_batch_combo,
-                                                edit_varieties_combo,
-                                                edit_picker_combo,
-                                                edit_dialog)
-            vertical_box2.add(apply_button)
-            vertical_box2.add(frame5)
-            vertical_box2.add(delete_button)
-            edit_frame.add(vertical_box)
-            frame4.add(vertical_box2)
-            edit_dialog.add(edit_frame)
-            edit_dialog.set_size_request(int(WINDOWW/2.7),
-                                         int(WINDOWH/1.6))
-            edit_dialog.show_all()
-    
-    def modify_history_callback(self, button, iterator, row, delete,
-                                      batch_combobox,
-                                      varieties_combobox,
-                                      picker_combobox,
-                                      edit_dialog):
-        """
-        This callback is fired when an entry in the history list has been
-        edited in the edit window.
-        """
-        self.start_stop('button')
-        self.history_store.remove(iterator)
-        if delete:
-            self.history_entries.pop(row)
-        else:
-            entry = self.history_entries[row]
-            #modify      
-            self.current_batch = batch_combobox.get_active()
-            self.current_variety = varieties_combobox.get_active()
-            self.current_picker = picker_combobox.get_active()
-            index_list = (self.current_batch,
-                          self.current_variety,
-                          self.current_picker)
-            #retain
-            self.current_picker_weight = entry[3]
-            self.current_weight = entry[4]
-            self.history_entries[row] = (self.pickers[self.current_picker][0],
-                                        self.batches[self.current_batch][0],
-                                        self.varieties[self.current_variety][0],
-                                        self.current_picker_weight,
-                                        self.current_weight,
-                                        time.strftime('%Y-%m-%d %H:%M:%S',
-                                                      time.localtime()),
-                                        index_list)
-            #modify treeView model
-            temp = []
-            text = ('Picker {picker_number} ' +
-                   '({picker_firstname} {picker_lastname}), ' +
-                   'Variety {variety_number} ({variety_name}), ' +
-                   'Batch {batch_number} ({batch_date}), ' +
-                   'Room {room_number}, ' +
-                   'Picker Weight: {picker_weight}, ' +
-                   'Final Weight: {final_weight}, Time: {timestamp}')
-            temp.append(text.format(
-                picker_number    = self.pickers[self.current_picker][0],
-                picker_firstname = self.pickers[self.current_picker][1],
-                picker_lastname  = self.pickers[self.current_picker][2],
-                variety_number   = self.varieties[self.current_variety][0],
-                variety_name     = self.varieties[self.current_variety][1],
-                batch_number     = self.batches[self.current_batch][0],
-                batch_date       = self.batches[self.current_batch][1],
-                room_number      = self.batches[self.current_batch][2],
-                picker_weight    = self.current_picker_weight,
-                final_weight     = self.current_weight,
-                timestamp        = time.strftime('%Y-%m-%d %H:%M:%S',
-                                                 time.localtime())
+            variety_vbox.add(hbox)
+        # edit window stuff
+        combo_box = self.builder.get_object('edit_batch_combo')
+        for batch in self.data_model.batches:
+            combo_box.append_text(config.BATCH_COMBO_FORMAT.format(
+                    batch_id = batch['id'],
+                    year = batch['date']['year'],
+                    month = batch['date']['month'],
+                    day = batch['date']['day'],
+                    room_number = batch['room_number']
             ))
-            self.history_store.insert(row, temp)
-        edit_dialog.destroy()
+        combo_box = self.builder.get_object('edit_picker_combo')
+        for picker in self.data_model.pickers:
+            combo_box.append_text(config.PICKER_BUTTON_FORMAT.format(
+                picker_id = picker['id'],
+                first_name = picker['first_name'],
+                last_name = picker['last_name']
+            ))
+        combo_box = self.builder.get_object('edit_variety_combo')
+        for variety in self.data_model.varieties:
+            combo_box.append_text(config.VARIETY_BUTTON_FORMAT.format(
+                variety_name = variety['name'],
+                min_weight = variety['ideal_weight'],
+                max_weight = variety['ideal_weight'] + variety['tolerance'],
+            ))
+        # add mappings for treeview columns
+        for i in range(11):
+            tvc = self.builder.get_object('hist_col' + str(i))
+            cell_rend = self.builder.get_object('hist_cell' + str(i))
+            tvc.add_attribute(cell_rend, "text", i)
+        # Adjust sizes of various widgets
+        self.builder.get_object('main_vbox').set_child_packing(
+            self.builder.get_object('top_hbox'),
+            False, False, 0, Gtk.PackType.START
+        )
+        self.builder.get_object('top_hbox').set_child_packing(
+            self.builder.get_object('status_label'),
+            False, False, 0, Gtk.PackType.START
+        )
+        self.builder.get_object('top_hbox').set_child_packing(
+            self.builder.get_object('edit_button_hbox'),
+            False, False, 0, Gtk.PackType.START
+        )
 
-    def exit_callback(self, widget):
-        """
-        This callback is fired when the user exits the program.
-        """
+    def exit_callback(self, widget, data = None):
         self.keep_running = False
         self.serial_thread.kill()
         Gtk.main_quit()
 
-    def select_picker_callback(self, button, index):
+    def exit_edit_window(self, widget):
         """
-        This callback is fired when the user press a picker button.
-
-        The result of this callback is that the current_picker is changed
-        to be the actual picker the user has chosen.
+        Hides the edit window.
         """
-        self.start_stop('button')
-        self.current_picker = index
-        if self.current_state == AWAITING_PICKER:
-            self.current_picker_weight = self.current_weight
-            self.change_state()
-            self.set_status_feedback()
+        self.builder.get_object('edit_window').hide()
 
-    def select_variety_callback(self, button, index):
-        """
-        This callback is fired when the user press a variety button.
-
-        The result of this callback is that the current_variety is changed
-        to be the actual variety the user has chosen.
-        """
-        self.start_stop('button')
-        self.current_variety = index
-        if self.current_state == AWAITING_VARIETY:
-            self.change_state()
-            self.set_status_feedback()
-
-    def commit_callback(self, button):
+    def commit_callback(self, widget, data = None):
         """
         This callback is fired when the user presses the commit button.
 
@@ -416,170 +231,257 @@ class MainWindow(Gtk.Window):
         committed to the database.
         """
         self.start_stop('button')
-        for (picker, batch, variety, init_weight,
-             final_weight, timestamp, index_list) in self.history_entries:
-            DB.add_box(picker, batch, variety, init_weight,
-                      final_weight, timestamp)
+        boxes = []
+        history_store = self.builder.get_object('history_store')
+        for row in history_store:
+            boxes.append({
+                'picker':         row[0],
+                'batch':          row[3],
+                'variety':        row[6],
+                'initial_weight': row[8],
+                'final_weight':   row[9],
+                'timestamp':      row[10]
+            })
+        self.data_model.db_conn.add_boxes(boxes)
         # clear the history
-        self.history_store.clear()
-        self.history_entries = []
-        self.show_all()
+        history_store.clear()
 
-    def history_callback(self, button):
+    def edit_history_callback(self, button):
         """
-        This callback is fired when any entry in the history list has been
-        added, deleted or modified.
+        This callback is fired when an entry in the history list has been
+        edited in the edit window.
+        """
+        self.start_stop('button')
+        history_list = self.builder.get_object('history_list')
+        model, iterator = history_list.get_selection().get_selected()
+        picker_combo_box = self.builder.get_object('edit_picker_combo')
+        batch_combo_box = self.builder.get_object('edit_batch_combo')
+        variety_combo_box = self.builder.get_object('edit_variety_combo')
+        selected_picker = self.data_model.pickers[picker_combo_box.get_active()]
+        selected_batch = self.data_model.batches[batch_combo_box.get_active()]
+        selected_variety = self.data_model.varieties[variety_combo_box.get_active()]
+        model.set_value(iterator, 0,  selected_picker['id'])
+        model.set_value(iterator, 1,  selected_picker['first_name'])
+        model.set_value(iterator, 2,  selected_picker['last_name'])
+        model.set_value(iterator, 3,  selected_batch['id'])
+        model.set_value(iterator, 4,  self.data_model.
+            batch_date_str(selected_batch['id'])
+        )
+        model.set_value(iterator, 5,  selected_batch['room_number'])
+        model.set_value(iterator, 6,  selected_variety['id'])
+        model.set_value(iterator, 7,  selected_variety['name'])
+        model.set_value(iterator, 10, time.strftime('%Y-%m-%d %H:%M:%S',
+                                      time.localtime() ))
+        self.builder.get_object('edit_window').hide()
+
+    def delete_history_callback(self, button):
+        """
+        Callback that gets called when user deletes a history entry.
+        """
+        history_list = self.builder.get_object('history_list')
+        model, iterator = history_list.get_selection().get_selected()
+        model.remove(iterator)
+        self.builder.get_object('edit_window').hide()
+
+    def select_picker_callback(self, widget, index):
+        """
+        This callback is fired when the user press a picker button.
+
+        The result of this callback is that the current_picker is changed
+        to be the actual picker the user has chosen.
+        """
+        self.start_stop('button')
+        if self.current_state == AWAITING_PICKER:
+            self.current_picker = index
+            self.current_picker_weight = self.current_weight
+            self.change_state()
+
+    def select_variety_callback(self, widget, index):
+        """
+        This callback is fired when the user press a variety button.
+
+        The result of this callback is that the current_variety is changed
+        to be the actual variety the user has chosen.
+        """
+        self.start_stop('button')
+        if self.current_state == AWAITING_VARIETY:
+            self.current_variety = index
+            self.change_state()
+
+    def save_box(self):
+        """
+        Saves a box with the current picker, batch, variety, weight and timestamp.
+
+        The information will map from -> to:
+        - self.current_picker        -> box.picker
+        - self.current_batch         -> box.batch
+        - self.current_variety       -> box.contentVariety
+        - self.current_weight        -> box.finalWeight
+        - self.current_picker_weight -> box.initialWeight
+        - self.timestamp             -> box.timestamp
         """
         self.start_stop('success')
-        self.current_weight = self.stable_weight
-        temp = []
-        index_list = []
-        index_list.append(self.current_batch)
-        index_list.append(self.current_variety)
-        index_list.append(self.current_picker)
-        text = ('Picker {picker_number} ' +
-               '({picker_firstname} {picker_lastname}), ' +
-               'Variety {variety_number} ({variety_name}), ' +
-               'Batch {batch_number} ({batch_date}), Room {room_number}, ' +
-               'Picker Weight: {picker_weight}, ' +
-               'Final Weight: {final_weight}, Time: {timestamp}')
-        temp.append(text.format(
-            picker_number    = self.pickers[self.current_picker][0],
-            picker_firstname = self.pickers[self.current_picker][1],
-            picker_lastname  = self.pickers[self.current_picker][2],
-            variety_number   = self.varieties[self.current_variety][0],
-            variety_name     = self.varieties[self.current_variety][1],
-            batch_number     = self.batches[self.current_batch][0],
-            batch_date       = self.batches[self.current_batch][1],
-            room_number      = self.batches[self.current_batch][2],
-            picker_weight    = self.current_picker_weight,
-            final_weight     = self.current_weight,
-            timestamp        = time.strftime('%Y-%m-%d %H:%M:%S',
-                                             time.localtime())
+        picker = self.data_model.pickers[self.current_picker]
+        batch = self.data_model.batches[self.current_batch]
+        variety = self.data_model.varieties[self.current_variety]
+        history_store = self.builder.get_object('history_store')
+        history_store.append((
+            picker['id'],
+            picker['first_name'],
+            picker['last_name'],
+            batch['id'],
+            self.data_model.batch_date_str(batch['id']),
+            batch['room_number'],
+            variety['id'],
+            variety['name'],
+            self.current_picker_weight,        # initial_weight
+            self.current_weight,               # final_weight
+            time.strftime('%Y-%m-%d %H:%M:%S', # timestamp
+                          time.localtime())
         ))
+        self.current_picker = self.current_variety = None
 
-        self.history_entries.append((self.pickers[self.current_picker][0],
-                                    self.batches[self.current_batch][0],
-                                    self.varieties[self.current_variety][0],
-                                    self.current_picker_weight,
-                                    self.current_weight,
-                                    time.strftime('%Y-%m-%d %H:%M:%S',
-                                                  time.localtime()),
-                                    index_list))
-        self.history_store.append(temp)
-        self.history_list.set_model(self.history_store)
-        self.show_all()
+    def open_edit_window(self, widget, data = None):
+        """
+        This callback is fired when editing an entry in the
+        history list.
+        """
+        self.start_stop('button')
+        history_list = self.builder.get_object('history_list')
+        model, iterator = history_list.get_selection().get_selected()
+        if iterator is not None:
+            combo_box = self.builder.get_object('edit_batch_combo')
+            batch_number = model.get(iterator, 3)[0]
+            batch_idx = self.data_model.inverted_index_batch[batch_number]
+            combo_box.set_active(batch_idx)
+            combo_box = self.builder.get_object('edit_picker_combo')
+            picker_number = model.get(iterator, 0)[0]
+            picker_idx = self.data_model.inverted_index_picker[picker_number]
+            combo_box.set_active(picker_idx)
+            combo_box = self.builder.get_object('edit_variety_combo')
+            variety_number = model.get(iterator, 6)[0]
+            variety_idx = self.data_model.inverted_index_variety[variety_number]
+            combo_box.set_active(variety_idx)
+            self.builder.get_object('edit_window').show_all()
+
+    def change_state(self, state = None):
+        """
+        This method is fired when the overall state of the program is updated.
+
+        The natural order is: AWAITING_BATCH -> AWAITING_BOX ->
+        AWAITING_VARIETY -> AWAITING_PICKER -> UNDERWEIGHT|OVERWEIGHT|REMOVE_BOX
+        If state is not given, the "next" one in the list follows.
+        """
+        if state:
+            self.current_state = state
+            if state == AWAITING_BOX:
+                self.show_weight = False
+                self.weight_color = config.WHITE_COLOR
+            elif state == OVERWEIGHT_ADJUST:
+                self.weight_color = config.RED_COLOR
+            elif state == UNDERWEIGHT_ADJUST:
+                self.weight_color = config.BLUE_COLOR
+            elif state == REMOVE_BOX:
+                self.weight_color = config.GREEN_COLOR
+        else:
+            if self.current_state == AWAITING_BATCH:
+                self.current_state = AWAITING_BOX
+            elif self.current_state == AWAITING_BOX:
+                self.current_state = AWAITING_VARIETY
+            elif self.current_state == AWAITING_VARIETY:
+                self.current_state = AWAITING_PICKER
+            elif self.current_state == AWAITING_PICKER:
+                self.show_weight = True
+            elif self.current_state == REMOVE_BOX:
+                self.show_weight = False
+                self.current_state = AWAITING_BOX
+        gobject.idle_add(self.set_status_feedback)
 
     def set_status_feedback(self):
         """
         This callback is fired when the status_label needs to be updated.
         """
         color = Gdk.Color(*self.weight_color) # unpack the tuple
-        self.event_box.modify_bg(Gtk.StateType.NORMAL, color)
-        self.event_box1.modify_bg(Gtk.StateType.NORMAL, color)
+        status_label = self.builder.get_object('status_label')
+        weight_label = self.builder.get_object('weight_label')
+        offset_label = self.builder.get_object('offset_label')
+        weight_parent = self.builder.get_object('weight_event_box')
+        offset_parent = self.builder.get_object('offset_event_box')
+        weight_parent.modify_bg(Gtk.StateType.NORMAL, color)
+        offset_parent.modify_bg(Gtk.StateType.NORMAL, color)
         markup = config.STATUS_STYLE.format(
             text = STATUS_MESSAGES[self.current_state])
-        self.status_label.set_markup(markup)
+        status_label.set_markup(markup)
         if self.show_weight is True:
             markup = config.WEIGHT_STYLE.format(self.current_weight)
-            self.weight_label.set_markup(markup)
+            weight_label.set_markup(markup)
             offset = self.current_weight - self.min_weight
             markup = config.OFFSET_STYLE.format(offset)
-            self.offset_label.set_markup(markup)
+            offset_label.set_markup(markup)
         else:
-            self.weight_label.set_markup(config.NA_MARKUP)
-            self.offset_label.set_markup(config.NA_MARKUP)
+            weight_label.set_markup(config.NA_MARKUP)
+            offset_label.set_markup(config.NA_MARKUP)
 
     def consumer_thread(self):
         """
         This is the main thread that consumes the stream given from a scale.
         """
+        stable_weight = 0
+        save_weight = False
+        batch_combo_box = self.builder.get_object('batch_combo_box')
         while self.keep_running:
-            self.current_batch = self.batch_combo_box.get_active()
             self.current_weight = self.serial_thread.get_weight()
-            if self.current_state == AWAITING_BATCH:
-                if (self.current_batch is not None and
-                    self.current_batch >= 0): # -1 if no active item
-                    self.current_batch = self.batch_combo_box.get_active()
-                    gobject.idle_add(self.change_state)
-                    gobject.idle_add(self.set_status_feedback)
-            elif self.save_weight and self.current_weight < 0.4:
-                self.save_weight = False
-                self.current_weight = self.stable_weight
-                self.current_state = AWAITING_BOX
-                self.show_weight = False
-                self.weight_color = config.WHITE_COLOR
-                gobject.idle_add(self.set_status_feedback)
-                gobject.idle_add(self.history_callback, None)
-            elif self.current_state == AWAITING_BOX:
-                if self.current_weight > config.BOX_WEIGHT:
-                    gobject.idle_add(self.change_state)
-                    gobject.idle_add(self.set_status_feedback)
+            if (self.current_state == AWAITING_BATCH and
+                batch_combo_box.get_active() >= 0):
+                self.current_batch = batch_combo_box.get_active()
+                self.change_state()
+            elif (save_weight and
+                  self.current_weight < config.BOX_WEIGHT): # save the box
+                save_weight = False
+                self.current_weight = stable_weight
+                self.save_box()
+                self.change_state(AWAITING_BOX)
+            elif (self.current_state == AWAITING_BOX and
+                  self.current_weight > config.BOX_WEIGHT):
+                self.change_state()
             elif (self.current_batch is not None and
                   self.current_weight < config.BOX_WEIGHT):
-                self.current_state = AWAITING_BOX
-                self.show_weight = False
-                self.weight_color = config.WHITE_COLOR
-                gobject.idle_add(self.set_status_feedback)
-            if self.show_weight:
+                self.change_state(AWAITING_BOX)
+            elif self.show_weight:
                 self.weight_window.pop(0)
                 self.weight_window.append(self.current_weight)
-                self.min_weight = float(self.varieties[self.current_variety][2])
-                weight_tolerance = float(
-                    self.varieties[self.current_variety][3])
+                variety = self.data_model.varieties[self.current_variety]
+                self.min_weight = variety['ideal_weight']
+                weight_tolerance = variety['tolerance']
                 if self.current_weight >= self.min_weight + weight_tolerance:
-                    # overweight
-                    self.weight_color = config.RED_COLOR
-                    self.current_state = OVERWEIGHT_ADJUST
+                    self.change_state(OVERWEIGHT_ADJUST)
                 elif self.current_weight < self.min_weight:
-                    # underweight
-                    self.weight_color = config.BLUE_COLOR
-                    self.current_state = UNDERWEIGHT_ADJUST
+                    self.change_state(UNDERWEIGHT_ADJUST)
                 else: # within acceptable range
                     if self.weight_color != config.GREEN_COLOR:
                         self.start_stop('green')
-                    self.weight_color = config.GREEN_COLOR
-                    self.current_state = REMOVE_BOX
+                    self.change_state(REMOVE_BOX)
                     if self.weight_window[0] == self.current_weight:
-                        self.stable_weight = self.weight_window[0]
-                        self.save_weight = True
-                    if not self.save_weight:
-                        self.stable_weight = self.current_weight
-                        self.save_weight = True
-                gobject.idle_add(self.set_status_feedback)
+                        stable_weight = self.weight_window[0]
+                        save_weight = True
+                    if not save_weight:
+                        stable_weight = self.current_weight
+                        save_weight = True
             time.sleep(0.01)
-
-    def change_state(self):
-        """
-        This method is fired when the overall state of the program is updated.
-        """
-        if self.current_state == AWAITING_BATCH:
-            self.current_state = AWAITING_BOX
-        elif self.current_state == AWAITING_BOX:
-            self.current_state = AWAITING_VARIETY
-        elif self.current_state == AWAITING_VARIETY:
-            self.current_state = AWAITING_PICKER
-        elif self.current_state == AWAITING_PICKER:
-            self.show_weight = True
-        elif self.current_state == REMOVE_BOX:
-            self.show_weight = False
-            self.current_state = AWAITING_BOX
-            self.set_status_feedback()
 
     def start_stop(self, sound):
         """
         This method is used to play or stop a sound file.
         """
-        path = 'file://{0}/'.format(os.getcwd())
         if sound == 'success':
-            self.player.set_property('uri', path + 'success.ogg')
+            self.player.set_property('uri', config.SUCCESS_SOUND)
         elif sound == 'green':
-            self.player.set_property('uri', path + 'green.ogg')
+            self.player.set_property('uri', config.GREEN_SOUND)
         elif sound == 'button':
-            self.player.set_property('uri', path + 'button.ogg')
+            self.player.set_property('uri', config.BUTTON_SOUND)
         self.player.set_state(gst.STATE_PLAYING)
 
-    def on_message(self, bus, message):
+    def bus_handler(self, bus, message):
         """
         This callback is fired when messages for GStreamer happen.
         """
@@ -591,7 +493,9 @@ class MainWindow(Gtk.Window):
             err, debug = message.parse_error()
             print('Error: {}'.format(err), debug)
             print('Bus: {}'.format(str(bus)))
+        return True
 
 if __name__ == '__main__':
-    main_window = MainWindow()
+    gui = MainWindow()
+    gui.window.show_all()
     Gtk.main()
