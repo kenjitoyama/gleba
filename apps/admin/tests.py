@@ -25,11 +25,13 @@ Path:
 Purpose:
     This file contains some tests for Gleba.
 """
-from django.test import TestCase
+import random
+import time
+from django.test import TestCase, Client
 from django.shortcuts import get_object_or_404
-from django.test import Client
 from django.contrib.auth.models import User
 from apps.admin.models import *
+from apps.weigh.views import add_box
 
 ################################################################################
 # View tests
@@ -43,29 +45,51 @@ class TestReportViews(TestCase):
         self.c = Client()
         login = self.c.login(username = 'joe', password = 'doe')
         self.assertTrue(login)
-        self.picker = get_object_or_404(Picker, pk = 1)
 
-    def test_views_daily_totals(self):
-        variety = get_object_or_404(Variety, pk = 1)
-        batch = get_object_or_404(Batch, pk = 1)
+class TestPicker(TestCase):
+    def setUp(self):
+        joe = User.objects.create_user('joe', 'joe@doe.com', 'doe')
+        joe.is_staff = True
+        joe.save()
+        self.c = Client()
+        login = self.c.login(username = 'joe', password = 'doe')
+        self.assertTrue(login)
+
+    def test_picker_avg_weight(self):
+        # create a picker
+        anna = Picker.objects.create(
+            first_name = 'Anna',
+            last_name = 'Hickmann',
+            active = True,
+            discharged = False
+        )
+        anna.save()
+        variety = Variety.objects.get(id = 1)
+        nr_of_boxes = 20
+        total = 0.0
         # Create some boxes
-        for i in range(20):
-            timestamp = datetime.datetime(2011, 05, i+10)
-            for j in range(1000):
-                box = Box(initial_weight = 4.050 + j,
-                          final_weight = 4.025,
-                          timestamp = timestamp,
-                          variety = variety,
-                          picker = self.picker,
-                          batch = batch)
-                box.save()
-        start_date = datetime.datetime(2011, 05, 01)
-        end_date = datetime.datetime(2011, 05, 11)
-        daily_totals = self.picker.daily_totals(start_date, end_date)
-        self.assertEquals(len(daily_totals), 1)
-        # test the report view
-        for i in range(20000):
-            self.c.post('/report/picker/1', {
-                'start_date': '01-05-2011',
-                'end_date':   '11-05-2011',
+        for i in range(nr_of_boxes):
+            time_now = time.strftime('%Y-%m-%d %H:%M:%S', # timestamp
+                                     time.localtime())
+            initial_weight = random.uniform(
+                variety.minimum_weight,
+                variety.minimum_weight + variety.tolerance
+            )
+            total += initial_weight
+            response = self.c.get('/add_box/', {
+                'picker':         anna.id,
+                'variety':        1,
+                'batch':          1,
+                'initial_weight': initial_weight,
+                'final_weight':   initial_weight + 0.1,
+                'timestamp':      time_now,
             })
+            # make sure every request is successful
+            self.assertEquals(response.status_code, 200)
+        # check our average with the picker's average
+        # round() is used to eliminate precision errors
+        self.assertEquals(
+            round(total/nr_of_boxes, 6), # 6 decimal digits
+            round(anna.get_avg_init_weight(), 6)
+        )
+
