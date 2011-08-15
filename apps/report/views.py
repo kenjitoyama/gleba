@@ -73,7 +73,7 @@ def generate_report_all_picker(request):
     data = [] # [{id, first name, last name, total picked, kpi}]
 
     for picker in Picker.objects.all():
-        total_time = picker.get_time_worked_between(start_date, end_date)
+        total_time = picker.get_time_worked(start_date, end_date)
         time_worked = (total_time.seconds)/3600.0
         total_picked = picker.get_total_picked(start_date, end_date)
         avg_init_weight = picker.get_avg_init_weight(start_date, end_date)
@@ -114,7 +114,7 @@ def generate_report_picker(request, picker_id):
     for date in date_range(start_date, end_date):
         tmp = [date.strftime("%Y-%m-%d"),]
         tmp.append(picker_obj.get_total_picked(date))
-        hours_worked = picker_obj.get_time_worked_on(date).seconds / 3600.0
+        hours_worked = picker_obj.get_time_worked(date).seconds / 3600.0
         avg = (tmp[1]/hours_worked) if hours_worked != 0 else 0.0
         tmp.append(avg)
         daily_totals.append(tmp)

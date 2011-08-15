@@ -101,31 +101,31 @@ class Picker(models.Model):
             ).aggregate(Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
-    def get_time_worked_on(self,date):
+    def get_time_worked(self, date, end_date = None):
         """
-        Return total time worked for picker on a given day.
+        Return total time worked that this picker has worked.
+
+        If end_date is not given, then the total time that this picker has
+        worked on date will be returned, otherwise the total time between
+        date and end_date will be returned.
         """
-        bundies = Bundy.objects.filter(picker = self,
-                                       time_in__startswith = date,
-                                       time_out__isnull = False)
+        if end_date is None:
+            bundies = Bundy.objects.filter(
+                picker = self,
+                time_in__startswith = date,
+                time_out__isnull = False
+            )
+        else:
+            bundies = Bundy.objects.filter(
+                picker = self,
+                time_in__gte = start_date,
+                time_in__lte = end_date + datetime.timedelta(days = 1),
+                time_out__isnull = False
+            )
         if bundies is not None:
             return sum([b.time_worked() for b in bundies], datetime.timedelta())
         return 0.0
             
-    def get_time_worked_between(self, start_date, end_date):
-        """
-        Return total timed worked for picker between two given dates
-        """
-        bundies = Bundy.objects.filter(
-            picker = self,
-            time_in__gte = start_date,
-            time_in__lte = end_date + datetime.timedelta(days=1),
-            time_out__isnull = False
-        )
-        if bundies is not None:
-            return sum([b.time_worked() for b in bundies], datetime.timedelta())
-        return 0.0
-        
 class Bundy(models.Model):
     picker=models.ForeignKey(Picker)
     time_in=models.DateTimeField('Time In')

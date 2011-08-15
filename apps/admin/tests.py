@@ -57,7 +57,7 @@ class TestPicker(TestCase):
 
     def test_picker_avg_weight(self):
         """
-        This test assures that the average of the initial weights of all
+        This test ensures that the average of the initial weights of all
         boxes picked by a picker is correct.
         """
         # create a picker
@@ -99,7 +99,7 @@ class TestPicker(TestCase):
 
     def test_picker_total_picked(self):
         """
-        This test assures that the total of initial weights of all
+        This test ensures that the total of initial weights of all
         boxes picked by a picker is correct.
         """
         # create a picker
@@ -137,6 +137,38 @@ class TestPicker(TestCase):
         self.assertEquals(
             round(total, 6), # 6 decimal digits
             round(anna.get_total_picked(), 6)
+        )
+
+    def test_picker_time_worked(self):
+        """
+        This test ensures that the time that this picker has worked is correct.
+        """
+        # create a picker
+        anna = Picker.objects.create(
+            first_name = 'Anna',
+            last_name = 'Hickmann',
+            active = True,
+            discharged = False
+        )
+        anna.save()
+        nr_of_bundies = 20
+        total = 0
+        # Create some boxes
+        for i in range(nr_of_bundies):
+            now = datetime.datetime.now()
+            interval = random.randint(1, 120) # between 1s and 120 minutes
+            time_out = now + datetime.timedelta(minutes = interval)
+            total += interval
+            bundy = Bundy.objects.create(
+                picker = anna,
+                time_in = now.strftime('%Y-%m-%d %H:%M:%S'),
+                time_out = time_out.strftime('%Y-%m-%d %H:%M:%S')
+            )
+            bundy.save()
+        time_worked = anna.get_time_worked(datetime.date.today())
+        self.assertEquals(
+            total,
+            time_worked.seconds / 60.0
         )
 
 class TestBox(TestCase):
