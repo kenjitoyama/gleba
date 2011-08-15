@@ -73,11 +73,12 @@ def generate_report_all_picker(request):
     data = [] # [{id, first name, last name, total picked, kpi}]
 
     for picker in Picker.objects.all():
-        total_time = picker.getTimeWorkedBetween(start_date, end_date)
+        total_time = picker.get_time_worked_between(start_date, end_date)
         time_worked = (total_time.seconds)/3600.0
-        total_picked = picker.getTotalPickedBetween(start_date, end_date)
-        avg_init_weight = picker.getAvgInitWeightBetween(start_date,
-                                                         end_date)
+        total_picked = picker.get_total_picked_between(start_date, end_date)
+        avg_init_weight = picker.get_avg_init_weight_between(
+            start_date, end_date
+        )
         total_kg_per_hour = (total_picked/time_worked
                              if (time_worked>0) else 0)
         data.append({'picker_id':    picker.id,
@@ -114,8 +115,8 @@ def generate_report_picker(request, picker_id):
     daily_totals = []
     for date in date_range(start_date, end_date):
         tmp = [date.strftime("%Y-%m-%d"),]
-        tmp.append(picker_obj.getTotalPickedOn(date))
-        hours_worked = picker_obj.getTimeWorkedOn(date).seconds / 3600.0
+        tmp.append(picker_obj.get_total_picked_on(date))
+        hours_worked = picker_obj.get_time_worked_on(date).seconds / 3600.0
         avg = (tmp[1]/hours_worked) if hours_worked != 0 else 0.0
         tmp.append(avg)
         daily_totals.append(tmp)
@@ -146,7 +147,7 @@ def generate_report_room(request, room_id):
     daily_totals = []
     for date in date_range(start_date, end_date):
         tmp = [date.strftime("%Y-%m-%d"),]
-        tmp.append(room_obj.getTotalPickedOn(date))
+        tmp.append(room_obj.get_total_picked_on(date))
         daily_totals.append(tmp)
     return render_to_response('report.html', {
         'room' : room_obj,
@@ -169,7 +170,7 @@ def generate_report_flush(request, flush_id):
     daily_totals = []
     for date in date_range(start_date, end_date):
         tmp = [date.strftime("%Y-%m-%d"),]
-        tmp.append(flush_obj.getTotalPickedOn(date))
+        tmp.append(flush_obj.get_total_picked_on(date))
         daily_totals.append(tmp)
     return render_to_response('report.html', {
         'flush' : flush_obj,
@@ -192,7 +193,7 @@ def generate_report_crop(request, crop_id):
     daily_totals = []
     for date in date_range(start_date, end_date):
         tmp = [date.strftime("%Y-%m-%d"),]
-        tmp.append(crop_obj.getTotalPickedOn(date))
+        tmp.append(crop_obj.get_total_picked_on(date))
         daily_totals.append(tmp)
     return render_to_response('report.html', {
         'crop' : crop_obj,

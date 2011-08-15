@@ -34,7 +34,7 @@
   <table id="picker_table" class="report_table"></table>
   <script>
     $('#picker_table').jqGrid({
-        caption: 'Picker Report :: {{picker.fullName}} ({{start_date}} ~ {{end_date}})',
+        caption: 'Picker Report :: {{picker.full_name}} ({{start_date}} ~ {{end_date}})',
         height: 200,
         datatype: 'local',
         colNames:['Date', 'Total Picked', 'kg/hr'],
@@ -151,7 +151,7 @@
     <form name="picker_report_form" action="picker/" method="post" id="picker_report_form">
       <select name="picker" id="picker_menu">
         {%for picker in picker_list%}
-        <option value={{picker.id}}>{{picker.id}} - {{picker.fullName}}</option>
+        <option value={{picker.id}}>{{picker.id}} - {{picker.full_name}}</option>
         {%endfor%}
       </select><br/>
       <label for="picker_start_date">Start Date</label>
