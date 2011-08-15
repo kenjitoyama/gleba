@@ -51,32 +51,29 @@ class Picker(models.Model):
             first_name = self.first_name, last_name = self.last_name
         )
 
-    def get_avg_init_weight(self):
-        """
-        Return the average initial weight of boxes by this picker.
-        """
-        avg = Box.objects.filter(picker=self).aggregate(
-                Avg('initial_weight'))['initial_weight__avg']
-        return avg if (avg is not None) else 0.0
-
-    def get_avg_init_weight_on(self, date):
-        """
-        Return the average initial weight of boxes by this picker on date.
-        """
-        avg = Box.objects.filter(picker=self, batch__date=date).aggregate(
-                Avg('initial_weight'))['initial_weight__avg']
-        return avg if (avg is not None) else 0.0
-
-    def get_avg_init_weight_between(self, start_date, end_date):
+    def get_avg_init_weight(self, date = None, end_date = None):
         """
         Return the average initial weight of boxes by this picker.
 
-        The range is [start_date, end_date].
+        If date is not given, it will return the average of initial weights
+        for all boxes picked by this picker. If date is given but not
+        end_date, the average of initial weights for the boxes collected on
+        date will be returned. If both date and end_date are given, the average
+        of initial weights for all boxes picked between date and end_date
+        will be returned.
         """
-        avg = Box.objects.filter(picker=self,
-                                 batch__date__gte = start_date,
-                                 batch__date__lte = end_date).aggregate(
-                                 Avg('initial_weight'))['initial_weight__avg']
+        if date is None:
+            avg = Box.objects.filter(picker=self).aggregate(
+                    Avg('initial_weight'))['initial_weight__avg']
+        elif end_date is None:
+            avg = Box.objects.filter(picker=self, batch__date = date).aggregate(
+                    Avg('initial_weight'))['initial_weight__avg']
+        else:
+            avg = Box.objects.filter(
+                picker = self,
+                batch__date__gte = date,
+                batch__date__lte = end_date
+            ).aggregate(Avg('initial_weight'))['initial_weight__avg']
         return avg if (avg is not None) else 0.0
 
     def get_total_picked(self):

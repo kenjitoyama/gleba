@@ -76,9 +76,7 @@ def generate_report_all_picker(request):
         total_time = picker.get_time_worked_between(start_date, end_date)
         time_worked = (total_time.seconds)/3600.0
         total_picked = picker.get_total_picked_between(start_date, end_date)
-        avg_init_weight = picker.get_avg_init_weight_between(
-            start_date, end_date
-        )
+        avg_init_weight = picker.get_avg_init_weight(start_date, end_date)
         total_kg_per_hour = (total_picked/time_worked
                              if (time_worked>0) else 0)
         data.append({'picker_id':    picker.id,
