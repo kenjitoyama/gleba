@@ -263,9 +263,9 @@ WebGUI.update_current_info_div = function() {
 WebGUI.update_variety_info = function() {
     var query_string = '#variety_div > input[data-id="' + WebGUI.current_variety + '"]';
     var curr_variety = document.querySelector(query_string)
-    var variety_ideal = parseFloat(curr_variety.getAttribute('data-idealweight'));
+    var variety_min = parseFloat(curr_variety.getAttribute('data-minweight'));
     var variety_tolerance = parseFloat(curr_variety.getAttribute('data-tolerance'));
-    WebGUI.current_min_weight = variety_ideal;
+    WebGUI.current_min_weight = variety_min;
     WebGUI.current_tolerance = variety_tolerance;
 }
 
@@ -468,7 +468,7 @@ WebGUI.get_active_varieties = function() {
             for(var i in list) {
                 var variety_id = list[i]['id'];
                 var variety_name = list[i]['name'];
-                var variety_idealweight = list[i]['ideal_weight'];
+                var variety_minweight = list[i]['minimum_weight'];
                 var variety_tolerance = list[i]['tolerance'];
                 var new_option = document.createElement('input');
                 new_option.setAttribute('type', 'button');
@@ -477,12 +477,12 @@ WebGUI.get_active_varieties = function() {
                 if(new_option.dataset) {
                     new_option.dataset.id = variety_id;
                     new_option.dataset.name = variety_name;
-                    new_option.dataset.idealweight = variety_idealweight;
+                    new_option.dataset.minweight = variety_minweight;
                     new_option.dataset.tolerance = variety_tolerance;
                 } else {
                     new_option.setAttribute('data-id', variety_id);
                     new_option.setAttribute('data-name', variety_name);
-                    new_option.setAttribute('data-idealweight', variety_idealweight);
+                    new_option.setAttribute('data-minweight', variety_minweight);
                     new_option.setAttribute('data-tolerance', variety_tolerance);
                 }
                 new_option.setAttribute('value', variety_name);

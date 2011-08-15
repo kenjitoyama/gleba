@@ -163,8 +163,8 @@ class MainWindow:
                 variety = self.data_model.varieties[idx]
                 button = Gtk.Button(label = config.VARIETY_BUTTON_FORMAT.format(
                     variety_name = variety['name'],
-                    min_weight = variety['ideal_weight'],
-                    max_weight = variety['ideal_weight'] + variety['tolerance']
+                    min_weight = variety['minimum_weight'],
+                    max_weight = variety['minimum_weight'] + variety['tolerance']
                 ))
                 button.connect('clicked', self.select_variety_callback, idx)
                 hbox.add(button)
@@ -190,8 +190,8 @@ class MainWindow:
         for variety in self.data_model.varieties:
             combo_box.append_text(config.VARIETY_BUTTON_FORMAT.format(
                 variety_name = variety['name'],
-                min_weight = variety['ideal_weight'],
-                max_weight = variety['ideal_weight'] + variety['tolerance'],
+                min_weight = variety['minimum_weight'],
+                max_weight = variety['minimum_weight'] + variety['tolerance'],
             ))
         # add mappings for treeview columns
         for i in range(11):
@@ -451,7 +451,7 @@ class MainWindow:
                 self.weight_window.pop(0)
                 self.weight_window.append(self.current_weight)
                 variety = self.data_model.varieties[self.current_variety]
-                self.min_weight = variety['ideal_weight']
+                self.min_weight = variety['minimum_weight']
                 weight_tolerance = variety['tolerance']
                 if self.current_weight >= self.min_weight + weight_tolerance:
                     self.change_state(OVERWEIGHT_ADJUST)

@@ -50,14 +50,14 @@ def add_box(request):
         'final_weight'   in request.GET and
         'timestamp'      in request.GET):
         picker_id          = request.GET['picker']
-        content_variety_id = request.GET['variety']
+        variety_id         = request.GET['variety']
         batch_id           = request.GET['batch']
         initial_weight_tmp = request.GET['initial_weight']
         final_weight_tmp   = request.GET['final_weight']
         timestamp_tmp      = request.GET['timestamp']
 
         picker_obj = get_object_or_404(Picker, pk = picker_id)
-        variety = get_object_or_404(Variety, pk = content_variety_id)
+        variety = get_object_or_404(Variety, pk = variety_id)
         batch_obj = get_object_or_404(Batch, pk = batch_id)
         box = Box(initial_weight = float(initial_weight_tmp),
                   final_weight = float(final_weight_tmp),
@@ -198,7 +198,7 @@ def get_variety_list(request, result_format):
         data = [{
             'id': variety.id,
             'name': variety.name,
-            'ideal_weight': variety.minimum_weight,
+            'minimum_weight': variety.minimum_weight,
             'tolerance': variety.tolerance
         } for variety in variety_list]
         return HttpResponse(json.dumps(data), mimetype = 'application/json')

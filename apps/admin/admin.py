@@ -97,7 +97,7 @@ class VarietyAdmin(admin.ModelAdmin):
         ('Name',  {'fields': ['name']}),
         ('Is it still being picked?',  {'fields': ['active']}),
         ('Ideal weight for this variety', {'fields': ['minimum_weight']}),
-        ('Tolerance from the ideal weight in kg', {'fields': ['tolerance']}),
+        ('Tolerance from the minimum weight in kg', {'fields': ['tolerance']}),
     ]
 
 class BoxAdmin(admin.ModelAdmin):
