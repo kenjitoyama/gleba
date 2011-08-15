@@ -76,30 +76,29 @@ class Picker(models.Model):
             ).aggregate(Avg('initial_weight'))['initial_weight__avg']
         return avg if (avg is not None) else 0.0
 
-    def get_total_picked(self):
+    def get_total_picked(self, date = None, end_date = None):
         """
         Return the total weight of all boxes picked by this picker.
-        """
-        total = Box.objects.filter(picker=self).aggregate(
-                    Sum('initial_weight'))['initial_weight__sum']
-        return total if (total is not None) else 0.0
 
-    def get_total_picked_on(self, date): 
+        If date is not given, it will return the total of initial weights
+        for all boxes picked by this picker. If date is given but not
+        end_date, the total of initial weights for the boxes collected on
+        date will be returned. If both date and end_date are given, the total
+        of initial weights for all boxes picked between date and end_date
+        will be returned.
         """
-        Return total picked for a picker forever, on a given date.
-        """
-        total = Box.objects.filter(picker=self, batch__date=date).aggregate(
-                    Sum('initial_weight'))['initial_weight__sum']
-        return total if (total is not None) else 0.0
-
-    def get_total_picked_between(self, start_date, end_date): 
-        """
-        Return total picked for a picker, between two given dates given date.
-        """
-        total = Box.objects.filter(picker = self,
-                                   batch__date__gte = start_date,
-                                   batch__date__lte = end_date).aggregate(
-                                   Sum('initial_weight'))['initial_weight__sum']
+        if date is None:
+            total = Box.objects.filter(picker=self).aggregate(
+                        Sum('initial_weight'))['initial_weight__sum']
+        elif end_date is None:
+            total = Box.objects.filter(picker=self, batch__date=date).aggregate(
+                        Sum('initial_weight'))['initial_weight__sum']
+        else:
+            total = Box.objects.filter(
+                picker = self,
+                batch__date__gte = date,
+                batch__date__lte = end_date
+            ).aggregate(Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
     def get_time_worked_on(self,date):

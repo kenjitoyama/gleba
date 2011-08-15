@@ -97,6 +97,48 @@ class TestPicker(TestCase):
             round(anna.get_avg_init_weight(), 6)
         )
 
+    def test_picker_total_picked(self):
+        """
+        This test assures that the total of initial weights of all
+        boxes picked by a picker is correct.
+        """
+        # create a picker
+        anna = Picker.objects.create(
+            first_name = 'Anna',
+            last_name = 'Hickmann',
+            active = True,
+            discharged = False
+        )
+        anna.save()
+        variety = Variety.objects.get(id = 1)
+        nr_of_boxes = 20
+        total = 0.0
+        # Create some boxes
+        for i in range(nr_of_boxes):
+            time_now = time.strftime('%Y-%m-%d %H:%M:%S', # timestamp
+                                     time.localtime())
+            initial_weight = random.uniform(
+                variety.minimum_weight,
+                variety.minimum_weight + variety.tolerance
+            ) + 0.5
+            total += initial_weight
+            response = self.c.get('/add_box/', {
+                'picker':         anna.id,
+                'variety':        1,
+                'batch':          1,
+                'initial_weight': initial_weight,
+                'final_weight':   initial_weight - 0.5,
+                'timestamp':      time_now,
+            })
+            # make sure every request is successful
+            self.assertEquals(response.status_code, 200)
+        # check our average with the picker's average
+        # round() is used to eliminate precision errors
+        self.assertEquals(
+            round(total, 6), # 6 decimal digits
+            round(anna.get_total_picked(), 6)
+        )
+
 class TestBox(TestCase):
     def setUp(self):
         joe = User.objects.create_user('joe', 'joe@doe.com', 'doe')
