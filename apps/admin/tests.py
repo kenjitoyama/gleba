@@ -56,6 +56,10 @@ class TestPicker(TestCase):
         self.assertTrue(login)
 
     def test_picker_avg_weight(self):
+        """
+        This test assures that the average of the initial weights of all
+        boxes picked by a picker is correct.
+        """
         # create a picker
         anna = Picker.objects.create(
             first_name = 'Anna',
@@ -74,14 +78,14 @@ class TestPicker(TestCase):
             initial_weight = random.uniform(
                 variety.minimum_weight,
                 variety.minimum_weight + variety.tolerance
-            )
+            ) + 0.5
             total += initial_weight
             response = self.c.get('/add_box/', {
                 'picker':         anna.id,
                 'variety':        1,
                 'batch':          1,
                 'initial_weight': initial_weight,
-                'final_weight':   initial_weight + 0.1,
+                'final_weight':   initial_weight - 0.5,
                 'timestamp':      time_now,
             })
             # make sure every request is successful
@@ -93,3 +97,42 @@ class TestPicker(TestCase):
             round(anna.get_avg_init_weight(), 6)
         )
 
+class TestBox(TestCase):
+    def setUp(self):
+        joe = User.objects.create_user('joe', 'joe@doe.com', 'doe')
+        joe.is_staff = True
+        joe.save()
+        self.c = Client()
+        login = self.c.login(username = 'joe', password = 'doe')
+        self.assertTrue(login)
+
+    def test_box_within_range(self):
+        """
+        This test adds some boxes to the DB, and makes sure that ALL boxes
+        after being added still maintain their final weights within range.
+        """
+        variety = Variety.objects.get(id = 1)
+        nr_of_boxes = 20
+        # Create some boxes
+        for i in range(nr_of_boxes):
+            time_now = time.strftime('%Y-%m-%d %H:%M:%S', # timestamp
+                                     time.localtime())
+            final_weight = random.uniform(
+                variety.minimum_weight,
+                variety.minimum_weight + variety.tolerance
+            )
+            response = self.c.get('/add_box/', {
+                'picker':         1,
+                'variety':        1,
+                'batch':          1,
+                'initial_weight': final_weight + 0.5,
+                'final_weight':   final_weight,
+                'timestamp':      time_now,
+            })
+            # make sure every request is successful
+            self.assertEquals(response.status_code, 200)
+        # check that all boxes have final_weight within range
+        for box in Box.objects.all():
+            self.assertTrue(box.final_weight > variety.minimum_weight)
+            self.assertTrue(box.final_weight < variety.minimum_weight +
+                                               variety.tolerance)
