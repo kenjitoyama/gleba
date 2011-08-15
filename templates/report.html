@@ -125,7 +125,7 @@
   <table id="all_pickers_table"></table>
   <script>
     $('#all_pickers_table').jqGrid({
-        caption: 'Overall Picking ({{startDate}} ~ {{endDate}})',
+        caption: 'Overall Picking ({{start_date}} ~ {{end_date}})',
         datatype: 'local',
         colNames:['ID', 'First Name','Last Name', 'Total Picked', 'kg/hr','Avg Initial Weight'],
         colModel:[
@@ -155,10 +155,10 @@
         {%endfor%}
       </select><br/>
       <label for="picker_start_date">Start Date</label>
-      <input name="startDate" class="dateField" id="picker_start_date" type="date"/>
+      <input name="start_date" class="dateField" id="picker_start_date" type="date"/>
       <span>YYYY-MM-DD</span><br/>
       <label for="picker_end_date">End Date</label>
-      <input name="endDate" class="dateField" id="picker_end_date" type="date"/>
+      <input name="end_date" class="dateField" id="picker_end_date" type="date"/>
       <span>YYYY-MM-DD</span><br/>
       <input type="submit" onClick="Report.submitForm('picker_')" value="Submit"/><br/>
     </form>
@@ -168,10 +168,10 @@
     <h2>All Pickers</h2>
     <form name="all_picker_report_form" action="picker/" method="post" id="all_picker_report_form">
       <label for="all_pickers_start_date">Start Date</label>
-      <input name="startDate" class="dateField" id="all_pickers_start_date" type="date"/>
+      <input name="start_date" class="dateField" id="all_pickers_start_date" type="date"/>
       <span>YYYY-MM-DD</span><br/>
       <label for="all_pickers_end_date">End Date</label>
-      <input name="endDate" class="dateField" id="all_pickers_end_date" type="date"/>
+      <input name="end_date" class="dateField" id="all_pickers_end_date" type="date"/>
       <span>YYYY-MM-DD</span><br/>
       <input type="submit" onClick="Report.submitAllPickerForm()" value="Submit"/><br/>
     </form>
@@ -205,10 +205,10 @@
         {%endfor%}
       </select><br/>
       <label for="room_start_date">Start Date</label>
-      <input name="startDate" class="dateField" id="room_start_date" type="date"/>
+      <input name="start_date" class="dateField" id="room_start_date" type="date"/>
       <span>YYYY-MM-DD</span><br/>
       <label for="room_end_date">End Date</label>
-      <input name="endDate" class="dateField" id="room_end_date" type="date"/>
+      <input name="end_date" class="dateField" id="room_end_date" type="date"/>
       <span>YYYY-MM-DD</span><br/>
       <input type="submit" onClick="Report.submitForm('room_')" value="Submit"/>
     </form>

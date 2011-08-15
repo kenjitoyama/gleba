@@ -30,7 +30,7 @@ import datetime
 
 def date_range(start_date, end_date):
     """
-    Returns a list of the days between startDate and endDate inclusive.
+    Returns a list of the days between start_date and end_date inclusive.
     """
     date_list = []
     if start_date > end_date:

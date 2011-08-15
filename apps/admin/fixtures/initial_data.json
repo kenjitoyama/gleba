@@ -2,24 +2,24 @@
   {"model": "admin.picker",
    "pk": 1,
    "fields": {
-       "firstName":  "Jessica",
-       "lastName":   "Alba",
+       "first_name": "Jessica",
+       "last_name":  "Alba",
        "active":     true,
        "discharged": false
    }},
   {"model": "admin.picker",
    "pk": 2,
    "fields": {
-       "firstName":  "Monica",
-       "lastName":   "Bellucci",
+       "first_name": "Monica",
+       "last_name":  "Bellucci",
        "active":     true,
        "discharged": false
    }},
   {"model": "admin.picker",
    "pk": 3,
    "fields": {
-       "firstName":  "Neve",
-       "lastName":   "Campbell",
+       "first_name": "Neve",
+       "last_name":  "Campbell",
        "active":     true,
        "discharged": false
    }},
@@ -27,18 +27,18 @@
   {"model": "admin.variety",
    "pk": 1,
    "fields": {
-       "name":     "Champignon",
-       "idealWeight": 4.050,
-       "tolerance":   0.020,
-       "active":      true
+       "name":           "Champignon",
+       "minimum_weight": 4.050,
+       "tolerance":      0.020,
+       "active":         true
    }},
   {"model": "admin.variety",
    "pk": 2,
    "fields": {
-       "name":     "Shitake",
-       "idealWeight": 4.030,
-       "tolerance":   0.015,
-       "active":      true
+       "name":           "Shitake",
+       "minimum_weight": 4.030,
+       "tolerance":      0.015,
+       "active":         true
    }},
 
   {"model": "admin.room",
@@ -57,26 +57,26 @@
   {"model": "admin.crop",
    "pk": 1,
    "fields": {
-       "startDate": "2011-05-03",
-       "endDate":   "2011-08-03",
-       "room":      1
+       "start_date": "2011-05-03",
+       "end_date":   "2011-08-03",
+       "room":       1
    }},
 
   {"model": "admin.flush",
    "pk": 1,
    "fields": {
-       "startDate": "2011-05-03",
-       "endDate":   null,
-       "flushNo":   1,
-       "crop":      1
+       "start_date": "2011-05-03",
+       "end_date":   null,
+       "flush_no":   1,
+       "crop":       1
    }},
   {"model": "admin.flush",
    "pk": 2,
    "fields": {
-       "startDate": "2011-05-10",
-       "endDate":   null,
-       "flushNo":   2,
-       "crop":      1
+       "start_date": "2011-05-10",
+       "end_date":   null,
+       "flush_no":   2,
+       "crop":       1
    }},
 
   {"model": "admin.batch",

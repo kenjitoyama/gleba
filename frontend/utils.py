@@ -79,10 +79,10 @@ class DBAPI:
         else m is the error message returned from the server
         """
         params = urllib.urlencode({
-            'initialWeight':  initial_weight,
-            'finalWeight':    final_weight,
+            'initial_weight': initial_weight,
+            'final_weight':   final_weight,
             'timestamp':      timestamp,
-            'contentVariety': variety,
+            'variety':        variety,
             'picker':         picker,
             'batch':          batch
         })
@@ -118,8 +118,8 @@ class DBAPI:
         xmldoc = minidom.parse(urllib.urlopen(full_address))
         for picker in xmldoc.getElementsByTagName("picker"):
             id_elem = picker.getElementsByTagName('id')[0]
-            fname_elem = picker.getElementsByTagName('firstName')[0]
-            lname_elem = picker.getElementsByTagName('lastName')[0]
+            fname_elem = picker.getElementsByTagName('first_name')[0]
+            lname_elem = picker.getElementsByTagName('last_name')[0]
             result.append([id_elem.firstChild.data,
                            fname_elem.firstChild.data,
                            lname_elem.firstChild.data])
@@ -159,7 +159,7 @@ class DBAPI:
         for variety in xmldoc.getElementsByTagName('variety'):
             id_elem = variety.getElementsByTagName("id")[0]
             name_elem = variety.getElementsByTagName("name")[0]
-            iw_elem = variety.getElementsByTagName("idealWeight")[0]
+            iw_elem = variety.getElementsByTagName("minimum_weight")[0]
             fw_elem = variety.getElementsByTagName("tolerance")[0]
             result.append([id_elem.firstChild.data,
                            name_elem.firstChild.data,

@@ -49,15 +49,15 @@ def build_export_list(period = 31): #period in days
     employed_pickers = Picker.objects.filter(discharged = False)
     for picker in employed_pickers:
         days_worked = Bundy.objects.filter(
-            timeIn__gte = (datetime.date.today() -
+            time_in__gte = (datetime.date.today() -
                            datetime.timedelta(days = period)),
             picker = picker,
-            timeOut__isnull = False
+            time_out__isnull = False
         )
         total_hours_worked = 0
         for bundy in days_worked:
-            total_hours_worked += (bundy.timeOut-bundy.timeIn).seconds/3600.0
-        export_list.append(('{} {}'.format(picker.firstName, picker.lastName),
+            total_hours_worked += (bundy.time_out-bundy.time_in).seconds/3600.0
+        export_list.append(('{} {}'.format(picker.first_name, picker.last_name),
                             total_hours_worked))
     return export_list
 
@@ -71,15 +71,15 @@ def build_export_list_range(start_date, end_date = datetime.date.today()):
     employed_pickers = Picker.objects.filter(discharged = False)
     for picker in employed_pickers:
         days_worked = Bundy.objects.filter(
-            timeIn__gte = start_date,
-            timeIn__lte = end_date,
+            time_in__gte = start_date,
+            time_in__lte = end_date,
             picker = picker,
-            timeOut__isnull = False
+            time_out__isnull = False
         )
         total_hours_worked = 0
         for bundy in days_worked:
-            total_hours_worked += (bundy.timeOut-bundy.timeIn).seconds/3600.0
-        export_list.append(('{} {}'.format(picker.firstName, picker.lastName),
+            total_hours_worked += (bundy.time_out-bundy.time_in).seconds/3600.0
+        export_list.append(('{} {}'.format(picker.first_name, picker.last_name),
                             total_hours_worked))
     return export_list
 
@@ -104,26 +104,26 @@ def generate_csv_range(request):
 
     Returns a simple file with the name of each Picker and the total amount
     """
-    if 'endDate' in request.POST and 'startDate' in request.POST:
-        if request.POST['endDate'] == '': # blank endDate
+    if 'end_date' in request.POST and 'start_date' in request.POST:
+        if request.POST['end_date'] == '': # blank end_date
             end_date = datetime.date.today().isoformat()
         else:
             try:
                 end_date = datetime.datetime.strptime(
-                    request.POST['endDate'], '%Y-%m-%d')
+                    request.POST['end_date'], '%Y-%m-%d')
             except ValueError:
                 return render_to_response('csv.html', {
                     'date_error': 'Incorrect format for the end date .',
-                    'start_date': request.POST['startDate'],
-                    'end_date':   request.POST['endDate']
+                    'start_date': request.POST['start_date'],
+                    'end_date':   request.POST['end_date']
                 })
-        if request.POST['startDate'] == '': # blank startDate
+        if request.POST['start_date'] == '': # blank start_date
             start_date = (datetime.date.today() -
                           datetime.timedelta(days = 31)).isoformat()
         else:
             try:
                 start_date = datetime.datetime.strptime(
-                    request.POST['startDate'], '%Y-%m-%d')
+                    request.POST['start_date'], '%Y-%m-%d')
             except ValueError:
                 return render_to_response('csv.html', {
                     'date_error': 'Incorrect format for the start date .',

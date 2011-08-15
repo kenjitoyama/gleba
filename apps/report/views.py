@@ -39,19 +39,19 @@ def get_date_from_request(request):
 
     It raises an Exception or ValueError if an error occurs.
     """
-    if ('startDate' in request.POST and 'endDate' in request.POST):
-        if(request.POST['startDate'] == '' or request.POST['endDate'] == ''):
+    if ('start_date' in request.POST and 'end_date' in request.POST):
+        if(request.POST['start_date'] == '' or request.POST['end_date'] == ''):
             raise Exception('empty date')
         else:
             start_date = datetime.datetime.strptime(
-                request.POST['startDate'], "%Y-%m-%d").date()
+                request.POST['start_date'], "%Y-%m-%d").date()
             end_date = datetime.datetime.strptime(
-                request.POST['endDate'], "%Y-%m-%d").date()
+                request.POST['end_date'], "%Y-%m-%d").date()
         if start_date > end_date:
             raise Exception('start_date greater than end_date')
         return (start_date, end_date)
     else:
-        return Exception('no startDate and endDate in POST request')
+        return Exception('no start_date and end_date in POST request')
 
 @login_required
 def generate_report_all_picker(request):
@@ -82,8 +82,8 @@ def generate_report_all_picker(request):
         total_kg_per_hour = (total_picked/time_worked
                              if (time_worked>0) else 0)
         data.append({'picker_id':    picker.id,
-                     'first_name':   picker.firstName,
-                     'last_name':    picker.lastName,
+                     'first_name':   picker.first_name,
+                     'last_name':    picker.last_name,
                      'total_picked': '{:.6f}'.format(total_picked),
                      'kghr':         '{:.6f}'.format(total_kg_per_hour),
                      'avg':          '{:.6f}'.format(avg_init_weight)})
@@ -91,8 +91,8 @@ def generate_report_all_picker(request):
     return render_to_response('report.html', {
         'user' :        request.user,
         'data' :        json.dumps(data),
-        'startDate' :   start_date.strftime("%d-%m-%Y"),
-        'endDate' :     end_date.strftime("%d-%m-%Y"),
+        'start_date' :   start_date.strftime("%d-%m-%Y"),
+        'end_date' :     end_date.strftime("%d-%m-%Y"),
         'report_type' : 'all_pickers',
     })
 
@@ -164,8 +164,8 @@ def generate_report_flush(request, flush_id):
     It expects jqPlot to properly build the graph.
     """
     flush_obj = get_object_or_404(Flush, pk = flush_id)
-    start_date = flush_obj.startDate
-    end_date = (flush_obj.endDate if flush_obj.endDate is not None
+    start_date = flush_obj.start_date
+    end_date = (flush_obj.end_date if flush_obj.end_date is not None
                                  else datetime.date.today())
     daily_totals = []
     for date in date_range(start_date, end_date):
@@ -187,8 +187,8 @@ def generate_report_crop(request, crop_id):
     It expects jqPlot to properly build the graph.
     """
     crop_obj = get_object_or_404(Crop, pk = crop_id)
-    start_date = crop_obj.startDate
-    end_date = (crop_obj.endDate if crop_obj.endDate is not None
+    start_date = crop_obj.start_date
+    end_date = (crop_obj.end_date if crop_obj.end_date is not None
                                  else datetime.date.today())
     daily_totals = []
     for date in date_range(start_date, end_date):

@@ -2,8 +2,8 @@
 <pickerList>
     {% for picker in picker_list%}<picker>
         <id>{{picker.id}}</id>
-        <firstName>{{picker.firstName}}</firstName>
-        <lastName>{{picker.lastName}}</lastName>
+        <first_name>{{picker.first_name}}</first_name>
+        <last_name>{{picker.last_name}}</last_name>
     </picker>
     {% endfor %}
 </pickerList>

@@ -30,8 +30,8 @@ from django.db.models import Avg, Sum, Min, Max
 import datetime
 
 class Picker(models.Model):
-    firstName = models.CharField(max_length=50)
-    lastName = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     active = models.BooleanField()
     discharged = models.BooleanField()
 
@@ -48,7 +48,7 @@ class Picker(models.Model):
         Returns the full name of this picker.
         """
         return '{first_name} {last_name}'.format(
-            first_name = self.firstName, last_name = self.lastName
+            first_name = self.first_name, last_name = self.last_name
         )
 
     def get_avg_init_weight(self):
@@ -56,7 +56,7 @@ class Picker(models.Model):
         Return the average initial weight of boxes by this picker.
         """
         avg = Box.objects.filter(picker=self).aggregate(
-                Avg('initialWeight'))['initialWeight__avg']
+                Avg('initial_weight'))['initial_weight__avg']
         return avg if (avg is not None) else 0.0
 
     def get_avg_init_weight_on(self, date):
@@ -64,7 +64,7 @@ class Picker(models.Model):
         Return the average initial weight of boxes by this picker on date.
         """
         avg = Box.objects.filter(picker=self, batch__date=date).aggregate(
-                Avg('initialWeight'))['initialWeight__avg']
+                Avg('initial_weight'))['initial_weight__avg']
         return avg if (avg is not None) else 0.0
 
     def get_avg_init_weight_between(self, start_date, end_date):
@@ -76,7 +76,7 @@ class Picker(models.Model):
         avg = Box.objects.filter(picker=self,
                                  batch__date__gte = start_date,
                                  batch__date__lte = end_date).aggregate(
-                                 Avg('initialWeight'))['initialWeight__avg']
+                                 Avg('initial_weight'))['initial_weight__avg']
         return avg if (avg is not None) else 0.0
 
     def get_total_picked(self):
@@ -84,7 +84,7 @@ class Picker(models.Model):
         Return the total weight of all boxes picked by this picker.
         """
         total = Box.objects.filter(picker=self).aggregate(
-                    Sum('initialWeight'))['initialWeight__sum']
+                    Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
     def get_total_picked_on(self, date): 
@@ -92,7 +92,7 @@ class Picker(models.Model):
         Return total picked for a picker forever, on a given date.
         """
         total = Box.objects.filter(picker=self, batch__date=date).aggregate(
-                    Sum('initialWeight'))['initialWeight__sum']
+                    Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
     def get_total_picked_between(self, start_date, end_date): 
@@ -102,7 +102,7 @@ class Picker(models.Model):
         total = Box.objects.filter(picker = self,
                                    batch__date__gte = start_date,
                                    batch__date__lte = end_date).aggregate(
-                                   Sum('initialWeight'))['initialWeight__sum']
+                                   Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
     def get_time_worked_on(self,date):
@@ -110,8 +110,8 @@ class Picker(models.Model):
         Return total time worked for picker on a given day.
         """
         bundies = Bundy.objects.filter(picker = self,
-                                       timeIn__startswith = date,
-                                       timeOut__isnull = False)
+                                       time_in__startswith = date,
+                                       time_out__isnull = False)
         if bundies is not None:
             return sum([b.time_worked() for b in bundies], datetime.timedelta())
         return 0.0
@@ -122,9 +122,9 @@ class Picker(models.Model):
         """
         bundies = Bundy.objects.filter(
             picker = self,
-            timeIn__gte = start_date,
-            timeIn__lte = end_date + datetime.timedelta(days=1),
-            timeOut__isnull = False
+            time_in__gte = start_date,
+            time_in__lte = end_date + datetime.timedelta(days=1),
+            time_out__isnull = False
         )
         if bundies is not None:
             return sum([b.time_worked() for b in bundies], datetime.timedelta())
@@ -132,11 +132,10 @@ class Picker(models.Model):
         
 class Bundy(models.Model):
     picker=models.ForeignKey(Picker)
-    timeIn=models.DateTimeField('Time In')
-    timeOut=models.DateTimeField('Time Out', blank=True, null=True)
-    hadLunch=models.BooleanField()
-
-    lunchBreak=datetime.timedelta(minutes=30)
+    time_in=models.DateTimeField('Time In')
+    time_out=models.DateTimeField('Time Out', blank=True, null=True)
+    had_lunch=models.BooleanField()
+    lunch_break=datetime.timedelta(minutes=30)
 
     class Meta:
         verbose_name_plural = 'Bundies'
@@ -144,15 +143,15 @@ class Bundy(models.Model):
     def __unicode__(self):
         return 'Bundy ({picker_name}) ({time_in})'.format(
             picker_name = self.picker.full_name(),
-            time_in = str(self.timeIn)
+            time_in = str(self.time_in)
         )
 
     def time_worked(self):
         """
         Returns the total amount of time worked as a timedelta.
         """
-        return (self.timeOut - self.timeIn-self.lunchBreak if self.hadLunch
-                else self.timeOut-self.timeIn)
+        return (self.time_out - self.time_in-self.lunch_break if self.had_lunch
+                else self.time_out-self.time_in)
 
 class Room(models.Model):
     number = models.IntegerField()
@@ -170,7 +169,7 @@ class Room(models.Model):
         """
         total = Box.objects.filter(batch__flush__crop__room = self,
                                    batch__date = date).aggregate(
-                                   Sum('initialWeight'))['initialWeight__sum']
+                                   Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
     def get_total_picked_between(self, start_date, end_date): 
@@ -180,12 +179,12 @@ class Room(models.Model):
         total = Box.objects.filter(batch__flush__crop__room = self,
                                    batch__date__gte = start_date, 
                                    batch__date__lte = end_date).aggregate(
-                                   Sum('initialWeight'))['initialWeight__sum']
+                                   Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
 class Crop(models.Model):
-    startDate = models.DateField('date started')
-    endDate = models.DateField('date completed', blank = True, null = True)
+    start_date = models.DateField('date started')
+    end_date = models.DateField('date completed', blank = True, null = True)
     room = models.ForeignKey(Room)
 
     class Meta:
@@ -201,20 +200,20 @@ class Crop(models.Model):
 
     def date_string(self, start = True):
         """
-        Returns startDate or endDate as a string day/month/year.
+        Returns start_date or end_date as a string day/month/year.
 
-        If start is True (the default) then startDate will be returned,
-        otherwise endDate will be returned.
+        If start is True (the default) then start_date will be returned,
+        otherwise end_date will be returned.
         """
         date_format = '{day}/{month}/{year}'
         if start:
-            return date_format.format(day =   str(self.startDate.day),
-                                      month = str(self.startDate.month),
-                                      year =  str(self.startDate.year))
+            return date_format.format(day =   str(self.start_date.day),
+                                      month = str(self.start_date.month),
+                                      year =  str(self.start_date.year))
         else:
-            return date_format.format(day =   str(self.endDate.day),
-                                      month = str(self.endDate.month),
-                                      year =  str(self.endDate.year))
+            return date_format.format(day =   str(self.end_date.day),
+                                      month = str(self.end_date.month),
+                                      year =  str(self.end_date.year))
 
     def get_total_picked_on(self, date): 
         """
@@ -222,7 +221,7 @@ class Crop(models.Model):
         """
         total = Box.objects.filter(batch__flush__crop = self,
                                    batch__date = date).aggregate(
-                                   Sum('initialWeight'))['initialWeight__sum']
+                                   Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
     def get_total_picked_between(self, start_date, end_date): 
@@ -232,26 +231,26 @@ class Crop(models.Model):
         total = Box.objects.filter(batch__flush__crop = self,
                                    batch__date__gte = start_date, 
                                    batch__date__lte = end_date).aggregate(
-                                   Sum('initialWeight'))['initialWeight__sum']
+                                   Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
 class Flush(models.Model):
-    startDate = models.DateField('date started')
-    endDate = models.DateField('date completed', blank = True, null = True)
-    flushNo = models.IntegerField()
-    crop = models.ForeignKey(Crop, limit_choices_to = {'endDate__isnull':True})
+    start_date = models.DateField('date started')
+    end_date = models.DateField('date completed', blank = True, null = True)
+    flush_no = models.IntegerField()
+    crop = models.ForeignKey(Crop, limit_choices_to = {'end_date__isnull':True})
 
     class Meta:
         verbose_name_plural = 'Flushes'
 
     def __unicode__(self):
-        if self.endDate is None:
+        if self.end_date is None:
             end_date_string = 'unfinished'
         else:
             end_date_string = self.date_string(start = False)
         return ('Flush {flush_no} ({start_date} ~ {end_date}) ' +\
                '{room} ID {flush_id}').format(
-            flush_no = self.flushNo,
+            flush_no = self.flush_no,
             start_date = self.date_string(),
             end_date = end_date_string,
             room = str(self.crop.room),
@@ -260,20 +259,20 @@ class Flush(models.Model):
 
     def date_string(self, start = True):
         """
-        Returns startDate or endDate as a string day/month/year.
+        Returns start_date or end_date as a string day/month/year.
 
-        If start is True (the default) then startDate will be returned,
-        otherwise endDate will be returned.
+        If start is True (the default) then start_date will be returned,
+        otherwise end_date will be returned.
         """
         date_format = '{day}/{month}/{year}'
         if start:
-            return date_format.format(day =   str(self.startDate.day),
-                                      month = str(self.startDate.month),
-                                      year =  str(self.startDate.year))
+            return date_format.format(day =   str(self.start_date.day),
+                                      month = str(self.start_date.month),
+                                      year =  str(self.start_date.year))
         else:
-            return date_format.format(day =   str(self.endDate.day),
-                                      month = str(self.endDate.month),
-                                      year =  str(self.endDate.year))
+            return date_format.format(day =   str(self.end_date.day),
+                                      month = str(self.end_date.month),
+                                      year =  str(self.end_date.year))
 
     def get_total_picked_on(self, date): 
         """
@@ -281,7 +280,7 @@ class Flush(models.Model):
         """
         total = Box.objects.filter(batch__flush = self,
                                    batch__date = date).aggregate(
-                                   Sum('initialWeight'))['initialWeight__sum']
+                                   Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
     def get_total_picked_between(self, start_date, end_date): 
@@ -291,13 +290,13 @@ class Flush(models.Model):
         total = Box.objects.filter(batch__flush = self,
                                    batch__date__gte = start_date, 
                                    batch__date__lte = end_date).aggregate(
-                                   Sum('initialWeight'))['initialWeight__sum']
+                                   Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
 class Batch(models.Model):
     date = models.DateField('date started')
     flush = models.ForeignKey(Flush,
-                              limit_choices_to = {'endDate__isnull': True})
+                              limit_choices_to = {'end_date__isnull': True})
 
     class Meta:
         verbose_name_plural = 'Batches'
@@ -321,7 +320,7 @@ class Batch(models.Model):
 
 class Variety(models.Model):
     name = models.CharField(max_length=50)
-    idealWeight = models.FloatField()
+    minimum_weight = models.FloatField()
     tolerance = models.FloatField()
     active = models.BooleanField()
 
@@ -334,10 +333,10 @@ class Variety(models.Model):
         )
 
 class Box(models.Model):
-    initialWeight = models.FloatField()
-    finalWeight = models.FloatField()
+    initial_weight = models.FloatField()
+    final_weight = models.FloatField()
     timestamp = models.DateTimeField('time weighted')
-    contentVariety = models.ForeignKey(Variety)
+    variety = models.ForeignKey(Variety)
     picker = models.ForeignKey(Picker)
     batch = models.ForeignKey(Batch)
 
@@ -347,6 +346,6 @@ class Box(models.Model):
     def __unicode__(self):
         return 'Box {box_id} contains {variety} picked by {picker}'.format(
             box_id = str(self.id),
-            variety = str(self.contentVariety),
+            variety = str(self.variety),
             picker = str(self.picker)
         )

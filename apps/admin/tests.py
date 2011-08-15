@@ -52,10 +52,10 @@ class TestReportViews(TestCase):
         for i in range(20):
             timestamp = datetime.datetime(2011, 05, i+10)
             for j in range(1000):
-                box = Box(initialWeight = 4.050 + j,
-                          finalWeight = 4.025,
+                box = Box(initial_weight = 4.050 + j,
+                          final_weight = 4.025,
                           timestamp = timestamp,
-                          contentVariety = variety,
+                          variety = variety,
                           picker = self.picker,
                           batch = batch)
                 box.save()
@@ -66,6 +66,6 @@ class TestReportViews(TestCase):
         # test the report view
         for i in range(20000):
             self.c.post('/report/picker/1', {
-                'startDate': '01-05-2011',
-                'endDate':   '11-05-2011',
+                'start_date': '01-05-2011',
+                'end_date':   '11-05-2011',
             })

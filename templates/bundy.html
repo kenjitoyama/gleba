@@ -37,7 +37,7 @@
     </form>
   {%endifequal%}
   {%ifequal bundy_action "signin"%}
-    <h3>Welcome, {{picker.firstName}}!</h3>
+    <h3>Welcome, {{picker.first_name}}!</h3>
     <form name="bundy_confirmation" action="{%url apps.bundy.views.bundy%}{{picker.id}}" method="get">
       <input type="submit" value="Sign in"/>
       <input type="checkbox" name="confirmed" checked="true" hidden="true"/>

@@ -3,7 +3,7 @@
     {% for variety in variety_list%}<variety>
         <id>{{variety.id}}</id>
         <name>{{variety.name}}</name>
-        <idealWeight>{{variety.idealWeight}}</idealWeight>
+        <minimum_weight>{{variety.minimum_weight}}</minimum_weight>
         <tolerance>{{variety.tolerance}}</tolerance>
     </variety>
     {% endfor %}

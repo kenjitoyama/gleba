@@ -6,15 +6,15 @@ Report.submitForm = function(report_type) {
     var selected_value = $('#'+report_type+'menu').val();
     form_url = report_type.substring(0, report_type.length-1)+'/' + selected_value + '/';
     form.attr('action', form_url);
-    form.append($('#startDate'));
-    form.append($('#endDate'));
+    form.append($('#start_date'));
+    form.append($('#end_date'));
     form.submit();
 }
 
 Report.submitAllPickerForm = function() {
     var form = $("#all_picker_report_form")    
-    form.append($("#startDate"));
-    form.append($("#endDate"));
+    form.append($("#start_date"));
+    form.append($("#end_date"));
     form.submit();
 }
 

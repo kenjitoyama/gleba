@@ -46,22 +46,22 @@ def bundy(request, picker_id = None):
     else: # signing in/off
         picker = get_object_or_404(Picker, pk = picker_id)
         flag = Bundy.objects.filter(picker = picker,
-                                    timeOut__isnull = True).count()
+                                    time_out__isnull = True).count()
         bundy_action = 'signoff' if flag else 'signin'
         if bundy_action == 'signin':
             if 'confirmed' in request.GET: # create a Bundy
                 session = Bundy(picker = picker,
-                                timeIn = datetime.datetime.now())
+                                time_in = datetime.datetime.now())
                 session.save()
                 return redirect(bundy)
         else: # signoff
             session = Bundy.objects.get(picker = picker_id,
-                                        timeOut__isnull = True)
+                                        time_out__isnull = True)
             if ('lunch' in request.GET and
                 len(request.GET['lunch']) > 1):
-                hadLunch = (str(request.GET['lunch']) == "True")
-                session.timeOut = datetime.datetime.now()
-                session.hadLunch = hadLunch
+                had_lunch = (str(request.GET['lunch']) == "True")
+                session.time_out = datetime.datetime.now()
+                session.had_lunch = had_lunch
                 session.save()
                 return redirect(bundy)
         # display the confirmation request or lunch prompt

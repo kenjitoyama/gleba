@@ -40,29 +40,29 @@ import json
 ################################################################################
 def add_box(request):
     """
-    Creates a box object. Requires picker, contentVariety, batch, initialWeight,
-    finalWeight and timestamp to be in the request header.
+    Creates a box object. Requires picker, variety, batch, initial_weight,
+    final_weight and timestamp to be in the request header.
     """
     if ('picker'         in request.GET and
-        'contentVariety' in request.GET and
+        'variety'        in request.GET and
         'batch'          in request.GET and
-        'initialWeight'  in request.GET and
-        'finalWeight'    in request.GET and
+        'initial_weight' in request.GET and
+        'final_weight'   in request.GET and
         'timestamp'      in request.GET):
         picker_id          = request.GET['picker']
-        content_variety_id = request.GET['contentVariety']
+        content_variety_id = request.GET['variety']
         batch_id           = request.GET['batch']
-        initial_weight_tmp = request.GET['initialWeight']
-        final_weight_tmp   = request.GET['finalWeight']
+        initial_weight_tmp = request.GET['initial_weight']
+        final_weight_tmp   = request.GET['final_weight']
         timestamp_tmp      = request.GET['timestamp']
 
         picker_obj = get_object_or_404(Picker, pk = picker_id)
         variety = get_object_or_404(Variety, pk = content_variety_id)
         batch_obj = get_object_or_404(Batch, pk = batch_id)
-        box = Box(initialWeight = float(initial_weight_tmp),
-                  finalWeight = float(final_weight_tmp),
+        box = Box(initial_weight = float(initial_weight_tmp),
+                  final_weight = float(final_weight_tmp),
                   timestamp = timestamp_tmp,
-                  contentVariety = variety,
+                  variety = variety,
                   picker = picker_obj,
                   batch = batch_obj,
         )
@@ -109,10 +109,10 @@ def add_boxes(request):
                 batch_obj = get_object_or_404(Batch, pk = batch_id)
                 variety_obj = get_object_or_404(Variety, pk = variety_id)
                 boxes_to_save.append(Box(
-                    initialWeight = float(initial_weight_tmp),
-                    finalWeight = float(final_weight_tmp),
+                    initial_weight = float(initial_weight_tmp),
+                    final_weight = float(final_weight_tmp),
                     timestamp = timestamp_tmp,
-                    contentVariety = variety_obj,
+                    variety = variety_obj,
                     picker = picker_obj,
                     batch = batch_obj,
                 ))
@@ -144,8 +144,8 @@ def get_picker_list(request, result_format):
     elif result_format == 'json':
         data = [{
             'id': picker.id,
-            'first_name': picker.firstName,
-            'last_name': picker.lastName
+            'first_name': picker.first_name,
+            'last_name': picker.last_name
         } for picker in picker_list]
         return HttpResponse(json.dumps(data), mimetype = 'application/json')
     else:
@@ -156,11 +156,11 @@ def get_picker_list(request, result_format):
 def get_batch_list(request, result_format):
     """
     Returns the list of Batches that are not finished yet
-    (i.e. endDate is null).
+    (i.e. end_date is null).
 
     The result is either an XML or JSON file depending on result_format.
     """
-    batch_list = (Batch.objects.filter(flush__endDate__isnull = True)
+    batch_list = (Batch.objects.filter(flush__end_date__isnull = True)
                               .order_by('id'))
     if result_format == 'xml':
         templ = get_template('batch_list.xml')
@@ -169,7 +169,7 @@ def get_batch_list(request, result_format):
     elif result_format == 'json':
         data = [{
             'id': batch.id,
-            'flush_number': batch.flush.flushNo,
+            'flush_number': batch.flush.flush_no,
             'room_number': batch.flush.crop.room.number,
             'date': {
                 'day': batch.date.day,
@@ -198,7 +198,7 @@ def get_variety_list(request, result_format):
         data = [{
             'id': variety.id,
             'name': variety.name,
-            'ideal_weight': variety.idealWeight,
+            'ideal_weight': variety.minimum_weight,
             'tolerance': variety.tolerance
         } for variety in variety_list]
         return HttpResponse(json.dumps(data), mimetype = 'application/json')

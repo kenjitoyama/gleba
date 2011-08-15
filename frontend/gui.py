@@ -315,9 +315,9 @@ class MainWindow:
         The information will map from -> to:
         - self.current_picker        -> box.picker
         - self.current_batch         -> box.batch
-        - self.current_variety       -> box.contentVariety
-        - self.current_weight        -> box.finalWeight
-        - self.current_picker_weight -> box.initialWeight
+        - self.current_variety       -> box.variety
+        - self.current_weight        -> box.final_weight
+        - self.current_picker_weight -> box.initial_weight
         - self.timestamp             -> box.timestamp
         """
         self.start_stop('success')

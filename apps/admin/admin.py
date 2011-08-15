@@ -38,12 +38,12 @@ from apps.admin.models import Bundy
 from django.contrib import admin
 
 class PickerAdmin(admin.ModelAdmin):
-    list_display = ('firstName', 'lastName', 'active', 'discharged')
-    list_filter = ('firstName', 'lastName', 'active', 'discharged')
-    search_fields = ['firstName', 'lastName', 'id']
+    list_display = ('first_name', 'last_name', 'active', 'discharged')
+    list_filter = ('first_name', 'last_name', 'active', 'discharged')
+    search_fields = ['first_name', 'last_name', 'id']
     fieldsets = [
-        ('First Name', {'fields': ['firstName']}),
-        ('Last Name',  {'fields': ['lastName']}),
+        ('First Name', {'fields': ['first_name']}),
+        ('Last Name',  {'fields': ['last_name']}),
         ('Is the picker active?',  {'fields': ['active']}),
         ('Is the picker discharged?',  {'fields': ['discharged']}),
     ]
@@ -57,25 +57,25 @@ class RoomAdmin(admin.ModelAdmin):
     ]
 
 class CropAdmin(admin.ModelAdmin):
-    date_hierarchy = 'startDate'
-    list_display = ('startDate', 'endDate', 'room')
-    list_filter = ('startDate', 'endDate', 'room')
+    date_hierarchy = 'start_date'
+    list_display = ('start_date', 'end_date', 'room')
+    list_filter = ('start_date', 'end_date', 'room')
     search_fields = ['id', 'room__number']
     fieldsets = [
-        ('Start Date',  {'fields': ['startDate']}),
-        ('End Date',  {'fields': ['endDate']}),
+        ('Start Date',  {'fields': ['start_date']}),
+        ('End Date',  {'fields': ['end_date']}),
         ('Room',  {'fields': ['room']}),
     ]
 
 class FlushAdmin(admin.ModelAdmin):
-    date_hierarchy = 'startDate'     
-    list_display = ('startDate', 'endDate', 'flushNo', 'crop')
-    list_filter = ('startDate', 'endDate', 'flushNo', 'crop')
-    search_fields = ['crop__id', 'flushNo']
+    date_hierarchy = 'start_date'     
+    list_display = ('start_date', 'end_date', 'flush_no', 'crop')
+    list_filter = ('start_date', 'end_date', 'flush_no', 'crop')
+    search_fields = ['crop__id', 'flush_no']
     fieldsets = [
-        ('Start Date',  {'fields': ['startDate']}),
-        ('End Date',  {'fields': ['endDate']}),
-        ('Flush Number',  {'fields': ['flushNo']}),
+        ('Start Date',  {'fields': ['start_date']}),
+        ('End Date',  {'fields': ['end_date']}),
+        ('Flush Number',  {'fields': ['flush_no']}),
         ('Crop',  {'fields': ['crop']}),
     ]
 
@@ -83,7 +83,7 @@ class BatchAdmin(admin.ModelAdmin):
     list_display = ('date', 'flush')
     list_filter = ('date', 'flush')
     date_hierarchy = 'date'
-    search_fields = ['id', 'flush__flushNo']
+    search_fields = ['id', 'flush__flush_no']
     fieldsets = [
         ('Date',  {'fields': ['date']}),
         ('Flush Number',  {'fields': ['flush']}),
@@ -96,32 +96,32 @@ class VarietyAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Name',  {'fields': ['name']}),
         ('Is it still being picked?',  {'fields': ['active']}),
-        ('Ideal weight for this variety', {'fields': ['idealWeight']}),
+        ('Ideal weight for this variety', {'fields': ['minimum_weight']}),
         ('Tolerance from the ideal weight in kg', {'fields': ['tolerance']}),
     ]
 
 class BoxAdmin(admin.ModelAdmin):
-    list_display = ('contentVariety', 'batch', 'picker','initialWeight','finalWeight')
-    list_filter = ('contentVariety', 'batch', 'picker')
-    search_fields = ['id', 'contentVariety__variety', 'picker__id', 'picker__firstName', 'picker__lastName']
+    list_display = ('variety', 'batch', 'picker','initial_weight','final_weight')
+    list_filter = ('variety', 'batch', 'picker')
+    search_fields = ['id', 'variety__variety', 'picker__id', 'picker__first_name', 'picker__last_name']
     fieldsets = [
-        ('Initial weight',  {'fields': ['initialWeight']}),
-        ('Final weight',  {'fields': ['finalWeight']}),
-        ('Variety',  {'fields': ['contentVariety']}),
+        ('Initial weight',  {'fields': ['initial_weight']}),
+        ('Final weight',  {'fields': ['final_weight']}),
+        ('Variety',  {'fields': ['variety']}),
         ('Timestamp',  {'fields': ['timestamp']}),
         ('Picker',  {'fields': ['picker']}),
         ('Batch',  {'fields': ['batch']}),
     ]
 
 class BundyAdmin(admin.ModelAdmin):
-    list_display = ('timeIn', 'timeOut', 'picker', 'hadLunch')
-    list_filter = ('timeIn', 'timeOut', 'picker', 'hadLunch')
-    search_fields = ['picker__id', 'picker__firstName', 'picker__lastName']
+    list_display = ('time_in', 'time_out', 'picker', 'had_lunch')
+    list_filter = ('time_in', 'time_out', 'picker', 'had_lunch')
+    search_fields = ['picker__id', 'picker__first_name', 'picker__last_name']
     fieldsets = [
-        ('Time In', {'fields': ['timeIn']}),
-        ('Time Out', {'fields': ['timeOut']}),
+        ('Time In', {'fields': ['time_in']}),
+        ('Time Out', {'fields': ['time_out']}),
         ('Picker',  {'fields': ['picker']}),
-        ('Had Lunch', {'fields': ['hadLunch']}),
+        ('Had Lunch', {'fields': ['had_lunch']}),
     ]
 
 
