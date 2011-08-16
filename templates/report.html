@@ -39,21 +39,22 @@
         datatype: 'local',
         colNames:['Date', 'Total Picked', 'kg/hr'],
         colModel:[
-            {name:'date',index:'date', width:160, align:'left'},
-            {name:'total_picked',index:'total_picked', width:160, align:'right',sorttype:'float'},
-            {name:'kghr',index:'kghr', width:160, align:'right',sorttype:'float'},
+            {name:'date', index:'date', width:160, align:'left'},
+            {name:'total_picked', index:'total_picked', width:160, align:'right', sorttype:'float'},
+            {name:'kghr', index:'kghr', width:160, align:'right', sorttype:'float'},
         ],
         shrinkToFit: true,
     });
     var mydata = {{jqplot_data|safe}};
     var plot_data = new Array();
-    for(i=0; i<mydata.length; i++)
-        plot_data.push({'date': mydata[i][0],
-                        'total_picked': mydata[i][1],
-                        'kghr': mydata[i][2]
+    for(var i=0; i<mydata.length; i++)
+        plot_data.push({
+            'date': mydata[i][0],
+            'total_picked': mydata[i][1],
+            'kghr': mydata[i][2]
         });
-    for(var i=0;i<=plot_data.length;i++)
-        $('#picker_table').jqGrid('addRowData',i+1,plot_data[i]);
+    for(var i=0; i<=plot_data.length; i++)
+        $('#picker_table').jqGrid('addRowData', i+1, plot_data[i]);
   </script>
   <div id="picker_report_graph" class="report_graph"></div>
   {%endifequal%}
@@ -127,20 +128,20 @@
     $('#all_pickers_table').jqGrid({
         caption: 'Overall Picking ({{start_date}} ~ {{end_date}})',
         datatype: 'local',
-        colNames:['ID', 'First Name','Last Name', 'Total Picked', 'kg/hr','Avg Initial Weight'],
+        colNames:['ID', 'First Name', 'Last Name', 'Total Picked', 'kg/hr', 'Avg Initial Weight'],
         colModel:[
-            {name:'picker_id',index:'picker_id', width:30, align:'center'},
-            {name:'first_name',index:'first_name', width:100},
-            {name:'last_name',index:'last_name', width:100},
-            {name:'total_picked',index:'total_picked', width:80, align:'right',sorttype:'float'},
-            {name:'kghr',index:'kghr', width:80, align:'right',sorttype:'float'},
-            {name:'avg',index:'avg', width:110, align:'right',sorttype:'float'},
+            {name:'picker_id', index:'picker_id', width:30, align:'center'},
+            {name:'first_name', index:'first_name', width:100},
+            {name:'last_name', index:'last_name', width:100},
+            {name:'total_picked', index:'total_picked', width:80, align:'right', sorttype:'float'},
+            {name:'kghr', index:'kghr', width:80, align:'right', sorttype:'float'},
+            {name:'avg', index:'avg', width:110, align:'right', sorttype:'float'},
         ],
         shrinkToFit: false,
     });
     var mydata = {{data|safe}};
-    for(var i=0;i<=mydata.length;i++)
-        $('#all_pickers_table').jqGrid('addRowData',i+1,mydata[i]);
+    for(var i=0; i<=mydata.length; i++)
+        $('#all_pickers_table').jqGrid('addRowData', i+1, mydata[i]);
   </script>
   {%endifequal%}
 
@@ -214,5 +215,4 @@
     </form>
   </div>
   {%endifequal%}
-  {{debug}}
 {%endblock%}
