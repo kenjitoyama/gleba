@@ -91,6 +91,9 @@ class Picker(models.Model):
         date will be returned. If both date and end_date are given, the total
         of initial weights for all boxes picked between date and end_date
         will be returned.
+
+        Note: date is relative to the batch date, and not to the date that
+        the box was weighed.
         """
         if date is None:
             total = Box.objects.filter(
@@ -126,7 +129,7 @@ class Picker(models.Model):
         else:
             bundies = Bundy.objects.filter(
                 picker = self,
-                time_in__gte = start_date,
+                time_in__gte = date,
                 time_in__lte = end_date + datetime.timedelta(days = 1),
                 time_out__isnull = False
             )
