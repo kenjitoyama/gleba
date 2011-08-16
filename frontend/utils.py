@@ -1,12 +1,9 @@
-#!/usr/bin/python
-
 """
 This is a library of classes for use within the Gleba Software system
 
 Copyright (C) Simon Dawson, Kenji Toyama, Meryl Baquiran, Chris Ellis
 2010-2011
 """
-
 import serial
 import threading
 import urllib
@@ -33,7 +30,7 @@ class ThreadSerial(threading.Thread):
             r'^(ST|US),(GS|[A-Z]+), (\d+\.\d+)KG,$')
         self.scale_string = 'ST,GS, 0.0KG,'
         self.ser = serial.Serial()
-        self.ser.port = config.ser_port
+        self.ser.port = config.SERIAL_PORT
         self.ser.open()
 
     def run(self):
@@ -66,9 +63,6 @@ class DBAPI:
     """
     This class is a helper in accessing DB related functions of Gleba.
     """
-    def __init__(self):
-        self.http_address = config.django_http_path
-
     def add_box(self, picker, batch, variety,
                       initial_weight, final_weight, timestamp):
         """
@@ -86,7 +80,7 @@ class DBAPI:
             'picker':         picker,
             'batch':          batch
         })
-        full_address = self.http_address + 'add_box?{}'
+        full_address = config.DJANGO_HTTP_URL + 'add_box?{}'
         request = urllib.urlopen(full_address.format(params))
         return ((request.read() == 'success'), request.read())
 
@@ -103,7 +97,7 @@ class DBAPI:
           'timestamp': timestamp (format is "%Y-%m-%d %H:%M:%S")
         },]
         """
-        full_address = self.http_address + 'add_boxes/'
+        full_address = config.DJANGO_HTTP_URL + 'add_boxes/'
         data = urllib.urlencode({'boxes': dumps(box_list)})
         request = urllib.urlopen(full_address, data)
         response = request.read()
@@ -114,7 +108,7 @@ class DBAPI:
         Parse an xml list of all the current pickers into a python list.
         """
         result = []
-        full_address = self.http_address + 'picker_list.xml'
+        full_address = config.DJANGO_HTTP_URL + 'picker_list.xml'
         xmldoc = minidom.parse(urllib.urlopen(full_address))
         for picker in xmldoc.getElementsByTagName("picker"):
             id_elem = picker.getElementsByTagName('id')[0]
@@ -130,7 +124,7 @@ class DBAPI:
         Parse an xml list of all the current batches into a python list.
         """
         result = []
-        full_address = self.http_address + 'batch_list.xml'
+        full_address = config.DJANGO_HTTP_URL + 'batch_list.xml'
         xmldoc = minidom.parse(urllib.urlopen(full_address))
         for batch in xmldoc.getElementsByTagName("batch"):
             batch_id = batch.getElementsByTagName('id')[0].firstChild.data
@@ -154,7 +148,7 @@ class DBAPI:
               for the number values
         """
         result = []
-        full_address = self.http_address + 'variety_list.xml'
+        full_address = config.DJANGO_HTTP_URL + 'variety_list.xml'
         xmldoc = minidom.parse(urllib.urlopen(full_address))
         for variety in xmldoc.getElementsByTagName('variety'):
             id_elem = variety.getElementsByTagName("id")[0]
@@ -171,21 +165,21 @@ class DBAPI:
         """
         Simply forwards the json object to the client.
         """
-        full_address = self.http_address + 'picker_list.json'
+        full_address = config.DJANGO_HTTP_URL + 'picker_list.json'
         return urllib.urlopen(full_address).read()
 
     def get_active_batches_json(self):
         """
         Simply forwards the json object to the client.
         """
-        full_address = self.http_address + 'batch_list.json'
+        full_address = config.DJANGO_HTTP_URL + 'batch_list.json'
         return urllib.urlopen(full_address).read()
 
     def get_active_varieties_json(self):
         """
         Simply forwards the json object to the client.
         """
-        full_address = self.http_address + 'variety_list.json'
+        full_address = config.DJANGO_HTTP_URL + 'variety_list.json'
         return urllib.urlopen(full_address).read()
 
     def get_active_pickers_list(self):

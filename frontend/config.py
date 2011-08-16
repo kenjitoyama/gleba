@@ -1,21 +1,18 @@
-#!/usr/bin/python
 """
 This file contains all the configuration for the Gleba frontend.
 
 It includes server settings and testing settings.
-Requirements for testing:
-On GNU/Linux:
-- socat (www.dest-unreach.org/socat/)
 """
 from os import getcwd
 
-# - Serial Configuration
-ser_port = '/dev/pts/5'
+# Serial Configuration
+SERIAL_PORT = '/dev/pts/5'
 
-# - Django Configuration
-#    Full http path to the root of the django web app 
-django_http_path = 'http://localhost:8000/'
+# Django Configuration
+#    Full http url to the root of the django backend
+DJANGO_HTTP_URL = 'http://localhost:8000/'
 
+# Amount of measurements for a sliding window to achieve weight stability
 WEIGHT_WINDOW_SIZE = 100
 
 # BOX_WEIGHT represents the actual weight of a box in Kg without contents.
@@ -52,7 +49,8 @@ PICKER_BUTTON_FORMAT = '{picker_id}. {first_name} {last_name}'
 BATCH_COMBO_FORMAT = 'Batch No. {batch_id} ({year}-{month}-{day}) Room {room_number}'
 VARIETY_BUTTON_FORMAT = '{variety_name}\n[{min_weight} ~ {max_weight}]'
 
-# sound files used for feedback
+# sound files used for feedback.
+# Default SOUND_DIRECTORY is the current working directory of config.py
 SOUND_DIRECTORY = 'file://{0}/'.format(getcwd())
 BUTTON_SOUND = SOUND_DIRECTORY + 'button.ogg'
 GREEN_SOUND = SOUND_DIRECTORY + 'green.ogg'
