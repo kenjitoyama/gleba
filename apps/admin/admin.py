@@ -1,6 +1,7 @@
 """
-Copyright (C) 2010-2011 Simon Dawson, Meryl Baquiran, Chris Ellis
+Copyright (C) 2010 Simon Dawson, Meryl Baquiran, Chris Ellis
 and Daniel Kenji Toyama 
+Copyright (C) 2011 Simon Dawson, Daniel Kenji Toyama
 
 This file is part of Gleba 
 
@@ -16,10 +17,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with Gleba.  If not, see <http://www.gnu.org/licenses/>.
-
-Author(s):
-    Simon Dawson
-    Daniel Kenji Toyama
 
 Path: 
     apps.admin.admin

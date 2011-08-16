@@ -1,8 +1,28 @@
 """
-This is a library of classes for use within the Gleba Software system
+Copyright (C) 2010 Simon Dawson, Meryl Baquiran, Chris Ellis
+and Daniel Kenji Toyama 
+Copyright (C) 2011 Simon Dawson, Daniel Kenji Toyama
 
-Copyright (C) Simon Dawson, Kenji Toyama, Meryl Baquiran, Chris Ellis
-2010-2011
+This file is part of Gleba 
+
+Gleba is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Gleba is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Gleba.  If not, see <http://www.gnu.org/licenses/>.
+
+Path: 
+    frontend.utils
+
+Purpose:
+    This is a library of classes for use within the Gleba Software system
 """
 import serial
 import threading
