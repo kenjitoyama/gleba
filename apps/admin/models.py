@@ -159,23 +159,25 @@ class Room(models.Model):
     def __unicode__(self):
         return 'Room {}'.format(str(self.number))
 
-    def get_total_picked_on(self, date): 
+    def get_total_picked(self, date, end_date = None):
         """
         Return total picked for this room on a given date.
-        """
-        total = Box.objects.filter(batch__flush__crop__room = self,
-                                   batch__date = date).aggregate(
-                                   Sum('initial_weight'))['initial_weight__sum']
-        return total if (total is not None) else 0.0
 
-    def get_total_picked_between(self, start_date, end_date): 
+        If end_date is not given, then the total picked for this room
+        will be returned, otherwise the total picked between date and
+        end_date will be returned.
         """
-        Return total picked for a picker, between two given dates given date
-        """
-        total = Box.objects.filter(batch__flush__crop__room = self,
-                                   batch__date__gte = start_date, 
-                                   batch__date__lte = end_date).aggregate(
-                                   Sum('initial_weight'))['initial_weight__sum']
+        if end_date is None:
+            total = Box.objects.filter(
+                batch__flush__crop__room = self,
+                batch__date = date
+            ).aggregate(Sum('initial_weight'))['initial_weight__sum']
+        else:
+            total = Box.objects.filter(
+                batch__flush__crop__room = self,
+                batch__date__gte = date,
+                batch__date__lte = end_date
+            ).aggregate(Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
 class Crop(models.Model):
@@ -211,23 +213,25 @@ class Crop(models.Model):
                                       month = str(self.end_date.month),
                                       year =  str(self.end_date.year))
 
-    def get_total_picked_on(self, date): 
+    def get_total_picked(self, date, end_date = None):
         """
         Return total picked for this cop on a given date.
-        """
-        total = Box.objects.filter(batch__flush__crop = self,
-                                   batch__date = date).aggregate(
-                                   Sum('initial_weight'))['initial_weight__sum']
-        return total if (total is not None) else 0.0
 
-    def get_total_picked_between(self, start_date, end_date): 
+        If end_date is not given, then the total picked for this crop
+        will be returned, otherwise the total picked between date and
+        end_date will be returned.
         """
-        Return total picked for a picker, between two given dates given date.
-        """
-        total = Box.objects.filter(batch__flush__crop = self,
-                                   batch__date__gte = start_date, 
-                                   batch__date__lte = end_date).aggregate(
-                                   Sum('initial_weight'))['initial_weight__sum']
+        if end_date is None:
+            total = Box.objects.filter(
+                batch__flush__crop = self,
+                batch__date = date
+            ).aggregate(Sum('initial_weight'))['initial_weight__sum']
+        else:
+            total = Box.objects.filter(
+                batch__flush__crop = self,
+                batch__date__gte = date,
+                batch__date__lte = end_date
+            ).aggregate(Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
 class Flush(models.Model):
@@ -270,23 +274,25 @@ class Flush(models.Model):
                                       month = str(self.end_date.month),
                                       year =  str(self.end_date.year))
 
-    def get_total_picked_on(self, date): 
+    def get_total_picked(self, date, end_date = None):
         """
         Return total picked for this flush on a given date.
-        """
-        total = Box.objects.filter(batch__flush = self,
-                                   batch__date = date).aggregate(
-                                   Sum('initial_weight'))['initial_weight__sum']
-        return total if (total is not None) else 0.0
 
-    def get_total_picked_between(self, start_date, end_date): 
+        If end_date is not given, then the total picked for this flush
+        will be returned, otherwise the total picked between date and
+        end_date will be returned.
         """
-        Return total picked for this flush between two given dates.
-        """
-        total = Box.objects.filter(batch__flush = self,
-                                   batch__date__gte = start_date, 
-                                   batch__date__lte = end_date).aggregate(
-                                   Sum('initial_weight'))['initial_weight__sum']
+        if end_date is None:
+            total = Box.objects.filter(
+                batch__flush = self,
+                batch__date = date
+            ).aggregate(Sum('initial_weight'))['initial_weight__sum']
+        else:
+            total = Box.objects.filter(
+                batch__flush = self,
+                batch__date__gte = date,
+                batch__date__lte = end_date
+            ).aggregate(Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
 class Batch(models.Model):

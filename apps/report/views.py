@@ -145,7 +145,7 @@ def generate_report_room(request, room_id):
     daily_totals = []
     for date in date_range(start_date, end_date):
         tmp = [date.strftime("%Y-%m-%d"),]
-        tmp.append(room_obj.get_total_picked_on(date))
+        tmp.append(room_obj.get_total_picked(date))
         daily_totals.append(tmp)
     return render_to_response('report.html', {
         'room' : room_obj,
@@ -168,7 +168,7 @@ def generate_report_flush(request, flush_id):
     daily_totals = []
     for date in date_range(start_date, end_date):
         tmp = [date.strftime("%Y-%m-%d"),]
-        tmp.append(flush_obj.get_total_picked_on(date))
+        tmp.append(flush_obj.get_total_picked(date))
         daily_totals.append(tmp)
     return render_to_response('report.html', {
         'flush' : flush_obj,
@@ -191,7 +191,7 @@ def generate_report_crop(request, crop_id):
     daily_totals = []
     for date in date_range(start_date, end_date):
         tmp = [date.strftime("%Y-%m-%d"),]
-        tmp.append(crop_obj.get_total_picked_on(date))
+        tmp.append(crop_obj.get_total_picked(date))
         daily_totals.append(tmp)
     return render_to_response('report.html', {
         'crop' : crop_obj,
