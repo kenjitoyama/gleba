@@ -27,8 +27,10 @@ Purpose:
 """
 from django.shortcuts import render_to_response, get_object_or_404
 from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
 from apps.admin.models import *
 
+@login_required
 def bundy(request, picker_id = None):
     """
        Signs picker with id picker_id on or off if no picker_id the form
