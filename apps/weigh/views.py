@@ -26,6 +26,7 @@ Purpose:
     retrieval.
 """
 from django.shortcuts import render_to_response, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.template import Context
 from django.template.loader import get_template
 from django.http import HttpResponse
@@ -69,6 +70,7 @@ def add_box(request):
         error_list = ['Not enough parameters']
         return render_to_response('error.html', {'error_list' : error_list})
 
+@login_required
 def add_boxes(request):
     """
     Processes a batch of boxes in one go.

@@ -34,6 +34,10 @@ SERIAL_PORT = '/dev/pts/5'
 #    Full http url to the root of the django backend
 DJANGO_HTTP_URL = 'http://localhost:8000/'
 
+# Backend username/password
+BACKEND_USERNAME = 'kenji'
+BACKEND_PASSWORD = 'k'
+
 # Amount of measurements for a sliding window to achieve weight stability
 WEIGHT_WINDOW_SIZE = 100
 

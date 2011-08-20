@@ -239,6 +239,7 @@ class MainWindow:
     def exit_callback(self, widget, data = None):
         self.keep_running = False
         self.serial_thread.kill()
+        del self.data_model # explicitly destroy data_model
         Gtk.main_quit()
 
     def exit_edit_window(self, widget):

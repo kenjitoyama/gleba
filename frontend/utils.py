@@ -26,7 +26,7 @@ Purpose:
 """
 import serial
 import threading
-import urllib
+import urllib, urllib2, cookielib
 import re
 from xml.dom import minidom
 import config
@@ -83,6 +83,41 @@ class DBAPI:
     """
     This class is a helper in accessing DB related functions of Gleba.
     """
+    def __init__(self):
+        """
+        Logs the user in the backend.
+
+        config.BACKEND_USERNAME and config.BACKEND_PASSWORD will be used
+        to login to the backend. Make sure that this user and password
+        combination is correct, otherwise the GUI will fail to load.
+        The normal login redirects the user to the profile page, but instead
+        we ask the backend to redirect the user to the root URL, and we simply
+        ignore it.
+        """
+        cjar = cookielib.CookieJar()
+        login_url = config.DJANGO_HTTP_URL + 'accounts/login/?next=/'
+        self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cjar))
+        self.opener.open(login_url) # fetch csrftoken and sessionid
+        csrf_token = ''
+        for cookie in cjar:
+            if cookie.name == 'csrftoken':
+                csrf_token = cookie.value
+        if csrf_token == '':
+            raise Exception('No CSRF token found. Check backend URL.')
+        login_data = urllib.urlencode({
+            'username':            config.BACKEND_USERNAME,
+            'password':            config.BACKEND_PASSWORD,
+            'csrfmiddlewaretoken': csrf_token
+        })
+        request = self.opener.open(login_url, login_data)
+        assert(request.getcode() == 200) # check if successful
+
+    def __del__(self):
+        """
+        Logs the user out from the backend.
+        """
+        self.opener.open(config.DJANGO_HTTP_URL + 'accounts/logout/')
+
     def add_box(self, picker, batch, variety,
                       initial_weight, final_weight, timestamp):
         """
@@ -119,7 +154,7 @@ class DBAPI:
         """
         full_address = config.DJANGO_HTTP_URL + 'add_boxes/'
         data = urllib.urlencode({'boxes': dumps(box_list)})
-        request = urllib.urlopen(full_address, data)
+        request = self.opener.open(full_address, data)
         response = request.read()
         return True if (response == 'success\n') else response
 
