@@ -126,6 +126,9 @@ class DBAPI:
 
         Returns (p,m) p is true iff the operation was successful
         else m is the error message returned from the server
+
+        This method is deprecated. We cannot let users simply POST requests
+        and add boxes to the system. Use add boxes instead.
         """
         params = urllib.urlencode({
             'initial_weight': initial_weight,
@@ -164,7 +167,7 @@ class DBAPI:
         """
         result = []
         full_address = config.DJANGO_HTTP_URL + 'picker_list.xml'
-        xmldoc = minidom.parse(urllib.urlopen(full_address))
+        xmldoc = minidom.parse(self.opener.open(full_address))
         for picker in xmldoc.getElementsByTagName("picker"):
             id_elem = picker.getElementsByTagName('id')[0]
             fname_elem = picker.getElementsByTagName('first_name')[0]
@@ -180,7 +183,7 @@ class DBAPI:
         """
         result = []
         full_address = config.DJANGO_HTTP_URL + 'batch_list.xml'
-        xmldoc = minidom.parse(urllib.urlopen(full_address))
+        xmldoc = minidom.parse(self.opener.open(full_address))
         for batch in xmldoc.getElementsByTagName("batch"):
             batch_id = batch.getElementsByTagName('id')[0].firstChild.data
             date_elem = batch.getElementsByTagName('date')[0]
@@ -204,7 +207,7 @@ class DBAPI:
         """
         result = []
         full_address = config.DJANGO_HTTP_URL + 'variety_list.xml'
-        xmldoc = minidom.parse(urllib.urlopen(full_address))
+        xmldoc = minidom.parse(self.opener.open(full_address))
         for variety in xmldoc.getElementsByTagName('variety'):
             id_elem = variety.getElementsByTagName("id")[0]
             name_elem = variety.getElementsByTagName("name")[0]
@@ -221,21 +224,21 @@ class DBAPI:
         Simply forwards the json object to the client.
         """
         full_address = config.DJANGO_HTTP_URL + 'picker_list.json'
-        return urllib.urlopen(full_address).read()
+        return self.opener.open(full_address).read()
 
     def get_active_batches_json(self):
         """
         Simply forwards the json object to the client.
         """
         full_address = config.DJANGO_HTTP_URL + 'batch_list.json'
-        return urllib.urlopen(full_address).read()
+        return self.opener.open(full_address).read()
 
     def get_active_varieties_json(self):
         """
         Simply forwards the json object to the client.
         """
         full_address = config.DJANGO_HTTP_URL + 'variety_list.json'
-        return urllib.urlopen(full_address).read()
+        return self.opener.open(full_address).read()
 
     def get_active_pickers_list(self):
         """

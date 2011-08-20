@@ -128,6 +128,7 @@ def add_boxes(request):
 ################################################################################
 # Retrieve data from the database
 ################################################################################
+@login_required
 def get_picker_list(request, result_format):
     """
     Returns the list of Pickers that are active and not discharged.
@@ -152,6 +153,7 @@ def get_picker_list(request, result_format):
             'error_list' : ['URL Pattern Matched failed to parse (xml|json)',]
         })
 
+@login_required
 def get_batch_list(request, result_format):
     """
     Returns the list of Batches that are not finished yet
@@ -182,6 +184,7 @@ def get_batch_list(request, result_format):
             'error_list' : ['URL Pattern Matched failed to parse (xml|json)',]
         })
 
+@login_required
 def get_variety_list(request, result_format):
     """
     Returns the list of Varieties that are still being used.
