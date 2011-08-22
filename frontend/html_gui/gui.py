@@ -53,43 +53,36 @@ class GUIHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
             self.wfile.write(str(self.serial_thread.get_weight()))
-            return
         elif(self.path == '/active_pickers'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(dumps(self.db_connection.get_active_pickers()))
-            return
         elif(self.path == '/active_batches'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(dumps(self.db_connection.get_active_batches()))
-            return
         elif(self.path == '/active_varieties'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(dumps(self.db_connection.get_active_varieties()))
-            return
         elif(self.path == '/active_pickers.json'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(self.db_connection.get_active_pickers_json())
-            return
         elif(self.path == '/active_batches.json'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(self.db_connection.get_active_batches_json())
-            return
         elif(self.path == '/active_varieties.json'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(self.db_connection.get_active_varieties_json())
-            return
         elif(self.path == '/box_weight'):
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
@@ -99,26 +92,34 @@ class GUIHandler(BaseHTTPRequestHandler):
             req_file = open(curdir + sep + self.path)
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(req_file.read())
+            req_file.close()
         elif(self.path == '/gui.css'):
             req_file = open(curdir + sep + self.path)
             self.send_response(200)
             self.send_header('Content-type', 'text/css')
+            self.end_headers()
+            self.wfile.write(req_file.read())
+            req_file.close()
         elif(self.path == '/gui.js'):
             req_file = open(curdir + sep + self.path)
             self.send_response(200)
             self.send_header('Content-type', 'text/javascript')
+            self.end_headers()
+            self.wfile.write(req_file.read())
+            req_file.close()
         elif(self.path == '/button.ogg' or
              self.path == '/green.ogg' or
              self.path == '/success.ogg'):
             req_file = open('../' + curdir + sep + self.path)
             self.send_response(200)
             self.send_header('Content-type', 'application/ogg')
+            self.end_headers()
+            self.wfile.write(req_file.read())
+            req_file.close()
         else:
             self.send_response(400)
-            return
-        self.end_headers()
-        self.wfile.write(req_file.read())
-        req_file.close()
 
     def do_POST(self):
         if(self.path == '/add_boxes'):
