@@ -118,30 +118,6 @@ class DBAPI:
         """
         self.opener.open(config.DJANGO_HTTP_URL + 'accounts/logout/')
 
-    def add_box(self, picker, batch, variety,
-                      initial_weight, final_weight, timestamp):
-        """
-        Performs a url request with for the django add box using all the
-        info in parameters
-
-        Returns (p,m) p is true iff the operation was successful
-        else m is the error message returned from the server
-
-        This method is deprecated. We cannot let users simply POST requests
-        and add boxes to the system. Use add boxes instead.
-        """
-        params = urllib.urlencode({
-            'initial_weight': initial_weight,
-            'final_weight':   final_weight,
-            'timestamp':      timestamp,
-            'variety':        variety,
-            'picker':         picker,
-            'batch':          batch
-        })
-        full_address = config.DJANGO_HTTP_URL + 'add_box?{}'
-        request = urllib.urlopen(full_address.format(params))
-        return ((request.read() == 'success'), request.read())
-
     def add_boxes(self, box_list):
         """
         Performs a single request with box_list as parameters.

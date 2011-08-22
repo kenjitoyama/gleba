@@ -36,40 +36,6 @@ import json
 ################################################################################
 # Add data to the database
 ################################################################################
-def add_box(request):
-    """
-    Creates a box object. Requires picker, variety, batch, initial_weight,
-    final_weight and timestamp to be in the request header.
-    """
-    if ('picker'         in request.GET and
-        'variety'        in request.GET and
-        'batch'          in request.GET and
-        'initial_weight' in request.GET and
-        'final_weight'   in request.GET and
-        'timestamp'      in request.GET):
-        picker_id          = request.GET['picker']
-        variety_id         = request.GET['variety']
-        batch_id           = request.GET['batch']
-        initial_weight_tmp = request.GET['initial_weight']
-        final_weight_tmp   = request.GET['final_weight']
-        timestamp_tmp      = request.GET['timestamp']
-
-        picker_obj = get_object_or_404(Picker, pk = picker_id)
-        variety = get_object_or_404(Variety, pk = variety_id)
-        batch_obj = get_object_or_404(Batch, pk = batch_id)
-        box = Box(initial_weight = float(initial_weight_tmp),
-                  final_weight = float(final_weight_tmp),
-                  timestamp = timestamp_tmp,
-                  variety = variety,
-                  picker = picker_obj,
-                  batch = batch_obj,
-        )
-        box.save()
-        return render_to_response('success.html')
-    else:
-        error_list = ['Not enough parameters']
-        return render_to_response('error.html', {'error_list' : error_list})
-
 @login_required
 def add_boxes(request):
     """
