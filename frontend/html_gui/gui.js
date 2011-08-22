@@ -385,13 +385,8 @@ WebGUI.commit_callback = function() {
     var hist_table = document.getElementById('history_table');
     if(hist_table.rows.length < 2) /* remember rows also includes th */
         return WebGUI.show_error('Nothing to commit');
+    var post_data = [];
     while(hist_table.rows.length > 1) { /* always process the first row */
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-            if(xhr.readyState == 4 && xhr.status == 200 &&
-               xhr.responseText != 'true')
-                WebGUI.show_error(xhr.responseText);
-        };
         /* get data from each row */
         if(hist_table.rows[1].childNodes[0].dataset) {
             var picker_id = hist_table.rows[1].childNodes[0].getAttribute('data-id');
@@ -404,19 +399,27 @@ WebGUI.commit_callback = function() {
         var final_weight = hist_table.rows[1].childNodes[2].firstChild.nodeValue;
         var batch_id = hist_table.rows[1].childNodes[4].firstChild.nodeValue;
         var timestamp = hist_table.rows[1].childNodes[5].firstChild.nodeValue;
-        /* compile data into POST parameters */
-        var params = 'picker_id=' + picker_id +
-                     '&initial_weight=' + initial_weight +
-                     '&final_weight=' + final_weight +
-                     '&variety_id=' + variety_id +
-                     '&batch_id=' + batch_id +
-                     '&timestamp=' + timestamp;
-        xhr.open('POST', 'add_box', true);
-        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        xhr.send(params);
+        // append box to post_data
+        post_data.push({
+            'picker':         picker_id,
+            'batch':          batch_id,
+            'variety':        variety_id,
+            'initial_weight': initial_weight,
+            'final_weight':   final_weight,
+            'timestamp':      timestamp
+        });
         /* remove this row */
         hist_table.deleteRow(1);
     }
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if(xhr.readyState == 4 && xhr.status == 200 &&
+           xhr.responseText != 'true')
+            WebGUI.show_error(xhr.responseText);
+    };
+    xhr.open('POST', 'add_boxes', true);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.send(JSON.stringify(post_data));
 }
 
 WebGUI.get_active_pickers = function() {
