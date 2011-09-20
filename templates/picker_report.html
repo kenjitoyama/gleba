@@ -19,6 +19,19 @@ function get_totals() {
     xhr.send(null);
 }
 
+function get_hours() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            var data = JSON.parse(xhr.responseText);
+            for(var i in data)
+                add_bundy_to_table(data[i]);
+        }
+    };
+    xhr.open('GET', 'daily_hours.json', true);
+    xhr.send(null);
+}
+
 function binary_search_table(table, box, start_idx, end_idx) {
     if(start_idx >= end_idx)
         return {"false": start_idx};
@@ -63,6 +76,48 @@ function add_box_to_table(box) {
     total_cell.firstChild.nodeValue = total;
     return true;
 }
+
+function binary_search_hours_table(table, bundy, start_idx, end_idx) {
+    if(start_idx >= end_idx)
+        return {"false": start_idx};
+    var mid = Math.floor((start_idx + end_idx)/2);
+    var time_in = table.rows[mid].cells[0].innerHTML;
+    if(time_in == bundy.time_in)
+        return {"true": mid};
+    if(time_in > bundy.time_in)
+        return binary_search_hours_table(table, bundy, start_idx, mid);
+    else
+        return binary_search_hours_table(table, bundy, mid+1, end_idx);
+}
+
+function hours_table_contains(table, bundy) {
+    if(table.rows.length <= 0)
+        return {"false": 0};
+    return binary_search_hours_table(table, bundy, 0, table.rows.length);
+}
+
+function add_bundy_to_table(bundy) {
+    var tbl = document.getElementById('bundy_table').tBodies[0];
+    var result = hours_table_contains(tbl, bundy);
+    if(result.true >= 0)
+        return false;
+    var new_row = tbl.insertRow(result["false"]);
+    var hadlunch_cell = new_row.insertCell(0);
+    hadlunch_cell.appendChild(document.createTextNode(bundy.had_lunch));
+    var timeout_cell = new_row.insertCell(0);
+    timeout_cell.appendChild(document.createTextNode(bundy.time_out));
+    var timein_cell = new_row.insertCell(0);
+    timein_cell.appendChild(document.createTextNode(bundy.time_in));
+    // update total hours worked
+    var time_out = new Date(bundy.time_out);
+    var time_in = new Date(bundy.time_in);
+    var hours_worked_ms = time_out - time_in; // in milliseconds
+    var total_cell = document.getElementById('total_hours_worked');
+    var total = parseFloat(total_cell.firstChild.nodeValue);
+    total += parseFloat(hours_worked_ms / 3600000);
+    total_cell.firstChild.nodeValue = total;
+    return true;
+}
 </script>
 <input id="get_totals_button" type="button" value="get_totals" onclick="get_totals()"/>
 <table id="boxes_table">
@@ -85,4 +140,21 @@ function add_box_to_table(box) {
 <div id="stats">
   <p><span>Average:</span><span id="average"</span></p>
 </div>
+<input id="get_hours_button" type="button" value="get_hours" onclick="get_hours()"/>
+<table id="bundy_table">
+  <thead>
+    <tr>
+      <th>Time In</th>
+      <th>Time Out</th>
+      <th>Had Lunch</th>
+    </tr>
+  </thead>
+  <tfoot>
+    <tr>
+      <td>Total hours worked</td>
+      <td id="total_hours_worked">0.0</td>
+    </tr>
+  </tfoot>
+  <tbody></tbody>
+</table>
 {%endblock%}

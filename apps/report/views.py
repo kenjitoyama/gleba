@@ -239,6 +239,20 @@ def daily_totals(request, picker_id):
     return HttpResponse(json.dumps(data), mimetype = 'application/json')
 
 @login_required
+def daily_hours(request, picker_id):
+    picker = Picker.objects.get(id = picker_id)
+    bundies = (picker.get_daily_hours('2011-02-03', '2011-09-19')
+               .order_by('time_in'))
+    data = []
+    for bundy in bundies:
+        data.append({
+            'time_in':   bundy.time_in.isoformat(),
+            'time_out':  bundy.time_out.isoformat(),
+            'had_lunch': bundy.had_lunch
+        })
+    return HttpResponse(json.dumps(data), mimetype = 'application/json')
+
+@login_required
 def picker_report_page(request, picker_id):
     picker = Picker.objects.get(id = picker_id)
     return render_to_response('picker_report.html')

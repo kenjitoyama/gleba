@@ -121,6 +121,17 @@ class Picker(models.Model):
             batch__date__lte = end_date
         )
 
+    def get_daily_hours(self, start_date, end_date):
+        """
+        Returns a list of all bundies between start_date and end_date.
+        """
+        return Bundy.objects.filter(
+            picker = self,
+            time_in__gte = start_date,
+            time_in__lte = end_date,
+            time_out__isnull = False
+        )
+
     def get_time_worked(self, date, end_date = None):
         """
         Return total time worked that this picker has worked.
