@@ -26,6 +26,7 @@ Purpose:
 """
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
+from django.http import HttpResponse
 from apps.admin.models import *
 from apps.utilities import date_range
 import json
@@ -218,3 +219,26 @@ def generate_report(request):
         'picker_list': picker_list,
         'room_list':   room_list,
     })
+
+############
+# AJAX calls
+############
+
+@login_required
+def daily_totals(request, picker_id):
+    picker = Picker.objects.get(id = picker_id)
+    boxes = (picker.get_daily_totals('2011-02-03', '2011-09-19')
+             .order_by('timestamp'))
+    data = []
+    for box in boxes:
+        data.append({
+            'initial_weight': box.initial_weight,
+            'final_weight': box.initial_weight,
+            'timestamp': box.timestamp.isoformat()
+        })
+    return HttpResponse(json.dumps(data), mimetype = 'application/json')
+
+@login_required
+def picker_report_page(request, picker_id):
+    picker = Picker.objects.get(id = picker_id)
+    return render_to_response('picker_report.html')

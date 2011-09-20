@@ -1,0 +1,88 @@
+{%extends "gleba_base.html"%}
+
+{%block extrahead%}
+<title>Gleba Picker Report</title>
+{%endblock%}
+
+{%block content%}
+<script>
+function get_totals() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            var data = JSON.parse(xhr.responseText);
+            for(var i in data)
+                add_box_to_table(data[i]);
+        }
+    };
+    xhr.open('GET', 'daily_totals.json', true);
+    xhr.send(null);
+}
+
+function binary_search_table(table, box, start_idx, end_idx) {
+    if(start_idx >= end_idx)
+        return {"false": start_idx};
+    var mid = Math.floor((start_idx + end_idx)/2);
+    var timestamp = table.rows[mid].cells[0].innerHTML;
+    if(timestamp == box.timestamp)
+        return {"true": mid};
+    if(timestamp > box.timestamp)
+        return binary_search_table(table, box, start_idx, mid);
+    else
+        return binary_search_table(table, box, mid+1, end_idx);
+}
+
+function table_contains(table, box) {
+    if(table.rows.length <= 0)
+        return {"false": 0};
+    return binary_search_table(table, box, 0, table.rows.length);
+}
+
+function add_box_to_table(box) {
+    var tbl = document.getElementById('boxes_table').tBodies[0];
+    var result = table_contains(tbl, box);
+    if(result.true >= 0)
+        return false;
+    var new_row = tbl.insertRow(result["false"]);
+    var fw_cell = new_row.insertCell(0);
+    fw_cell.appendChild(document.createTextNode(box.final_weight));
+    var iw_cell = new_row.insertCell(0);
+    iw_cell.appendChild(document.createTextNode(box.initial_weight));
+    var timestamp_cell = new_row.insertCell(0);
+    timestamp_cell.appendChild(document.createTextNode(box.timestamp));
+    // update totals and stats
+    var total_cell = document.getElementById('total_initial_weight');
+    var total = parseFloat(total_cell.firstChild.nodeValue);
+    total += parseFloat(box.initial_weight);
+    total_cell.firstChild.nodeValue = total;
+    total_cell = document.getElementById('total_final_weight');
+    var avg = document.getElementById('average');
+    avg.innerHTML = total / tbl.rows.length;
+    total = parseFloat(total_cell.firstChild.nodeValue);
+    total += parseFloat(box.final_weight);
+    total_cell.firstChild.nodeValue = total;
+    return true;
+}
+</script>
+<input id="get_totals_button" type="button" value="get_totals" onclick="get_totals()"/>
+<table id="boxes_table">
+  <thead>
+    <tr>
+      <th>Timestamp</th>
+      <th>Initial Weight</th>
+      <th>Final Weight</th>
+    </tr>
+  </thead>
+  <tfoot>
+    <tr>
+      <td>Totals</td>
+      <td id="total_initial_weight">0.0</td>
+      <td id="total_final_weight">0.0</td>
+    </tr>
+  </tfoot>
+  <tbody></tbody>
+</table>
+<div id="stats">
+  <p><span>Average:</span><span id="average"</span></p>
+</div>
+{%endblock%}

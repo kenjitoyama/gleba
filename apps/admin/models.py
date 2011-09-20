@@ -111,6 +111,16 @@ class Picker(models.Model):
             ).aggregate(Sum('initial_weight'))['initial_weight__sum']
         return total if (total is not None) else 0.0
 
+    def get_daily_totals(self, start_date, end_date):
+        """
+        Returns a list of all boxes picked between start_date and end_date.
+        """
+        return Box.objects.filter(
+            picker = self,
+            batch__date__gte = start_date,
+            batch__date__lte = end_date
+        )
+
     def get_time_worked(self, date, end_date = None):
         """
         Return total time worked that this picker has worked.
