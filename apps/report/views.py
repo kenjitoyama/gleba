@@ -226,7 +226,7 @@ def generate_report(request):
 
 @login_required
 def daily_totals(request, picker_id):
-    picker = Picker.objects.get(id = picker_id)
+    picker = get_object_or_404(Picker, pk = picker_id)
     try:
         start_date, end_date = get_date_from_request(request)
     except Exception as exc:
@@ -247,7 +247,7 @@ def daily_totals(request, picker_id):
 
 @login_required
 def daily_hours(request, picker_id):
-    picker = Picker.objects.get(id = picker_id)
+    picker = get_object_or_404(Picker, pk = picker_id)
     try:
         start_date, end_date = get_date_from_request(request)
     except Exception as exc:
@@ -268,5 +268,5 @@ def daily_hours(request, picker_id):
 
 @login_required
 def picker_report_page(request, picker_id):
-    picker = Picker.objects.get(id = picker_id)
+    picker = get_object_or_404(Picker, pk = picker_id)
     return render_to_response('picker_report.html')
