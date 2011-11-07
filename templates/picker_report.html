@@ -8,6 +8,9 @@
 <script>
 function get_totals() {
     var xhr = new XMLHttpRequest();
+    var start_date = document.getElementById('start_date').value;
+    var end_date = document.getElementById('end_date').value;
+    var post_params = 'start_date=' + start_date + '&end_date=' + end_date;
     xhr.onreadystatechange = function() {
         if(xhr.readyState == 4 && xhr.status == 200) {
             var data = JSON.parse(xhr.responseText);
@@ -15,12 +18,16 @@ function get_totals() {
                 add_box_to_table(data[i]);
         }
     };
-    xhr.open('GET', 'daily_totals.json', true);
-    xhr.send(null);
+    xhr.open('POST', 'daily_totals.json', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.send(post_params);
 }
 
 function get_hours() {
     var xhr = new XMLHttpRequest();
+    var start_date = document.getElementById('start_date').value;
+    var end_date = document.getElementById('end_date').value;
+    var post_params = 'start_date=' + start_date + '&end_date=' + end_date;
     xhr.onreadystatechange = function() {
         if(xhr.readyState == 4 && xhr.status == 200) {
             var data = JSON.parse(xhr.responseText);
@@ -28,8 +35,9 @@ function get_hours() {
                 add_bundy_to_table(data[i]);
         }
     };
-    xhr.open('GET', 'daily_hours.json', true);
-    xhr.send(null);
+    xhr.open('POST', 'daily_hours.json', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.send(post_params);
 }
 
 function binary_search_table(table, box, start_idx, end_idx) {
@@ -158,7 +166,9 @@ function add_bundy_to_table(bundy) {
     return true;
 }
 </script>
-<input id="get_totals_button" type="button" value="get_totals" onclick="get_totals()"/>
+<span>Start date</span><input id="start_date" type="date"/>
+<span>End date</span><input id="end_date" type="date"/>
+<input id="get_totals_button" type="button" value="Submit" onclick="get_totals(); get_hours();"/>
 <table id="boxes_table">
   <thead>
     <tr>
@@ -181,7 +191,6 @@ function add_bundy_to_table(bundy) {
   <p><span>Variance:</span><span id="variance"></span></p>
   <p><span>Standard Deviation:</span><span id="standard_deviation"></span></p>
 </div>
-<input id="get_hours_button" type="button" value="get_hours" onclick="get_hours()"/>
 <table id="bundy_table">
   <thead>
     <tr>

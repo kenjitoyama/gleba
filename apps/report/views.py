@@ -227,7 +227,14 @@ def generate_report(request):
 @login_required
 def daily_totals(request, picker_id):
     picker = Picker.objects.get(id = picker_id)
-    boxes = (picker.get_daily_totals('2011-02-03', '2011-09-19')
+    try:
+        start_date, end_date = get_date_from_request(request)
+    except Exception as exc:
+        error_list = ['Got an exception: {}'.format(exc),]
+        return render_to_response('error.html', {
+            'error_list': error_list,
+        })
+    boxes = (picker.get_daily_totals(start_date, end_date)
              .order_by('timestamp'))
     data = []
     for box in boxes:
@@ -241,7 +248,14 @@ def daily_totals(request, picker_id):
 @login_required
 def daily_hours(request, picker_id):
     picker = Picker.objects.get(id = picker_id)
-    bundies = (picker.get_daily_hours('2011-02-03', '2011-09-19')
+    try:
+        start_date, end_date = get_date_from_request(request)
+    except Exception as exc:
+        error_list = ['Got an exception: {}'.format(exc),]
+        return render_to_response('error.html', {
+            'error_list': error_list,
+        })
+    bundies = (picker.get_daily_hours(start_date, end_date)
                .order_by('time_in'))
     data = []
     for bundy in bundies:
