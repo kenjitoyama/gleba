@@ -51,6 +51,43 @@ function table_contains(table, box) {
     return binary_search_table(table, box, 0, table.rows.length);
 }
 
+/* extracts all cells from column from table */
+function extract_column(table, column) {
+    var data = [];
+    for(var i=0; i<table.rows.length; i++)
+        data.push(parseFloat(table.rows[i].cells[column].innerHTML));
+    return data;
+}
+
+/* calculates the sum of an array */
+function sum(a) {
+    var s = 0;
+    for(var i=0; i<a.length; i++)
+        s += a[i];
+    return s;
+}
+
+/* calculates the mean of an array */
+function mean(a) {
+    return sum(a) / a.length;
+}
+
+/* calculates the variance of an array */
+function variance(a) {
+    var result = 0;
+    var m = mean(a);
+    for(var i = 0; i < a.length; i++) {
+        var tmp = a[i] - m;
+        result += tmp * tmp;
+    }
+    return result / a.length;
+}
+
+/* calculates the standard deviation of an array */
+function std_deviation(a) {
+    return Math.sqrt(variance(a));
+}
+
 function add_box_to_table(box) {
     var tbl = document.getElementById('boxes_table').tBodies[0];
     var result = table_contains(tbl, box);
@@ -64,16 +101,18 @@ function add_box_to_table(box) {
     var timestamp_cell = new_row.insertCell(0);
     timestamp_cell.appendChild(document.createTextNode(box.timestamp));
     // update totals and stats
-    var total_cell = document.getElementById('total_initial_weight');
-    var total = parseFloat(total_cell.firstChild.nodeValue);
-    total += parseFloat(box.initial_weight);
-    total_cell.firstChild.nodeValue = total;
-    total_cell = document.getElementById('total_final_weight');
-    var avg = document.getElementById('average');
-    avg.innerHTML = total / tbl.rows.length;
-    total = parseFloat(total_cell.firstChild.nodeValue);
-    total += parseFloat(box.final_weight);
-    total_cell.firstChild.nodeValue = total;
+    var iw_array = extract_column(tbl, 1);
+    var fw_array = extract_column(tbl, 2);
+    var total_iw_cell = document.getElementById('total_initial_weight');
+    var total_fw_cell = document.getElementById('total_final_weight');
+    total_initial_weight.firstChild.nodeValue = sum(iw_array);
+    total_final_weight.firstChild.nodeValue = sum(fw_array);
+    var mean_ = document.getElementById('mean');
+    mean_.innerHTML = mean(iw_array);
+    var variance_ = document.getElementById('variance');
+    variance_.innerHTML = variance(iw_array);
+    var std_dev_ = document.getElementById('standard_deviation');
+    std_dev_.innerHTML = std_deviation(iw_array);
     return true;
 }
 
@@ -138,7 +177,9 @@ function add_bundy_to_table(bundy) {
   <tbody></tbody>
 </table>
 <div id="stats">
-  <p><span>Average:</span><span id="average"</span></p>
+  <p><span>Mean:</span><span id="mean"></span></p>
+  <p><span>Variance:</span><span id="variance"></span></p>
+  <p><span>Standard Deviation:</span><span id="standard_deviation"></span></p>
 </div>
 <input id="get_hours_button" type="button" value="get_hours" onclick="get_hours()"/>
 <table id="bundy_table">
