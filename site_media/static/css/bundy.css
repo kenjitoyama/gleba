@@ -10,3 +10,12 @@ h3 {
     text-align: center;
     font-size: 2em;
 }
+
+#keypad td:hover {
+    cursor: pointer;
+    background: #f0f0f0;
+}
+
+#keypad td:active {
+    background: #d0d0d0;
+}
