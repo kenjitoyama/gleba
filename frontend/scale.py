@@ -63,14 +63,14 @@ class ScaleProcess(multiprocessing.Process):
         """
         Returns the 'line' as given by a scale.
         """
-        return (self.output_format+'\n').format(float(weight))
+        return (self.output_format + '\n').format(float(weight))
 
 def extract_device_from_line(line):
     """
     Given a line with format '..... some_device' returns
     the string 'some_device'.
     """
-    return line[line.rfind(' ')+1:-1]
+    return line[line.rfind(' ') + 1 : -1]
 
 class Scale(Gtk.Window):
     def __init__(self, *args, **kwargs):
@@ -94,7 +94,6 @@ class Scale(Gtk.Window):
         self.scale_process = ScaleProcess(port = device_for_writes,
                                           queue = self.queue)
         self.scale_process.start()
-
         # GTK related stuff
         super(Scale, self).__init__()
         self.set_title("Scale simulator")
