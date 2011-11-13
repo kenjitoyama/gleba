@@ -27,9 +27,7 @@ Purpose:
     It writes a chosen weight to a serial port, just like a normal scale.
 """
 import serial
-import pygtk
-pygtk.require('2.0')
-import gtk
+from gi.repository import Gtk
 import multiprocessing
 import Queue # for Queue.Empty Exception
 import subprocess, shlex # for "forking socat"
@@ -74,7 +72,7 @@ def extract_device_from_line(line):
     """
     return line[line.rfind(' ')+1:-1]
 
-class Scale(gtk.Window):
+class Scale(Gtk.Window):
     def __init__(self, *args, **kwargs):
         command = SOCAT_EXECUTABLE + ' ' + SOCAT_ARGS
         self.socat_process = subprocess.Popen(shlex.split(command),
@@ -102,20 +100,19 @@ class Scale(gtk.Window):
         self.set_title("Scale simulator")
         self.connect("delete_event", self.delete_event)
         self.connect("destroy", self.destroy)
-        self.main_container = gtk.HBox()
+        self.main_container = Gtk.HBox()
         self.main_container.set_size_request(800, 40)
-        adj = gtk.Adjustment(0.0,   # initial value
+        adj = Gtk.Adjustment(0.0,   # initial value
                              0.0,   # lower bound
                              10.0,  # upper bound
                              0.001, # step increment
                              0,     # page increment
                              0)     # page size
         adj.connect('value_changed', self.slider_change)
-        self.slider = gtk.HScale(adj)
+        self.slider = Gtk.HScale.new(adj)
         self.slider.set_size_request(700, 20)
-        self.slider.set_update_policy(gtk.UPDATE_CONTINUOUS)
         self.slider.set_digits(3)
-        self.slider.set_value_pos(gtk.POS_TOP)
+        self.slider.set_value_pos(Gtk.PositionType.TOP)
         self.slider.set_draw_value(True)
         self.main_container.add(self.slider)
         self.add(self.main_container)
@@ -128,7 +125,7 @@ class Scale(gtk.Window):
         self.scale_process.terminate()
         self.scale_process.serial_port.close() # close serial port
         self.socat_process.terminate()
-        gtk.main_quit()
+        Gtk.main_quit()
 
     def slider_change(self, slider):
         """
@@ -143,4 +140,4 @@ class Scale(gtk.Window):
 
 if __name__ == '__main__':
     scale = Scale()
-    gtk.main()
+    Gtk.main()
