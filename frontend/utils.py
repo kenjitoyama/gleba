@@ -39,6 +39,8 @@ class ThreadSerial(threading.Thread):
     Starts a thread which consumes the serial port and returns the value of
     the weight as the get_weight method is called.
 
+    If opening the serial port fails, it will throw a serial.SerialException.
+
     As of 9/2/11 this is untested using a serial scale (just the simulator).
     """
     def __init__(self):
