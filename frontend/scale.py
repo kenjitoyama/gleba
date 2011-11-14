@@ -26,11 +26,11 @@ Purpose:
     Scale simulator.
     It writes a chosen weight to a serial port, just like a normal scale.
 """
-import serial
-from gi.repository import Gtk
 import multiprocessing
 import Queue # for Queue.Empty Exception
 import subprocess, shlex # for "forking socat"
+from gi.repository import Gtk
+import serial
 
 SOCAT_EXECUTABLE = '/usr/bin/socat'
 SOCAT_ARGS = '-d -d -u pty,raw,echo=0 pty,raw,echo=0'
