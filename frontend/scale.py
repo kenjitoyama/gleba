@@ -34,6 +34,7 @@ import subprocess, shlex # for "forking socat"
 
 SOCAT_EXECUTABLE = '/usr/bin/socat'
 SOCAT_ARGS = '-d -d -u pty,raw,echo=0 pty,raw,echo=0'
+CYCLE_TIME = 0.2
 
 class ScaleProcess(multiprocessing.Process):
     def __init__(self, output_format = None, *args, **kwargs):
@@ -54,7 +55,7 @@ class ScaleProcess(multiprocessing.Process):
         weight = '0.000'
         while self.is_alive():
             try:
-                weight = self.queue.get(True, 0.1)
+                weight = self.queue.get(True, CYCLE_TIME)
             except Queue.Empty:
                 pass
             self.serial_port.write(self.line(weight))
@@ -132,7 +133,7 @@ class Scale(Gtk.Window):
         """
         weight = str(slider.get_value())
         try:
-            self.queue.put(weight, True, 0.5)
+            self.queue.put(weight, True, CYCLE_TIME)
             print '' # bug in Python? See commit notes
         except Queue.Full:
             pass
