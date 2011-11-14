@@ -477,7 +477,7 @@ class MainWindow:
                 elif self.current_weight < self.min_weight:
                     self.change_state(UNDERWEIGHT_ADJUST)
                 else: # within acceptable range
-                    if self.weight_color != config.GREEN_COLOR:
+                    if self.current_state != REMOVE_BOX:
                         self.start_stop('green')
                     self.change_state(REMOVE_BOX)
                     if self.weight_window[0] == self.current_weight:
