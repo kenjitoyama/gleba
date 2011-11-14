@@ -24,13 +24,13 @@ Path:
 Purpose:
     This is a library of classes for use within the Gleba Software system
 """
-import serial
 import threading
 import urllib, urllib2, cookielib
 import re
 from xml.dom import minidom
-import config
 from json import dumps, loads
+import serial
+import config
 
 class ThreadSerial(threading.Thread):
     """
