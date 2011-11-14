@@ -31,9 +31,9 @@ from threading import Thread
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import Gst
+from gi.repository import GObject
 import utils
 import config
-import gobject
 
 AWAITING_BATCH = 0
 AWAITING_BOX = 1
@@ -414,7 +414,7 @@ class MainWindow:
             elif self.current_state == REMOVE_BOX:
                 self.show_weight = False
                 self.current_state = AWAITING_BOX
-        gobject.idle_add(self.set_status_feedback)
+        GObject.idle_add(self.set_status_feedback)
 
     def set_status_feedback(self):
         """
@@ -502,7 +502,7 @@ class MainWindow:
         self.player.set_state(Gst.State.PLAYING)
 
 if __name__ == '__main__':
-    gobject.threads_init()
+    GObject.threads_init()
     Gst.init(sys.argv)
     gui = MainWindow()
     gui.window.show_all()
