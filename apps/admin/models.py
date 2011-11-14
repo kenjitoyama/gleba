@@ -24,9 +24,9 @@ Path:
 Purpose:
     This module contains the data models of Gleba.
 """
+import datetime
 from django.db import models
 from django.db.models import Avg, Sum, Min, Max
-import datetime
 
 class Picker(models.Model):
     first_name = models.CharField(max_length = 50)
