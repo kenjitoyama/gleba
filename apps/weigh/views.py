@@ -25,13 +25,13 @@ Purpose:
     This package is used to provide a web api to allow data creation and 
     retrieval.
 """
+import json
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.template import Context
 from django.template.loader import get_template
 from django.http import HttpResponse
 from apps.admin.models import Picker, Batch, Variety, Box
-import json
 
 ################################################################################
 # Add data to the database

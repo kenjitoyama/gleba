@@ -24,12 +24,12 @@ Path:
 Purpose:
     This package is used to build and deliver reports on pickers time at work.
 """
-from django.shortcuts import render_to_response
-from django.contrib.auth.decorators import login_required
-from apps.admin.models import *
 import datetime
 import csv
+from django.shortcuts import render_to_response
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from apps.admin.models import *
 
 def write_list_to_file(file_handle, export_list):
     """

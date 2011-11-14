@@ -24,6 +24,7 @@ Path:
 Purpose:
     This module provides some customizations to the default Django admin page.
 """
+from django.contrib import admin
 from apps.admin.models import Picker
 from apps.admin.models import Room
 from apps.admin.models import Crop
@@ -32,7 +33,6 @@ from apps.admin.models import Batch
 from apps.admin.models import Variety
 from apps.admin.models import Box
 from apps.admin.models import Bundy
-from django.contrib import admin
 
 class PickerAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'active', 'discharged')
@@ -120,8 +120,6 @@ class BundyAdmin(admin.ModelAdmin):
         ('Picker',  {'fields': ['picker']}),
         ('Had Lunch', {'fields': ['had_lunch']}),
     ]
-
-
 
 admin.site.register(Picker, PickerAdmin)
 admin.site.register(Room, RoomAdmin)
