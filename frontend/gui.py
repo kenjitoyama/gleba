@@ -26,17 +26,14 @@ Purpose:
     Main interface to weigh boxes in Gleba.
 """
 import time
+import sys
 from threading import Thread
 from gi.repository import Gtk
 from gi.repository import Gdk
-import pygst
-pygst.require('0.10')
-import gst
+from gi.repository import Gst
 import utils
 import config
 import gobject
-
-gobject.threads_init()
 
 AWAITING_BATCH = 0
 AWAITING_BOX = 1
@@ -125,10 +122,7 @@ class MainWindow:
         self.data_model = DataModel()
         self.gui_init()
         # sound stuff
-        self.player = gst.element_factory_make('playbin2', 'player')
-        bus = self.player.get_bus()
-        bus.connect('message', self.bus_handler)
-        bus.add_signal_watch()
+        self.player = Gst.ElementFactory.make('playbin2', 'player')
         # Thread to read from scale (producer)
         self.serial_thread = utils.ThreadSerial()
         self.serial_thread.daemon = True
@@ -498,29 +492,18 @@ class MainWindow:
         """
         This method is used to play or stop a sound file.
         """
+        self.player.set_state(Gst.State.NULL)
         if sound == 'success':
             self.player.set_property('uri', config.SUCCESS_SOUND)
         elif sound == 'green':
             self.player.set_property('uri', config.GREEN_SOUND)
         elif sound == 'button':
             self.player.set_property('uri', config.BUTTON_SOUND)
-        self.player.set_state(gst.STATE_PLAYING)
-
-    def bus_handler(self, bus, message):
-        """
-        This callback is fired when messages for GStreamer happen.
-        """
-        message_type = message.type
-        if message_type == gst.MESSAGE_EOS:
-            self.player.set_state(gst.STATE_NULL)
-        elif message_type == gst.MESSAGE_ERROR:
-            self.player.set_state(gst.STATE_NULL)
-            err, debug = message.parse_error()
-            print('Error: {}'.format(err), debug)
-            print('Bus: {}'.format(str(bus)))
-        return True
+        self.player.set_state(Gst.State.PLAYING)
 
 if __name__ == '__main__':
+    gobject.threads_init()
+    Gst.init(sys.argv)
     gui = MainWindow()
     gui.window.show_all()
     Gtk.main()
