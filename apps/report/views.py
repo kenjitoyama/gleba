@@ -24,12 +24,12 @@ Path:
 Purpose:
    This package is used to provide dynamically generated reports from the data.
 """
+import json
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse
 from apps.admin.models import *
 from apps.utilities import date_range
-import json
 
 def get_date_from_request(request):
     """
