@@ -134,7 +134,7 @@ class Scale(Gtk.Window):
         weight = str(slider.get_value())
         try:
             self.queue.put(weight, True, CYCLE_TIME)
-            print '' # bug in Python? See commit notes
+            print('') # bug in Python? See commit fc96c938 notes
         except Queue.Full:
             pass
 

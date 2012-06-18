@@ -26,31 +26,61 @@ Purpose:
     It includes server settings and testing settings.
 """
 from os import getcwd
+from argparse import ArgumentParser
 
-# Serial Configuration
-SERIAL_PORT = '/dev/pts/5'
+arg_parser = ArgumentParser(description = 'Gleba frontend')
 
-# Django Configuration
-#    Full http url to the root of the django backend
-DJANGO_HTTP_URL = 'http://localhost:8000/'
+################################################################################
+# Command line arguments
+################################################################################
 
-# Backend username/password
-BACKEND_USERNAME = 'kenji'
-BACKEND_PASSWORD = 'k'
+arg_parser.add_argument(
+    '--serial_port',
+    help = 'Serial port to read from.')
 
-# Amount of measurements for a sliding window to achieve weight stability
-WEIGHT_WINDOW_SIZE = 100
+arg_parser.add_argument(
+    '--django_http_url',
+    default = 'http://localhost:8000/',
+    help = 'Full http url to the root of the django backend.')
 
-# BOX_WEIGHT represents the actual weight of a box in Kg without contents.
-BOX_WEIGHT = 0.2
+arg_parser.add_argument(
+    '--username',
+    help = 'Backend username (login).')
+
+arg_parser.add_argument(
+    '--password',
+    help = 'Backend password.')
+
+arg_parser.add_argument(
+    '--weight_window_size',
+    type = int,
+    default = 100,
+    help = 'Amount of measurements for a sliding window to achieve weight '
+           'stability.')
+
+arg_parser.add_argument(
+    '--box_weight',
+    type = float,
+    default = 0.2,
+    help = 'The actual weight of a box in Kg without contents.')
+
+arg_parser.add_argument(
+    '--window_width',
+    type = float,
+    default = 800.0,
+    help = 'The width (in pixels) of the GUI window')
+
+arg_parser.add_argument(
+    '--window_height',
+    type = float,
+    default = 600.0,
+    help = 'The height (in pixels) of the GUI window')
+
+args = arg_parser.parse_args()
 
 ################################################################################
 # GUI settings
 ################################################################################
-
-# Window size
-WINDOW_WIDTH  = 800.0
-WINDOW_HEIGHT = 600.0
 
 # Number of Picker columns
 PICKER_COLS = 3

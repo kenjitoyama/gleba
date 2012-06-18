@@ -52,7 +52,7 @@ class ThreadSerial(threading.Thread):
             r'^(ST|US),(GS|[A-Z]+), (\d+\.\d+)KG,$')
         self.scale_string = 'ST,GS, 0.0KG,'
         self.ser = serial.Serial()
-        self.ser.port = config.SERIAL_PORT
+        self.ser.port = config.args.serial_port
         self.ser.open()
 
     def run(self):
@@ -89,15 +89,15 @@ class DBAPI:
         """
         Logs the user in the backend.
 
-        config.BACKEND_USERNAME and config.BACKEND_PASSWORD will be used
-        to login to the backend. Make sure that this user and password
-        combination is correct, otherwise the GUI will fail to load.
+        config.args.username and config.args.password will be used to login to
+        the backend. Make sure that this user and password combination is
+        correct, otherwise the GUI will fail to load.
         The normal login redirects the user to the profile page, but instead
         we ask the backend to redirect the user to the root URL, and we simply
         ignore it.
         """
         cjar = cookielib.CookieJar()
-        login_url = config.DJANGO_HTTP_URL + 'accounts/login/?next=/'
+        login_url = config.args.django_http_url + 'accounts/login/?next=/'
         self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cjar))
         self.opener.open(login_url) # fetch csrftoken and sessionid
         csrf_token = ''
@@ -107,18 +107,19 @@ class DBAPI:
         if csrf_token == '':
             raise Exception('No CSRF token found. Check backend URL.')
         login_data = urllib.urlencode({
-            'username':            config.BACKEND_USERNAME,
-            'password':            config.BACKEND_PASSWORD,
+            'username':            config.args.username,
+            'password':            config.args.password,
             'csrfmiddlewaretoken': csrf_token
         })
         request = self.opener.open(login_url, login_data)
         assert(request.getcode() == 200) # check if successful
+        # TODO(kenji): Fail early if login was not successful
 
     def __del__(self):
         """
         Logs the user out from the backend.
         """
-        self.opener.open(config.DJANGO_HTTP_URL + 'accounts/logout/')
+        self.opener.open(config.args.django_http_url + 'accounts/logout/')
 
     def add_boxes(self, box_list):
         """
@@ -133,7 +134,7 @@ class DBAPI:
           'timestamp': timestamp (format is "%Y-%m-%d %H:%M:%S")
         },]
         """
-        full_address = config.DJANGO_HTTP_URL + 'add_boxes/'
+        full_address = config.args.django_http_url + 'add_boxes/'
         data = urllib.urlencode({'boxes': dumps(box_list)})
         request = self.opener.open(full_address, data)
         response = request.read()
@@ -144,7 +145,7 @@ class DBAPI:
         Parse an xml list of all the current pickers into a python list.
         """
         result = []
-        full_address = config.DJANGO_HTTP_URL + 'picker_list.xml'
+        full_address = config.args.django_http_url + 'picker_list.xml'
         xmldoc = minidom.parse(self.opener.open(full_address))
         for picker in xmldoc.getElementsByTagName("picker"):
             id_elem = picker.getElementsByTagName('id')[0]
@@ -160,7 +161,7 @@ class DBAPI:
         Parse an xml list of all the current batches into a python list.
         """
         result = []
-        full_address = config.DJANGO_HTTP_URL + 'batch_list.xml'
+        full_address = config.args.django_http_url + 'batch_list.xml'
         xmldoc = minidom.parse(self.opener.open(full_address))
         for batch in xmldoc.getElementsByTagName("batch"):
             batch_id = batch.getElementsByTagName('id')[0].firstChild.data
@@ -184,7 +185,7 @@ class DBAPI:
               for the number values
         """
         result = []
-        full_address = config.DJANGO_HTTP_URL + 'variety_list.xml'
+        full_address = config.args.django_http_url + 'variety_list.xml'
         xmldoc = minidom.parse(self.opener.open(full_address))
         for variety in xmldoc.getElementsByTagName('variety'):
             id_elem = variety.getElementsByTagName("id")[0]
@@ -201,21 +202,21 @@ class DBAPI:
         """
         Simply forwards the json object to the client.
         """
-        full_address = config.DJANGO_HTTP_URL + 'picker_list.json'
+        full_address = config.args.django_http_url + 'picker_list.json'
         return self.opener.open(full_address).read()
 
     def get_active_batches_json(self):
         """
         Simply forwards the json object to the client.
         """
-        full_address = config.DJANGO_HTTP_URL + 'batch_list.json'
+        full_address = config.args.django_http_url + 'batch_list.json'
         return self.opener.open(full_address).read()
 
     def get_active_varieties_json(self):
         """
         Simply forwards the json object to the client.
         """
-        full_address = config.DJANGO_HTTP_URL + 'variety_list.json'
+        full_address = config.args.django_http_url + 'variety_list.json'
         return self.opener.open(full_address).read()
 
     def get_active_pickers_list(self):

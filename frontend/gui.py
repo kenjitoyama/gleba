@@ -111,13 +111,15 @@ class MainWindow:
     current_picker_weight = 0
     show_weight = False
     min_weight = 0.0
-    weight_window = [0.0 for i in range(100)]
+    weight_window = [0.0 for i in range(config.args.weight_window_size)]
     weight_color = config.WHITE_COLOR
 
     def __init__(self):
         self.builder = Gtk.Builder()
         self.builder.add_from_file('gui.ui')
         self.window = self.builder.get_object('window')
+        self.window.set_default_size(config.args.window_width,
+                                     config.args.window_height)
         self.builder.connect_signals(self)
         self.data_model = DataModel()
         self.gui_init()
@@ -455,16 +457,16 @@ class MainWindow:
                 self.current_batch = batch_combo_box.get_active()
                 self.change_state()
             elif (save_weight and
-                  self.current_weight < config.BOX_WEIGHT): # save the box
+                  self.current_weight < config.args.box_weight): # save the box
                 save_weight = False
                 self.current_weight = stable_weight
                 self.save_box()
                 self.change_state(AWAITING_BOX)
             elif (self.current_state == AWAITING_BOX and
-                  self.current_weight > config.BOX_WEIGHT):
+                  self.current_weight > config.args.box_weight):
                 self.change_state()
             elif (self.current_batch is not None and
-                  self.current_weight < config.BOX_WEIGHT):
+                  self.current_weight < config.args.box_weight):
                 self.change_state(AWAITING_BOX)
             elif self.show_weight:
                 self.weight_window.pop(0)
