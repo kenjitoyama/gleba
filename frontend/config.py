@@ -95,7 +95,6 @@ OFFSET_STYLE = '<span foreground="#ffffff" font="Calibri 30">{0:+.3f}</span>'
 NA_MARKUP = '<span foreground="#000000" font_desc="Calibri 30">N/A</span>'
 
 WHITE_COLOR = (0xffff, 0xffff, 0xffff)
-BLACK_COLOR = (0x0000, 0x0000, 0x0000)
 RED_COLOR   = (0xffff, 0x0000, 0x0000)
 GREEN_COLOR = (0x0000, 0xffff, 0x0000)
 BLUE_COLOR  = (0x0000, 0x0000, 0xffff)
