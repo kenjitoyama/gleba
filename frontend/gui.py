@@ -390,7 +390,8 @@ class MainWindow:
 
         The natural order is: AWAITING_BATCH -> AWAITING_BOX ->
         AWAITING_VARIETY -> AWAITING_PICKER -> UNDERWEIGHT|OVERWEIGHT|REMOVE_BOX
-        If state is not given, the "next" one in the list follows.
+        If state is given, the "next" state is set to the parameter, otherwise
+        it follows the natural order.
         """
         if state:
             self.current_state = state
