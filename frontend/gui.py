@@ -25,14 +25,14 @@ Path:
 Purpose:
     Main interface to weigh boxes in Gleba.
 """
-import time
-import sys
+from time import strftime, localtime, sleep
+from sys import argv
 from threading import Thread
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import Gst
 from gi.repository import GObject
-import utils
+from utils import ThreadSerial, DBAPI
 import config
 
 AWAITING_BATCH = 0
@@ -59,7 +59,7 @@ class DataModel:
     Represents the model in the MVC paradigm.
     """
     def __init__(self):
-        self.db_conn = utils.DBAPI()
+        self.db_conn = DBAPI()
         self.batches   = self.db_conn.get_active_batches_list()
         self.pickers   = self.db_conn.get_active_pickers_list()
         self.varieties = self.db_conn.get_active_varieties_list()
@@ -126,7 +126,7 @@ class MainWindow:
         # sound stuff
         self.player = Gst.ElementFactory.make('playbin2', 'player')
         # Thread to read from scale (producer)
-        self.serial_thread = utils.ThreadSerial()
+        self.serial_thread = ThreadSerial()
         self.serial_thread.daemon = True
         self.serial_thread.start()
         # Thread to process stuff (consumer)
@@ -291,8 +291,8 @@ class MainWindow:
         model.set_value(iterator, 5,  selected_batch['room_number'])
         model.set_value(iterator, 6,  selected_variety['id'])
         model.set_value(iterator, 7,  selected_variety['name'])
-        model.set_value(iterator, 10, time.strftime('%Y-%m-%d %H:%M:%S',
-                                      time.localtime() ))
+        model.set_value(iterator, 10, strftime('%Y-%m-%d %H:%M:%S',
+                                               localtime()))
         self.builder.get_object('edit_window').hide()
 
     def delete_history_callback(self, button):
@@ -355,10 +355,9 @@ class MainWindow:
             batch['room_number'],
             variety['id'],
             variety['name'],
-            self.current_picker_weight,        # initial_weight
-            self.current_weight,               # final_weight
-            time.strftime('%Y-%m-%d %H:%M:%S', # timestamp
-                          time.localtime())
+            self.current_picker_weight,                # initial_weight
+            self.current_weight,                       # final_weight
+            strftime('%Y-%m-%d %H:%M:%S', localtime()) # timestamp
         ))
         self.current_picker = self.current_variety = None
 
@@ -488,7 +487,7 @@ class MainWindow:
                     if not save_weight:
                         stable_weight = self.current_weight
                         save_weight = True
-            time.sleep(0.01)
+            sleep(0.01)
 
     def start_stop(self, sound):
         """
@@ -505,7 +504,7 @@ class MainWindow:
 
 if __name__ == '__main__':
     GObject.threads_init()
-    Gst.init(sys.argv)
+    Gst.init(argv)
     gui = MainWindow()
     gui.window.show_all()
     Gtk.main()

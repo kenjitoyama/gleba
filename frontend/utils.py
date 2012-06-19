@@ -24,14 +24,16 @@ Path:
 Purpose:
     This is a library of classes for use within the Gleba Software system
 """
-import threading
-import urllib, urllib2, cookielib
-import re
+from threading import Thread
+from urllib import urlencode
+from urllib2 import build_opener, HTTPCookieProcessor
+from cookielib import CookieJar
+from re import compile
 from json import dumps, loads
-import serial
-import config
+from serial import Serial
+from config import args
 
-class ThreadSerial(threading.Thread):
+class ThreadSerial(Thread):
     """
     Opens a serial connection on the port specified in config.py.
 
@@ -46,37 +48,36 @@ class ThreadSerial(threading.Thread):
         """
         Sets up the running environment for reading the serial port.
         """
-        threading.Thread.__init__(self)
-        self.pattern_matcher = re.compile(
-            r'^(ST|US),(GS|[A-Z]+), (\d+\.\d+)KG,$')
+        Thread.__init__(self)
+        self.pattern_matcher = compile(r'^(ST|US),(GS|[A-Z]+), (\d+\.\d+)KG,$')
         self.scale_string = 'ST,GS, 0.0KG,'
-        self.ser = serial.Serial()
-        self.ser.port = config.args.serial_port
+        self.ser = Serial()
+        self.ser.port = args.serial_port
         self.ser.open()
 
     def run(self):
         """
-        Read serial until thread killed
+        Read serial port until thread killed.
         """
         while self.ser.isOpen():
             self.scale_string = self.ser.readline()
 
     def is_stable(self):
         """
-        Return true iff the weight on the scale is stable
+        Return true iff the weight on the scale is stable.
         """
         return self.pattern_matcher.findall(self.scale_string)[0][0] == 'ST'
 
     def get_weight(self):
         """
-        Returns the value of the weight on the scale as float
+        Returns the value of the weight on the scale as float.
         """
         return float(self.pattern_matcher.findall(self.scale_string)[0][2])
 
     def kill(self):
         """
         Called when thread must be killed. Causes loop of thread to
-        terminate and thread to die
+        terminate and thread to die.
         """
         self.ser.close()
 
@@ -88,16 +89,16 @@ class DBAPI:
         """
         Logs the user in the backend.
 
-        config.args.username and config.args.password will be used to login to
+        args.username and args.password will be used to login to
         the backend. Make sure that this user and password combination is
         correct, otherwise the GUI will fail to load.
         The normal login redirects the user to the profile page, but instead
         we ask the backend to redirect the user to the root URL, and we simply
         ignore it.
         """
-        cjar = cookielib.CookieJar()
-        login_url = config.args.django_http_url + 'accounts/login/?next=/'
-        self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cjar))
+        cjar = CookieJar()
+        login_url = args.django_http_url + 'accounts/login/?next=/'
+        self.opener = build_opener(HTTPCookieProcessor(cjar))
         self.opener.open(login_url) # fetch csrftoken and sessionid
         csrf_token = ''
         for cookie in cjar:
@@ -105,9 +106,9 @@ class DBAPI:
                 csrf_token = cookie.value
         if csrf_token == '':
             raise Exception('No CSRF token found. Check backend URL.')
-        login_data = urllib.urlencode({
-            'username':            config.args.username,
-            'password':            config.args.password,
+        login_data = urlencode({
+            'username':            args.username,
+            'password':            args.password,
             'csrfmiddlewaretoken': csrf_token
         })
         request = self.opener.open(login_url, login_data)
@@ -118,7 +119,7 @@ class DBAPI:
         """
         Logs the user out from the backend.
         """
-        self.opener.open(config.args.django_http_url + 'accounts/logout/')
+        self.opener.open(args.django_http_url + 'accounts/logout/')
 
     def add_boxes(self, box_list):
         """
@@ -133,8 +134,8 @@ class DBAPI:
           'timestamp': timestamp (format is "%Y-%m-%d %H:%M:%S")
         },]
         """
-        full_address = config.args.django_http_url + 'add_boxes/'
-        data = urllib.urlencode({'boxes': dumps(box_list)})
+        full_address = args.django_http_url + 'add_boxes/'
+        data = urlencode({'boxes': dumps(box_list)})
         request = self.opener.open(full_address, data)
         response = request.read()
         return True if (response == 'success\n') else response
@@ -143,21 +144,21 @@ class DBAPI:
         """
         Simply forwards the json object to the client.
         """
-        full_address = config.args.django_http_url + 'picker_list.json'
+        full_address = args.django_http_url + 'picker_list.json'
         return self.opener.open(full_address).read()
 
     def get_active_batches_json(self):
         """
         Simply forwards the json object to the client.
         """
-        full_address = config.args.django_http_url + 'batch_list.json'
+        full_address = args.django_http_url + 'batch_list.json'
         return self.opener.open(full_address).read()
 
     def get_active_varieties_json(self):
         """
         Simply forwards the json object to the client.
         """
-        full_address = config.args.django_http_url + 'variety_list.json'
+        full_address = args.django_http_url + 'variety_list.json'
         return self.opener.open(full_address).read()
 
     def get_active_pickers_list(self):
