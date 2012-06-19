@@ -27,7 +27,6 @@ Purpose:
 import threading
 import urllib, urllib2, cookielib
 import re
-from xml.dom import minidom
 from json import dumps, loads
 import serial
 import config
@@ -139,64 +138,6 @@ class DBAPI:
         request = self.opener.open(full_address, data)
         response = request.read()
         return True if (response == 'success\n') else response
-
-    def get_active_pickers_xml(self):
-        """
-        Parse an xml list of all the current pickers into a python list.
-        """
-        result = []
-        full_address = config.args.django_http_url + 'picker_list.xml'
-        xmldoc = minidom.parse(self.opener.open(full_address))
-        for picker in xmldoc.getElementsByTagName("picker"):
-            id_elem = picker.getElementsByTagName('id')[0]
-            fname_elem = picker.getElementsByTagName('first_name')[0]
-            lname_elem = picker.getElementsByTagName('last_name')[0]
-            result.append([id_elem.firstChild.data,
-                           fname_elem.firstChild.data,
-                           lname_elem.firstChild.data])
-        return result
-
-    def get_active_batches_xml(self):
-        """
-        Parse an xml list of all the current batches into a python list.
-        """
-        result = []
-        full_address = config.args.django_http_url + 'batch_list.xml'
-        xmldoc = minidom.parse(self.opener.open(full_address))
-        for batch in xmldoc.getElementsByTagName("batch"):
-            batch_id = batch.getElementsByTagName('id')[0].firstChild.data
-            date_elem = batch.getElementsByTagName('date')[0]
-            day = date_elem.getElementsByTagName('day')[0].firstChild.data
-            month = date_elem.getElementsByTagName('month')[0].firstChild.data
-            year = date_elem.getElementsByTagName('year')[0].firstChild.data
-            room_elem = batch.getElementsByTagName('room')[0]
-            room_number = (room_elem.getElementsByTagName('number')[0]
-                           .firstChild.data)
-            date_format = '{}/{}/{}'
-            batch_date = date_format.format(day, month, year)
-            result.append([batch_id, batch_date, room_number])
-        return result
-
-    def get_active_varieties_xml(self):
-        """
-        Parse an xml list of all varieties into a python list
-
-        NOTE: as of 11/2/2011 the list now performs the cast to float
-              for the number values
-        """
-        result = []
-        full_address = config.args.django_http_url + 'variety_list.xml'
-        xmldoc = minidom.parse(self.opener.open(full_address))
-        for variety in xmldoc.getElementsByTagName('variety'):
-            id_elem = variety.getElementsByTagName("id")[0]
-            name_elem = variety.getElementsByTagName("name")[0]
-            iw_elem = variety.getElementsByTagName("minimum_weight")[0]
-            fw_elem = variety.getElementsByTagName("tolerance")[0]
-            result.append([id_elem.firstChild.data,
-                           name_elem.firstChild.data,
-                           float(iw_elem.firstChild.data),
-                           float(fw_elem.firstChild.data)])
-        return result
 
     def get_active_pickers_json(self):
         """

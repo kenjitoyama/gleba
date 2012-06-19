@@ -7,9 +7,9 @@ admin.autodiscover()
 # Database interaction
 urlpatterns = patterns('apps.weigh.views',
     (r'^add_boxes/$'             , 'add_boxes'),
-    (r'^picker_list.(xml|json)$' , 'get_picker_list'),
-    (r'^batch_list.(xml|json)$'  , 'get_batch_list'),
-    (r'^variety_list.(xml|json)$', 'get_variety_list'),
+    (r'^picker_list.json$',  'get_picker_list'),
+    (r'^batch_list.json$',   'get_batch_list'),
+    (r'^variety_list.json$', 'get_variety_list'),
 )
 
 # Production Reports

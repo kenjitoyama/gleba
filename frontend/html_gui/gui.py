@@ -31,10 +31,10 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, sep
 from json import dumps, loads
 from cgi import parse_qs
-import sys
-sys.path.append('..')
+from sys import path
+path.append('..')
 from utils import ThreadSerial, DBAPI
-from config import BOX_WEIGHT
+from config import args
 
 HOSTNAME = '0.0.0.0'
 PORT_NUMBER = 45322 # 'gleba' in numpad letters
@@ -53,21 +53,6 @@ class GUIHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
             self.wfile.write(str(self.serial_thread.get_weight()))
-        elif(self.path == '/active_pickers'):
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(dumps(self.db_connection.get_active_pickers()))
-        elif(self.path == '/active_batches'):
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(dumps(self.db_connection.get_active_batches()))
-        elif(self.path == '/active_varieties'):
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(dumps(self.db_connection.get_active_varieties()))
         elif(self.path == '/active_pickers.json'):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -87,7 +72,7 @@ class GUIHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
-            self.wfile.write(BOX_WEIGHT)
+            self.wfile.write(args.box_weight)
         elif(self.path == '/gui.html'):
             req_file = open(curdir + sep + self.path)
             self.send_response(200)

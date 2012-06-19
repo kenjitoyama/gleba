@@ -94,84 +94,57 @@ def add_boxes(request):
 ################################################################################
 # Retrieve data from the database
 ################################################################################
+
 @login_required
-def get_picker_list(request, result_format):
+def get_picker_list(request):
     """
     Returns the list of Pickers that are active and not discharged.
 
-    The result is either an XML or JSON file depending on result_format.
+    The result is a JSON file.
     """
     picker_list = (Picker.objects.filter(active = True, discharged = False)
                                 .order_by('id'))
-    if result_format == 'xml':
-        templ = get_template('picker_list.xml')
-        context = Context({'picker_list': picker_list,})
-        return HttpResponse(templ.render(context), mimetype = 'text/xml')
-    elif result_format == 'json':
-        data = [{
-            'id': picker.id,
-            'first_name': picker.first_name,
-            'last_name': picker.last_name
-        } for picker in picker_list]
-        return HttpResponse(json.dumps(data), mimetype = 'application/json')
-    else:
-        return render_to_response('error.html', {
-            'error_list' : ['URL Pattern Matched failed to parse (xml|json)',]
-        })
+    data = [{
+        'id': picker.id,
+        'first_name': picker.first_name,
+        'last_name': picker.last_name
+    } for picker in picker_list]
+    return HttpResponse(json.dumps(data), mimetype = 'application/json')
 
 @login_required
-def get_batch_list(request, result_format):
+def get_batch_list(request):
     """
     Returns the list of Batches that are not finished yet
     (i.e. end_date is null).
 
-    The result is either an XML or JSON file depending on result_format.
+    The result is a JSON file.
     """
     batch_list = (Batch.objects.filter(flush__end_date__isnull = True)
                               .order_by('id'))
-    if result_format == 'xml':
-        templ = get_template('batch_list.xml')
-        context = Context({'batch_list': batch_list,})
-        return HttpResponse(templ.render(context), mimetype = 'text/xml')
-    elif result_format == 'json':
-        data = [{
-            'id': batch.id,
-            'flush_number': batch.flush.flush_no,
-            'room_number': batch.flush.crop.room.number,
-            'date': {
-                'day': batch.date.day,
-                'month': batch.date.month,
-                'year': batch.date.year,
-            }
-        } for batch in batch_list]
-        return HttpResponse(json.dumps(data), mimetype = 'application/json')
-    else:
-        return render_to_response('error.html', {
-            'error_list' : ['URL Pattern Matched failed to parse (xml|json)',]
-        })
+    data = [{
+        'id': batch.id,
+        'flush_number': batch.flush.flush_no,
+        'room_number': batch.flush.crop.room.number,
+        'date': {
+            'day': batch.date.day,
+            'month': batch.date.month,
+            'year': batch.date.year,
+        }
+    } for batch in batch_list]
+    return HttpResponse(json.dumps(data), mimetype = 'application/json')
 
 @login_required
-def get_variety_list(request, result_format):
+def get_variety_list(request):
     """
     Returns the list of Varieties that are still being used.
 
-    The result is either an XML or JSON file depending on result_format.
+    The result is a JSON file.
     """
     variety_list = Variety.objects.filter(active = True).order_by('name')
-    if result_format == 'xml':
-        templ = get_template('variety_list.xml')
-        context = Context({'variety_list': variety_list,}) 
-        return HttpResponse(templ.render(context), mimetype = 'text/xml')
-    elif result_format == 'json':
-        data = [{
-            'id': variety.id,
-            'name': variety.name,
-            'minimum_weight': variety.minimum_weight,
-            'tolerance': variety.tolerance
-        } for variety in variety_list]
-        return HttpResponse(json.dumps(data), mimetype = 'application/json')
-    else:
-        return render_to_response('error.html', {
-            'error_list' : ['URL Pattern Matched failed to parse (xml|json)',]
-        })
-
+    data = [{
+        'id': variety.id,
+        'name': variety.name,
+        'minimum_weight': variety.minimum_weight,
+        'tolerance': variety.tolerance
+    } for variety in variety_list]
+    return HttpResponse(json.dumps(data), mimetype = 'application/json')
